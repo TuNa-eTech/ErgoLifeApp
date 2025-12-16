@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
+import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
+import 'package:ergo_life_app/ui/screens/rank/rank_screen.dart';
+import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
+import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
+
+class AppRouter {
+  static const String home = '/';
+  static const String rank = '/rank';
+  static const String tasks = '/tasks';
+  static const String profile = '/profile';
+
+  static final GoRouter router = GoRouter(
+    initialLocation: home,
+    debugLogDiagnostics: true,
+    routes: [
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainShellScreen(navigationShell: navigationShell);
+        },
+        branches: [
+          // Home (Arena) Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: home,
+                name: 'home',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: HomeScreen(),
+                ),
+              ),
+            ],
+          ),
+          // Rank Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: rank,
+                name: 'rank',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: RankScreen(),
+                ),
+              ),
+            ],
+          ),
+          // Tasks Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: tasks,
+                name: 'tasks',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: TasksScreen(),
+                ),
+              ),
+            ],
+          ),
+          // Profile Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: profile,
+                name: 'profile',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: ProfileScreen(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(
+        title: const Text('Error'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Page not found',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.uri.toString(),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => context.go(home),
+              icon: const Icon(Icons.home),
+              label: const Text('Go to Home'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
