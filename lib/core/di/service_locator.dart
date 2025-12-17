@@ -34,12 +34,8 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<StorageService>(() => StorageService(sl()));
 
   // ===== Data - Repositories =====
-  sl.registerLazySingleton<UserRepository>(
-    () => UserRepository(sl(), sl()),
-  );
-  sl.registerLazySingleton<SessionRepository>(
-    () => SessionRepository(sl()),
-  );
+  sl.registerLazySingleton<UserRepository>(() => UserRepository(sl(), sl()));
+  sl.registerLazySingleton<SessionRepository>(() => SessionRepository(sl()));
 
   // ===== BLoCs/Cubits =====
   // Use factory for Cubits so each screen gets a new instance

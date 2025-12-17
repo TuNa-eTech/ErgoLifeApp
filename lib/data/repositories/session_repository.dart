@@ -34,10 +34,10 @@ class SessionRepository {
     required String description,
   }) async {
     try {
-      final response = await _apiService.post('/sessions/start', data: {
-        'title': title,
-        'description': description,
-      });
+      final response = await _apiService.post(
+        '/sessions/start',
+        data: {'title': title, 'description': description},
+      );
       return SessionModel.fromJson(response.data);
     } catch (e) {
       rethrow;

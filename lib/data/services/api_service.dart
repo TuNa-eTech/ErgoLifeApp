@@ -33,7 +33,10 @@ class ApiService {
           }
 
           if (AppConfig.enableLogging) {
-            AppLogger.info('🚀 ${options.method} => ${options.uri}', 'ApiService');
+            AppLogger.info(
+              '🚀 ${options.method} => ${options.uri}',
+              'ApiService',
+            );
           }
 
           return handler.next(options);
@@ -72,7 +75,10 @@ class ApiService {
     _authToken = null;
   }
 
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     return await _dio.get(path, queryParameters: queryParameters);
   }
 

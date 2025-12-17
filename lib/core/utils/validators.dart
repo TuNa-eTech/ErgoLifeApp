@@ -54,7 +54,11 @@ class Validators {
   }
 
   /// Validate minimum length
-  static String? minLength(String? value, int length, {String fieldName = 'This field'}) {
+  static String? minLength(
+    String? value,
+    int length, {
+    String fieldName = 'This field',
+  }) {
     if (value == null || value.isEmpty) {
       return '$fieldName is required';
     }
@@ -67,7 +71,11 @@ class Validators {
   }
 
   /// Validate maximum length
-  static String? maxLength(String? value, int length, {String fieldName = 'This field'}) {
+  static String? maxLength(
+    String? value,
+    int length, {
+    String fieldName = 'This field',
+  }) {
     if (value == null || value.isEmpty) {
       return null;
     }

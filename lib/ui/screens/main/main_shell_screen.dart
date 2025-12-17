@@ -5,10 +5,7 @@ import 'package:ergo_life_app/core/config/theme_config.dart';
 class MainShellScreen extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
-  const MainShellScreen({
-    super.key,
-    required this.navigationShell,
-  });
+  const MainShellScreen({super.key, required this.navigationShell});
 
   @override
   State<MainShellScreen> createState() => _MainShellScreenState();
@@ -21,26 +18,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
     return Scaffold(
       body: widget.navigationShell,
-      floatingActionButton: _buildFAB(context),
       bottomNavigationBar: _buildBottomNavBar(context, isDark),
-    );
-  }
-
-  Widget _buildFAB(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: FloatingActionButton(
-        onPressed: () {
-          // TODO: Add task action
-        },
-        backgroundColor: AppColors.secondary,
-        elevation: 8,
-        child: const Icon(
-          Icons.add,
-          size: 32,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 
@@ -110,7 +88,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
   }) {
     final isSelected = widget.navigationShell.currentIndex == index;
     final selectedColor = AppColors.primary;
-    final unselectedColor = isDark ? AppColors.textSubDark : AppColors.textSubLight;
+    final unselectedColor = isDark
+        ? AppColors.textSubDark
+        : AppColors.textSubLight;
 
     return GestureDetector(
       onTap: () => widget.navigationShell.goBranch(

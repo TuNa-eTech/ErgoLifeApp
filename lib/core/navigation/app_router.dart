@@ -4,6 +4,8 @@ import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
 import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
 import 'package:ergo_life_app/ui/screens/rank/rank_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
+import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
+import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
 import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
 
 class AppRouter {
@@ -11,6 +13,8 @@ class AppRouter {
   static const String rank = '/rank';
   static const String tasks = '/tasks';
   static const String profile = '/profile';
+  static const String createTask = '/create-task';
+  static const String activeSession = '/active-session';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -27,9 +31,8 @@ class AppRouter {
               GoRoute(
                 path: home,
                 name: 'home',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: HomeScreen(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: HomeScreen()),
               ),
             ],
           ),
@@ -39,9 +42,8 @@ class AppRouter {
               GoRoute(
                 path: rank,
                 name: 'rank',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: RankScreen(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: RankScreen()),
               ),
             ],
           ),
@@ -51,9 +53,8 @@ class AppRouter {
               GoRoute(
                 path: tasks,
                 name: 'tasks',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: TasksScreen(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: TasksScreen()),
               ),
             ],
           ),
@@ -63,28 +64,38 @@ class AppRouter {
               GoRoute(
                 path: profile,
                 name: 'profile',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ProfileScreen(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfileScreen()),
               ),
             ],
           ),
         ],
       ),
+      // Top-level routes (outside shell)
+      GoRoute(
+        path: createTask,
+        name: 'createTask',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: const CreateTaskScreen(),
+        ),
+      ),
+      GoRoute(
+        path: activeSession,
+        name: 'activeSession',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: const ActiveSessionScreen(),
+        ),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(
-        title: const Text('Error'),
-      ),
+      appBar: AppBar(title: const Text('Error')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               'Page not found',

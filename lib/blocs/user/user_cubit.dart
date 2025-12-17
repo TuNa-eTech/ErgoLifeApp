@@ -65,7 +65,7 @@ class UserCubit extends Cubit<UserState> {
       // If no cache, get default user (or fetch from API)
       final user = _repository.getDefaultUser();
       await _repository.cacheUser(user);
-      
+
       AppLogger.success('User loaded successfully', 'UserCubit');
       emit(UserLoaded(user));
     } catch (e) {

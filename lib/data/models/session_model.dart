@@ -27,8 +27,8 @@ class SessionModel extends Equatable {
       description: json['description'] as String,
       duration: json['duration'] as int,
       startTime: DateTime.parse(json['start_time'] as String),
-      endTime: json['end_time'] != null 
-          ? DateTime.parse(json['end_time'] as String) 
+      endTime: json['end_time'] != null
+          ? DateTime.parse(json['end_time'] as String)
           : null,
       status: json['status'] as String,
     );
@@ -73,5 +73,13 @@ class SessionModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, description, duration, startTime, endTime, status];
+  List<Object?> get props => [
+    id,
+    title,
+    description,
+    duration,
+    startTime,
+    endTime,
+    status,
+  ];
 }

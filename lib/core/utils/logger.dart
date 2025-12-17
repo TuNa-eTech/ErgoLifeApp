@@ -21,7 +21,12 @@ class AppLogger {
     }
   }
 
-  static void error(String message, [dynamic error, StackTrace? stackTrace, String? tag]) {
+  static void error(
+    String message, [
+    dynamic error,
+    StackTrace? stackTrace,
+    String? tag,
+  ]) {
     if (_enableLogging) {
       print('❌ ${tag != null ? '[$tag] ' : ''}$message');
       if (error != null) print('Error: $error');

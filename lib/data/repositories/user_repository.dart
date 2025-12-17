@@ -44,12 +44,15 @@ class UserRepository {
   // Update user
   Future<UserModel> updateUser(UserModel user) async {
     try {
-      final response = await _apiService.put('/user/profile', data: user.toJson());
+      final response = await _apiService.put(
+        '/user/profile',
+        data: user.toJson(),
+      );
       final updatedUser = UserModel.fromJson(response.data);
-      
+
       // Cache the updated user
       await cacheUser(updatedUser);
-      
+
       return updatedUser;
     } catch (e) {
       rethrow;

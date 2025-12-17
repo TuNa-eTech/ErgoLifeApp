@@ -44,7 +44,8 @@ class ApiClient {
         onResponse: (response, handler) {
           if (AppConfig.enableLogging) {
             print(
-                '✅ RESPONSE[${response.statusCode}] => ${response.requestOptions.uri}');
+              '✅ RESPONSE[${response.statusCode}] => ${response.requestOptions.uri}',
+            );
             print('Data: ${response.data}');
           }
 
@@ -52,7 +53,9 @@ class ApiClient {
         },
         onError: (error, handler) {
           if (AppConfig.enableLogging) {
-            print('❌ ERROR[${error.response?.statusCode}] => ${error.requestOptions.uri}');
+            print(
+              '❌ ERROR[${error.response?.statusCode}] => ${error.requestOptions.uri}',
+            );
             print('Message: ${error.message}');
             print('Data: ${error.response?.data}');
           }
@@ -177,10 +180,7 @@ class ApiClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return ServerException(
-          message: 'Connection timeout',
-          error: error,
-        );
+        return ServerException(message: 'Connection timeout', error: error);
 
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
@@ -199,19 +199,13 @@ class ApiClient {
         }
 
       case DioExceptionType.cancel:
-        return ServerException(
-          message: 'Request cancelled',
-          error: error,
-        );
+        return ServerException(message: 'Request cancelled', error: error);
 
       case DioExceptionType.connectionError:
         return NetworkException(error: error);
 
       case DioExceptionType.badCertificate:
-        return ServerException(
-          message: 'Bad certificate',
-          error: error,
-        );
+        return ServerException(message: 'Bad certificate', error: error);
 
       case DioExceptionType.unknown:
         return ServerException(

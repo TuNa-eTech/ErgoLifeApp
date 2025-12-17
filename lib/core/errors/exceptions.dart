@@ -3,24 +3,18 @@ class AppException implements Exception {
   final String message;
   final dynamic error;
 
-  AppException({
-    required this.message,
-    this.error,
-  });
+  AppException({required this.message, this.error});
 
   @override
-  String toString() => 'AppException: $message${error != null ? ' - $error' : ''}';
+  String toString() =>
+      'AppException: $message${error != null ? ' - $error' : ''}';
 }
 
 /// Server exception - thrown when API returns an error
 class ServerException extends AppException {
   final int? statusCode;
 
-  ServerException({
-    required super.message,
-    this.statusCode,
-    super.error,
-  });
+  ServerException({required super.message, this.statusCode, super.error});
 
   @override
   String toString() =>
@@ -29,35 +23,27 @@ class ServerException extends AppException {
 
 /// Cache exception - thrown when local storage operations fail
 class CacheException extends AppException {
-  CacheException({
-    required super.message,
-    super.error,
-  });
+  CacheException({required super.message, super.error});
 
   @override
-  String toString() => 'CacheException: $message${error != null ? ' - $error' : ''}';
+  String toString() =>
+      'CacheException: $message${error != null ? ' - $error' : ''}';
 }
 
 /// Network exception - thrown when there's no internet connection
 class NetworkException extends AppException {
-  NetworkException({
-    super.message = 'No internet connection',
-    super.error,
-  });
+  NetworkException({super.message = 'No internet connection', super.error});
 
   @override
-  String toString() => 'NetworkException: $message${error != null ? ' - $error' : ''}';
+  String toString() =>
+      'NetworkException: $message${error != null ? ' - $error' : ''}';
 }
 
 /// Validation exception - thrown when data validation fails
 class ValidationException extends AppException {
   final Map<String, String>? errors;
 
-  ValidationException({
-    required super.message,
-    this.errors,
-    super.error,
-  });
+  ValidationException({required super.message, this.errors, super.error});
 
   @override
   String toString() =>
@@ -66,22 +52,18 @@ class ValidationException extends AppException {
 
 /// Unauthorized exception - thrown when user is not authenticated
 class UnauthorizedException extends AppException {
-  UnauthorizedException({
-    super.message = 'Unauthorized',
-    super.error,
-  });
+  UnauthorizedException({super.message = 'Unauthorized', super.error});
 
   @override
-  String toString() => 'UnauthorizedException: $message${error != null ? ' - $error' : ''}';
+  String toString() =>
+      'UnauthorizedException: $message${error != null ? ' - $error' : ''}';
 }
 
 /// Not found exception - thrown when requested resource is not found
 class NotFoundException extends AppException {
-  NotFoundException({
-    super.message = 'Resource not found',
-    super.error,
-  });
+  NotFoundException({super.message = 'Resource not found', super.error});
 
   @override
-  String toString() => 'NotFoundException: $message${error != null ? ' - $error' : ''}';
+  String toString() =>
+      'NotFoundException: $message${error != null ? ' - $error' : ''}';
 }
