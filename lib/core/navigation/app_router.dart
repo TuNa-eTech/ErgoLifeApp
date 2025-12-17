@@ -7,8 +7,14 @@ import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
 import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
+import 'package:ergo_life_app/ui/screens/splash/splash_screen.dart';
+import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
+import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
 
 class AppRouter {
+  static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
+  static const String login = '/login';
   static const String home = '/';
   static const String rank = '/rank';
   static const String tasks = '/tasks';
@@ -17,7 +23,7 @@ class AppRouter {
   static const String activeSession = '/active-session';
 
   static final GoRouter router = GoRouter(
-    initialLocation: home,
+    initialLocation: splash,
     debugLogDiagnostics: true,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -87,6 +93,25 @@ class AppRouter {
           fullscreenDialog: true,
           child: const ActiveSessionScreen(),
         ),
+      ),
+      GoRoute(
+        path: splash,
+        name: 'splash',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: SplashScreen()),
+      ),
+
+      GoRoute(
+        path: onboarding,
+        name: 'onboarding',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: OnboardingScreen()),
+      ),
+      GoRoute(
+        path: login,
+        name: 'login',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: LoginScreen()),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

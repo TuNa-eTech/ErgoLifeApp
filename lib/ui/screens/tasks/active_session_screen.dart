@@ -111,14 +111,7 @@ class ActiveSessionScreen extends StatelessWidget {
   Widget _buildTitleWithIndicator() {
     return Row(
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: const BoxDecoration(
-            color: AppColors.secondary,
-            shape: BoxShape.circle,
-          ),
-        ),
+        const PulsingRecordIndicator(),
         const SizedBox(width: 8),
         const Text(
           'Active Session',
@@ -156,10 +149,10 @@ class ActiveSessionScreen extends StatelessWidget {
         Text(
           '12:45',
           style: TextStyle(
-            fontSize: 72,
+            fontSize: 88,
             fontWeight: FontWeight.w900,
             height: 1.0,
-            letterSpacing: -2,
+            letterSpacing: -4, // tight tracking
             color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -242,3 +235,76 @@ class ActiveSessionScreen extends StatelessWidget {
     );
   }
 }
+
+class PulsingRecordIndicator extends StatefulWidget {
+  const PulsingRecordIndicator({super.key});
+
+  @override
+  State<PulsingRecordIndicator> createState() => _PulsingRecordIndicatorState();
+}
+
+class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 10,
+      height: 10,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Ping animation
+          ScaleTransition(
+            scale: Tween<double>(begin: 1.0, end: 2.0).animate(
+              CurvedAnimation(
+                parent: _controller,
+                curve: Curves.easeOut,
+              ),
+            ),
+            child: FadeTransition(
+              opacity: Tween<double>(begin: 0.75, end: 0.0).animate(
+                CurvedAnimation(
+                  parent: _controller,
+                  curve: Curves.easeOut,
+                ),
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.secondary,
+                ),
+              ),
+            ),
+          ),
+          // Solid center
+          Container(
+            width: 10,
+            height: 10,
+            decoration: const BoxDecoration(
+              color: AppColors.secondary,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

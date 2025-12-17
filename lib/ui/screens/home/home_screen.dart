@@ -44,7 +44,7 @@ class HomeScreen extends StatelessWidget {
                 isDark: isDark,
                 tasks: _getQuickTasks(),
                 onTaskTap: (task) {
-                  // TODO: Navigate to task details
+                  context.push(AppRouter.activeSession);
                 },
               ),
             ],

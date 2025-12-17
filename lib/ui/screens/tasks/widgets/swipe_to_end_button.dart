@@ -11,8 +11,30 @@ class SwipeToEndButton extends StatefulWidget {
   State<SwipeToEndButton> createState() => _SwipeToEndButtonState();
 }
 
-class _SwipeToEndButtonState extends State<SwipeToEndButton> {
+class _SwipeToEndButtonState extends State<SwipeToEndButton>
+    with SingleTickerProviderStateMixin {
   double _swipeOffset = 0.0;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +87,14 @@ class _SwipeToEndButtonState extends State<SwipeToEndButton> {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(
-            Icons.chevron_right,
-            size: 16,
-            color: widget.isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+          FadeTransition(
+            opacity: _pulseAnimation,
+            child: Icon(
+              Icons.chevron_right,
+              size: 16,
+              color:
+                  widget.isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+            ),
           ),
         ],
       ),

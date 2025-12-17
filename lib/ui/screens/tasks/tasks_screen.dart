@@ -1,8 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
-import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
+import 'package:ergo_life_app/core/navigation/app_router.dart';
+
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
@@ -344,12 +345,7 @@ class TasksScreen extends StatelessWidget {
                       icon: const Icon(Icons.play_arrow),
                       color: AppColors.secondary,
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ActiveSessionScreen(),
-                          ),
-                        );
+                        context.push(AppRouter.activeSession);
                       },
                     ),
                   ),
@@ -457,179 +453,190 @@ class TasksScreen extends StatelessWidget {
               offset: const Offset(0, 4),
             ),
           ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(icon, color: iconColor, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        ), // End BoxDecoration
+        child: InkWell(
+          onTap: () {
+            if (!isCompleted) {
+              context.push(AppRouter.activeSession);
+            }
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: isDark
-                                ? AppColors.textMainDark
-                                : AppColors.textMainLight,
-                            decoration: isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (tag != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: tagBgColor,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            tag,
-                            style: TextStyle(
-                              color: tagColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: isDark
+                                    ? AppColors.textMainDark
+                                    : AppColors.textMainLight,
+                                decoration: isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                      ],
-                      if (isCompleted) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.check, size: 10, color: Colors.green),
-                              SizedBox(width: 2),
-                              Text(
-                                'DONE',
+                          if (tag != null) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: tagBgColor,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                tag,
                                 style: TextStyle(
-                                  color: Colors.green,
+                                  color: tagColor,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                            ),
+                          ],
+                          if (isCompleted) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.check, size: 10, color: Colors.green),
+                                  SizedBox(width: 2),
+                                  Text(
+                                    'DONE',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.schedule,
+                                size: 14,
+                                color: isDark
+                                    ? AppColors.textSubDark
+                                    : AppColors.textSubLight,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                time,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark
+                                      ? AppColors.textSubDark
+                                      : AppColors.textSubLight,
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Row(
+                            children: [
+                              if (!isCompleted)
+                                const Icon(
+                                  Icons.local_fire_department,
+                                  size: 14,
+                                  color: AppColors.secondary,
+                                ),
+                              const SizedBox(width: 4),
+                              Text(
+                                score,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: scoreColor ?? AppColors.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark
-                          ? AppColors.textSubDark
-                          : AppColors.textSubLight,
+                ),
+                const SizedBox(width: 8),
+                if (isCompleted)
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 14,
-                            color: isDark
-                                ? AppColors.textSubDark
-                                : AppColors.textSubLight,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            time,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? AppColors.textSubDark
-                                  : AppColors.textSubLight,
-                            ),
-                          ),
-                        ],
+                    child: const Icon(Icons.check, color: Colors.white, size: 24),
+                  )
+                else
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
+                        width: 2,
                       ),
-                      const SizedBox(width: 12),
-                      Row(
-                        children: [
-                          if (!isCompleted)
-                            const Icon(
-                              Icons.local_fire_department,
-                              size: 14,
-                              color: AppColors.secondary,
-                            ),
-                          const SizedBox(width: 4),
-                          Text(
-                            score,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: scoreColor ?? AppColors.secondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.check, color: Colors.grey.shade400, size: 24),
                   ),
-                ],
-              ),
+              ],
             ),
-            const SizedBox(width: 8),
-            if (isCompleted)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check, color: Colors.white, size: 24),
-              )
-            else
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-                    width: 2,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.check, color: Colors.grey.shade400, size: 24),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -653,10 +660,7 @@ class TasksScreen extends StatelessWidget {
       child: IconButton(
         icon: const Icon(Icons.add, size: 32, color: Colors.white),
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateTaskScreen()),
-          );
+          context.push(AppRouter.createTask);
         },
       ),
     );
