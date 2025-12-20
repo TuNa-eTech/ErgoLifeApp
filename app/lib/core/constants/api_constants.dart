@@ -3,11 +3,9 @@ class ApiConstants {
   static const String baseUrl = 'https://api.ergolife.com';
   static const String apiVersion = 'v1';
 
-  // Endpoints
-  static const String login = '/auth/login';
-  static const String register = '/auth/register';
-  static const String logout = '/auth/logout';
-  static const String refreshToken = '/auth/refresh';
+  // Auth Endpoints
+  static const String socialLogin = '/auth/social-login';
+  static const String me = '/auth/me';
 
   // User
   static const String profile = '/user/profile';

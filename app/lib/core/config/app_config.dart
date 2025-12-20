@@ -1,21 +1,42 @@
+/// Application configuration with environment variable support
+/// Uses --dart-define for runtime configuration
 class AppConfig {
   static const String appName = 'ErgoLife';
   static const String appVersion = '1.0.0';
 
-  // Environment
-  static const Environment environment = Environment.development;
+  // Environment variables from dart-define
+  static const String _apiUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://localhost:3000',
+  );
 
-  // API Configuration
-  static String get baseUrl {
-    switch (environment) {
-      case Environment.development:
-        return 'https://api-dev.ergolife.com';
-      case Environment.staging:
-        return 'https://api-staging.ergolife.com';
-      case Environment.production:
-        return 'https://api.ergolife.com';
+  static const String _googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue: '',
+  );
+
+  static const String _environment = String.fromEnvironment(
+    'ENVIRONMENT',
+    defaultValue: 'development',
+  );
+
+  // Derived environment
+  static Environment get environment {
+    switch (_environment.toLowerCase()) {
+      case 'production':
+        return Environment.production;
+      case 'staging':
+        return Environment.staging;
+      default:
+        return Environment.development;
     }
   }
+
+  // API Configuration
+  static String get baseUrl => _apiUrl;
+
+  // Google Sign-In Configuration
+  static String get googleClientId => _googleClientId;
 
   // Timeout Configuration
   static const Duration connectionTimeout = Duration(seconds: 30);

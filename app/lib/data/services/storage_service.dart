@@ -4,6 +4,9 @@ import 'package:ergo_life_app/core/utils/logger.dart';
 class StorageService {
   final SharedPreferences _prefs;
 
+  // Storage keys
+  static const String keyAuthToken = 'auth_token';
+
   StorageService(this._prefs);
 
   // Save string
@@ -89,5 +92,27 @@ class StorageService {
   // Check if key exists
   bool containsKey(String key) {
     return _prefs.containsKey(key);
+  }
+
+  // ===== Authentication Token Methods =====
+
+  /// Save JWT authentication token
+  Future<bool> saveAuthToken(String token) async {
+    return await saveString(keyAuthToken, token);
+  }
+
+  /// Get stored JWT authentication token
+  String? getAuthToken() {
+    return getString(keyAuthToken);
+  }
+
+  /// Clear JWT authentication token
+  Future<bool> clearAuthToken() async {
+    return await remove(keyAuthToken);
+  }
+
+  /// Check if auth token exists
+  bool hasAuthToken() {
+    return containsKey(keyAuthToken);
   }
 }

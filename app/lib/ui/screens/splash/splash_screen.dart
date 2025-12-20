@@ -1,11 +1,16 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
+import 'package:ergo_life_app/blocs/auth/auth_event.dart';
+import 'package:ergo_life_app/blocs/auth/auth_state.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 
-
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final AuthBloc authBloc;
+
+  const SplashScreen({super.key, required this.authBloc});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -28,12 +33,8 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // Navigate to Home after delay
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        context.go(AppRouter.login);
-      }
-    });
+    // Check authentication status
+    widget.authBloc.add(const AuthCheckRequested());
   }
 
   @override
@@ -44,16 +45,28 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Specific colors from design
+    //  Specific colors from design
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
         isDark ? const Color(0xFF23170F) : const Color(0xFFF8F7F5);
     final navyColor = isDark ? Colors.white : const Color(0xFF1D2939);
     final primaryColor = const Color(0xFFFF6A00); // Matches design primary
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
+    return BlocListener<AuthBloc, AuthState>(
+      bloc: widget.authBloc,
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          // User is authenticated, go to home
+          context.go(AppRouter.home);
+        } else if (state is AuthUnauthenticated) {
+          // User is not authenticated, go to login
+          context.go(AppRouter.login);
+        }
+        // For AuthInitial and AuthLoading, stay on splash screen
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        body: SafeArea(
         child: Column(
           children: [
             // Status Bar Placeholder (Visual only, usually handled by system)
@@ -244,6 +257,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

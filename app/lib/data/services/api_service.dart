@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/constants/api_constants.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
+import 'package:ergo_life_app/data/models/auth_model.dart';
+import 'package:ergo_life_app/data/models/user_model.dart';
 
 class ApiService {
   late final Dio _dio;
@@ -96,5 +98,42 @@ class ApiService {
 
   Future<Response> delete(String path, {dynamic data}) async {
     return await _dio.delete(path, data: data);
+  }
+
+  // ===== Authentication Methods =====
+
+  /// Social login with Firebase ID token
+  Future<AuthResponse> socialLogin(String idToken) async {
+    try {
+      final response = await post(
+        ApiConstants.socialLogin,
+        data: {'idToken': idToken},
+      );
+      return AuthResponse.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error(
+        'Social login failed',
+        e,
+        null,
+        'ApiService',
+      );
+      rethrow;
+    }
+  }
+
+  /// Get current authenticated user
+  Future<UserModel> getCurrentUser() async {
+    try {
+      final response = await get(ApiConstants.me);
+      return UserModel.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error(
+        'Get current user failed',
+        e,
+        null,
+        'ApiService',
+      );
+      rethrow;
+    }
   }
 }

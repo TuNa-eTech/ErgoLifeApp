@@ -46,6 +46,11 @@ class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure({super.message = 'Unauthorized', super.error});
 }
 
+/// Authentication failure - occurs during sign in/sign up
+class AuthFailure extends Failure {
+  const AuthFailure({required super.message, super.error});
+}
+
 /// Not found failure - occurs when requested resource is not found
 class NotFoundFailure extends Failure {
   const NotFoundFailure({super.message = 'Resource not found', super.error});

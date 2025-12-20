@@ -10,6 +10,8 @@ import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
 import 'package:ergo_life_app/ui/screens/splash/splash_screen.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -97,8 +99,9 @@ class AppRouter {
       GoRoute(
         path: splash,
         name: 'splash',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: SplashScreen()),
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: SplashScreen(authBloc: sl<AuthBloc>()),
+        ),
       ),
 
       GoRoute(
@@ -110,8 +113,9 @@ class AppRouter {
       GoRoute(
         path: login,
         name: 'login',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: LoginScreen()),
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: LoginScreen(authBloc: sl<AuthBloc>()),
+        ),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

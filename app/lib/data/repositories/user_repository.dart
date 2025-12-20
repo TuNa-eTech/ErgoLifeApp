@@ -1,4 +1,5 @@
 import 'package:ergo_life_app/core/constants/app_constants.dart';
+import 'package:ergo_life_app/data/models/auth_model.dart';
 import 'package:ergo_life_app/data/models/user_model.dart';
 import 'package:ergo_life_app/data/services/api_service.dart';
 import 'package:ergo_life_app/data/services/storage_service.dart';
@@ -63,6 +64,8 @@ class UserRepository {
   UserModel getDefaultUser() {
     return UserModel(
       id: '1',
+      firebaseUid: 'demo-firebase-uid',
+      provider: AuthProvider.google,
       name: 'ErgoLife User',
       email: 'user@ergolife.com',
       createdAt: DateTime.now(),
