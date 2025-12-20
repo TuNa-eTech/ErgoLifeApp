@@ -1,62 +1,83 @@
 import {
   Controller,
   Get,
-  Post,
+  Put,
   Body,
-  Patch,
   Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  UpdateProfileDto,
+  UpdateFcmTokenDto,
+  FcmTokenResponseDto,
+  UserProfileDto,
+  OtherUserDto,
+} from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtPayload } from '../auth/auth.service';
 
 @ApiTags('users')
 @Controller('users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 409, description: 'Email already exists' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Put('me')
+  @ApiOperation({
+    summary: 'Update profile',
+    description: 'Update current user profile (displayName, avatarId)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile updated successfully',
+    type: UserProfileDto,
+  })
+  @ApiResponse({ status: 422, description: 'Validation error' })
+  async updateProfile(
+    @CurrentUser() user: JwtPayload,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<UserProfileDto> {
+    return this.userService.updateProfile(user.sub, updateProfileDto);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'List of all users' })
-  findAll() {
-    return this.userService.findAll();
+  @Put('me/fcm-token')
+  @ApiOperation({
+    summary: 'Update FCM token',
+    description: 'Update Firebase Cloud Messaging token for push notifications',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'FCM token updated successfully',
+    type: FcmTokenResponseDto,
+  })
+  async updateFcmToken(
+    @CurrentUser() user: JwtPayload,
+    @Body() updateFcmTokenDto: UpdateFcmTokenDto,
+  ): Promise<FcmTokenResponseDto> {
+    return this.userService.updateFcmToken(user.sub, updateFcmTokenDto.fcmToken);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a user by ID' })
-  @ApiResponse({ status: 200, description: 'User found' })
+  @ApiOperation({
+    summary: 'Get user by ID',
+    description: 'Get another user information (only users in the same house)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User information',
+    type: OtherUserDto,
+  })
+  @ApiResponse({ status: 403, description: 'You can only view users in your house' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a user' })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 409, description: 'Email already exists' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a user' })
-  @ApiResponse({ status: 204, description: 'User deleted successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  async getUserById(
+    @CurrentUser() currentUser: JwtPayload,
+    @Param('id') targetUserId: string,
+  ): Promise<OtherUserDto> {
+    return this.userService.getUserById(currentUser.sub, targetUserId);
   }
 }

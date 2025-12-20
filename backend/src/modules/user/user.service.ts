@@ -1,104 +1,89 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto, UserProfileDto, OtherUserDto, FcmTokenResponseDto } from './dto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<UserProfileDto> {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        displayName: updateProfileDto.displayName,
+        avatarId: updateProfileDto.avatarId,
+      },
     });
 
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+    return {
+      id: user.id,
+      displayName: user.displayName,
+      avatarId: user.avatarId,
+      email: user.email,
+      walletBalance: user.walletBalance,
+      houseId: user.houseId,
+    };
+  }
+
+  async updateFcmToken(
+    userId: string,
+    fcmToken: string,
+  ): Promise<FcmTokenResponseDto> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken },
+    });
+
+    return { message: 'FCM token updated successfully' };
+  }
+
+  async getUserById(
+    currentUserId: string,
+    targetUserId: string,
+  ): Promise<OtherUserDto> {
+    // Get current user to check their house
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { houseId: true },
+    });
+
+    if (!currentUser || !currentUser.houseId) {
+      throw new ForbiddenException('You must be in a house to view other users');
     }
 
-    return this.prisma.user.create({
-      data: createUserDto,
+    // Get target user
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
       select: {
         id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-  }
-
-  async findAll() {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-  }
-
-  async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
+        displayName: true,
+        avatarId: true,
+        walletBalance: true,
+        houseId: true,
       },
     });
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!targetUser) {
+      throw new NotFoundException('User not found');
     }
 
-    return user;
-  }
-
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    await this.findOne(id); // Check if user exists
-
-    if (updateUserDto.email) {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
-
-      if (existingUser && existingUser.id !== id) {
-        throw new ConflictException('User with this email already exists');
-      }
+    // Check if they are in the same house
+    if (targetUser.houseId !== currentUser.houseId) {
+      throw new ForbiddenException('You can only view users in your house');
     }
 
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-  }
-
-  async remove(id: string) {
-    await this.findOne(id); // Check if user exists
-
-    return this.prisma.user.delete({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-      },
-    });
+    return {
+      id: targetUser.id,
+      displayName: targetUser.displayName,
+      avatarId: targetUser.avatarId,
+      walletBalance: targetUser.walletBalance,
+    };
   }
 }

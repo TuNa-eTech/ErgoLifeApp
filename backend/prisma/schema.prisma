@@ -10,21 +10,156 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===========================================
+// ENUMS
+// ===========================================
+
 enum AuthProvider {
   GOOGLE
   APPLE
 }
 
+enum RedemptionStatus {
+  PENDING   // Đã đổi, chưa sử dụng
+  USED      // Đã sử dụng
+  EXPIRED   // Hết hạn (future feature)
+}
+
+// ===========================================
+// MODELS
+// ===========================================
+
 model User {
-  id          String       @id @default(uuid())
-  firebaseUid String       @unique @map("firebase_uid")
-  provider    AuthProvider
-  email       String?      @unique
-  name        String?
-  avatarId    Int?         @map("avatar_id")
-  avatarUrl   String?      @map("avatar_url")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id           String       @id @default(uuid())
+  firebaseUid  String       @unique @map("firebase_uid")
+  provider     AuthProvider
+  email        String?      @unique
+  displayName  String?      @map("display_name")
+  avatarId     Int?         @map("avatar_id")
+  
+  // House relationship
+  houseId      String?      @map("house_id")
+  house        House?       @relation("HouseMembers", fields: [houseId], references: [id])
+  
+  // Economy
+  walletBalance Int         @default(0) @map("wallet_balance")
+  
+  // Push notifications
+  fcmToken     String?      @map("fcm_token")
+  
+  // Timestamps
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  activities   Activity[]
+  rewards      Reward[]     @relation("RewardCreator")
+  redemptions  Redemption[]
+  housesOwned  House[]      @relation("HouseOwner")
 
   @@map("users")
+}
+
+model House {
+  id          String   @id @default(uuid())
+  name        String
+  inviteCode  String   @unique @default(cuid()) @map("invite_code")
+  
+  // Owner
+  createdById String   @map("created_by")
+  createdBy   User     @relation("HouseOwner", fields: [createdById], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  members     User[]   @relation("HouseMembers")
+  activities  Activity[]
+  rewards     Reward[]
+  redemptions Redemption[]
+
+  @@map("houses")
+}
+
+model Activity {
+  id              String   @id @default(uuid())
+  
+  // References
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id])
+  houseId         String   @map("house_id")
+  house           House    @relation(fields: [houseId], references: [id])
+  
+  // Task details
+  taskName        String   @map("task_name")
+  durationSeconds Int      @map("duration_seconds")
+  metsValue       Float    @map("mets_value")
+  
+  // Points
+  pointsEarned    Int      @map("points_earned")
+  bonusMultiplier Float    @default(1.0) @map("bonus_multiplier")
+  
+  // Completion
+  completedAt     DateTime @default(now()) @map("completed_at")
+
+  @@index([houseId, completedAt])
+  @@index([userId, completedAt])
+  @@map("activities")
+}
+
+model Reward {
+  id          String   @id @default(uuid())
+  
+  // References
+  houseId     String   @map("house_id")
+  house       House    @relation(fields: [houseId], references: [id])
+  creatorId   String   @map("creator_id")
+  creator     User     @relation("RewardCreator", fields: [creatorId], references: [id])
+  
+  // Reward details
+  title       String
+  cost        Int
+  icon        String   @default("gift")
+  description String?
+  
+  // Status
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  redemptions Redemption[]
+
+  @@index([houseId, isActive])
+  @@map("rewards")
+}
+
+model Redemption {
+  id          String           @id @default(uuid())
+  
+  // References
+  userId      String           @map("user_id")
+  user        User             @relation(fields: [userId], references: [id])
+  rewardId    String           @map("reward_id")
+  reward      Reward           @relation(fields: [rewardId], references: [id])
+  houseId     String           @map("house_id")
+  house       House            @relation(fields: [houseId], references: [id])
+  
+  // Snapshot at redemption time
+  rewardTitle String           @map("reward_title")
+  pointsSpent Int              @map("points_spent")
+  
+  // Status
+  status      RedemptionStatus @default(PENDING)
+  
+  // Timestamps
+  redeemedAt  DateTime         @default(now()) @map("redeemed_at")
+  usedAt      DateTime?        @map("used_at")
+
+  @@index([userId, redeemedAt])
+  @@index([houseId, redeemedAt])
+  @@map("redemptions")
 }

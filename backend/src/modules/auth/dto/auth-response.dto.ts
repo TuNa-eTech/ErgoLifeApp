@@ -1,26 +1,43 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class UserDto {
-  @ApiProperty({ example: 'uuid-string' })
+export class HouseSummaryDto {
+  @ApiProperty({ example: '660e8400-e29b-41d4-a716-446655441111' })
   id: string;
 
-  @ApiProperty({ example: 'firebase-uid-string' })
+  @ApiProperty({ example: 'Nhà của Mèo' })
+  name: string;
+
+  @ApiProperty({ example: 2 })
+  memberCount: number;
+}
+
+export class UserDto {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string;
+
+  @ApiProperty({ example: 'abc123xyz' })
   firebaseUid: string;
 
   @ApiProperty({ example: 'GOOGLE', enum: ['GOOGLE', 'APPLE'] })
   provider: string;
 
-  @ApiProperty({ example: 'user@example.com', nullable: true })
+  @ApiPropertyOptional({ example: 'user@gmail.com' })
   email: string | null;
 
-  @ApiProperty({ example: 'John Doe', nullable: true })
-  name: string | null;
+  @ApiPropertyOptional({ example: 'Minh Nguyen' })
+  displayName: string | null;
 
-  @ApiProperty({ example: 1, nullable: true })
+  @ApiPropertyOptional({ example: 3 })
   avatarId: number | null;
 
-  @ApiProperty({ example: 'https://example.com/avatar.jpg', nullable: true })
-  avatarUrl: string | null;
+  @ApiPropertyOptional({ example: '660e8400-e29b-41d4-a716-446655441111' })
+  houseId: string | null;
+
+  @ApiProperty({ example: 2500, default: 0 })
+  walletBalance: number;
+
+  @ApiPropertyOptional({ type: HouseSummaryDto })
+  house?: HouseSummaryDto | null;
 }
 
 export class AuthResponseDto {
@@ -35,4 +52,15 @@ export class AuthResponseDto {
     type: UserDto,
   })
   user: UserDto;
+
+  @ApiProperty({
+    description: 'True if this is a newly created account',
+    example: false,
+  })
+  isNewUser: boolean;
+}
+
+export class LogoutResponseDto {
+  @ApiProperty({ example: 'Logged out successfully' })
+  message: string;
 }

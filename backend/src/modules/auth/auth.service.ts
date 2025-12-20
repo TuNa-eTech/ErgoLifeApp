@@ -7,14 +7,22 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FirebaseService, FirebaseUserInfo } from '../../firebase';
-import { AuthProvider } from '@prisma/client';
-import { AuthResponseDto, UserDto } from './dto';
+import { AuthProvider, User } from '@prisma/client';
+import { AuthResponseDto, UserDto, HouseSummaryDto, LogoutResponseDto } from './dto';
 
 export interface JwtPayload {
   sub: string; // User ID
   firebaseUid: string;
   email: string | null;
 }
+
+type UserWithHouse = User & {
+  house: {
+    id: string;
+    name: string;
+    members: { id: string }[];
+  } | null;
+};
 
 @Injectable()
 export class AuthService {
@@ -40,22 +48,35 @@ export class AuthService {
     // 2. Determine provider
     const provider = this.mapProvider(firebaseUserInfo.provider);
 
-    // 3. Upsert user in database
-    let user;
+    // 3. Check if user exists
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { firebaseUid: firebaseUserInfo.uid },
+    });
+    const isNewUser = !existingUser;
+
+    // 4. Upsert user in database
+    let user: UserWithHouse;
     try {
       user = await this.prismaService.user.upsert({
         where: { firebaseUid: firebaseUserInfo.uid },
         update: {
           email: firebaseUserInfo.email,
-          name: firebaseUserInfo.name,
-          avatarUrl: firebaseUserInfo.picture,
+          displayName: existingUser?.displayName || firebaseUserInfo.name,
         },
         create: {
           firebaseUid: firebaseUserInfo.uid,
           provider,
           email: firebaseUserInfo.email,
-          name: firebaseUserInfo.name,
-          avatarUrl: firebaseUserInfo.picture,
+          displayName: firebaseUserInfo.name,
+        },
+        include: {
+          house: {
+            include: {
+              members: {
+                select: { id: true },
+              },
+            },
+          },
         },
       });
     } catch (error) {
@@ -63,7 +84,7 @@ export class AuthService {
       throw new InternalServerErrorException('Failed to create or update user');
     }
 
-    // 4. Generate JWT token
+    // 5. Generate JWT token
     const payload: JwtPayload = {
       sub: user.id,
       firebaseUid: user.firebaseUid,
@@ -71,16 +92,26 @@ export class AuthService {
     };
     const accessToken = this.jwtService.sign(payload);
 
-    // 5. Return response
+    // 6. Return response
     return {
       accessToken,
       user: this.mapUserToDto(user),
+      isNewUser,
     };
   }
 
   async getMe(userId: string): Promise<UserDto> {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
+      include: {
+        house: {
+          include: {
+            members: {
+              select: { id: true },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -88,6 +119,16 @@ export class AuthService {
     }
 
     return this.mapUserToDto(user);
+  }
+
+  async logout(userId: string): Promise<LogoutResponseDto> {
+    // Clear FCM token on logout
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { fcmToken: null },
+    });
+
+    return { message: 'Logged out successfully' };
   }
 
   private mapProvider(provider: 'google.com' | 'apple.com'): AuthProvider {
@@ -101,23 +142,26 @@ export class AuthService {
     }
   }
 
-  private mapUserToDto(user: {
-    id: string;
-    firebaseUid: string;
-    provider: AuthProvider;
-    email: string | null;
-    name: string | null;
-    avatarId: number | null;
-    avatarUrl: string | null;
-  }): UserDto {
+  private mapUserToDto(user: UserWithHouse): UserDto {
+    let house: HouseSummaryDto | null = null;
+    if (user.house) {
+      house = {
+        id: user.house.id,
+        name: user.house.name,
+        memberCount: user.house.members.length,
+      };
+    }
+
     return {
       id: user.id,
       firebaseUid: user.firebaseUid,
       provider: user.provider,
       email: user.email,
-      name: user.name,
+      displayName: user.displayName,
       avatarId: user.avatarId,
-      avatarUrl: user.avatarUrl,
+      houseId: user.houseId,
+      walletBalance: user.walletBalance,
+      house,
     };
   }
 }
