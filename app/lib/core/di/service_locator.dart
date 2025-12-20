@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,6 +8,7 @@ import 'package:ergo_life_app/core/network/network_info.dart';
 
 // Data - Services
 import 'package:ergo_life_app/data/services/api_service.dart';
+import 'package:ergo_life_app/data/services/auth_service.dart';
 import 'package:ergo_life_app/data/services/storage_service.dart';
 
 // Data - Repositories
@@ -25,12 +27,14 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
 
   sl.registerLazySingleton<Connectivity>(() => Connectivity());
+  sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
 
   // ===== Core =====
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // ===== Data - Services =====
   sl.registerLazySingleton<ApiService>(() => ApiService());
+  sl.registerLazySingleton<AuthService>(() => AuthService(firebaseAuth: sl()));
   sl.registerLazySingleton<StorageService>(() => StorageService(sl()));
 
   // ===== Data - Repositories =====
@@ -42,3 +46,4 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<UserCubit>(() => UserCubit(sl()));
   sl.registerFactory<SessionCubit>(() => SessionCubit(sl()));
 }
+

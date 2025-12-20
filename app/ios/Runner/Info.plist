@@ -43,5 +43,16 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.939742430352-ep9v6be12ablo30tgdn2oc8e7kd2qaoa</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
