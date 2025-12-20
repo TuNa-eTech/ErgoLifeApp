@@ -1,4 +1,4 @@
-package com.anhtu.ErgoLifeApp.ergo_life_app
+package com.anhtu.ergolife
 
 import io.flutter.embedding.android.FlutterActivity
 
