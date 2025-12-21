@@ -1,28 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/blocs/session/session_bloc.dart';
+import 'package:ergo_life_app/blocs/session/session_event.dart';
+import 'package:ergo_life_app/blocs/session/session_state.dart';
+import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/ui/common/widgets/glass_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/swipe_to_end_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/session_stat_item.dart';
 
-/// Screen showing active exercise session with timer and stats
+/// Screen showing active exercise session with real timer and stats
 class ActiveSessionScreen extends StatelessWidget {
-  const ActiveSessionScreen({super.key});
+  final TaskModel task;
+
+  const ActiveSessionScreen({
+    super.key,
+    required this.task,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<SessionBloc>(
+      create: (_) => sl<SessionBloc>()..add(StartSession(task: task)),
+      child: ActiveSessionView(task: task),
+    );
+  }
+}
+
+class ActiveSessionView extends StatelessWidget {
+  final TaskModel task;
+
+  const ActiveSessionView({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-      body: Column(
-        children: [
-          // Top Image Section (approx 55% height)
-          Expanded(flex: 55, child: _buildTopSection(context, isDark)),
+    return BlocConsumer<SessionBloc, SessionState>(
+      listener: (context, state) {
+        // Handle session completion
+        if (state is SessionCompleted) {
+          _showCompletionDialog(context, state);
+        } else if (state is SessionError) {
+          _showErrorSnackBar(context, state.message);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+          body: Column(
+            children: [
+              // Top Image Section (approx 55% height)
+              Expanded(flex: 55, child: _buildTopSection(context, isDark)),
 
-          // Bottom Content Section (approx 45% height)
-          Expanded(flex: 45, child: _buildBottomSection(context, isDark)),
-        ],
-      ),
+              // Bottom Content Section (approx 45% height)
+              Expanded(
+                flex: 45,
+                child: _buildBottomSection(context, isDark, state),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -97,10 +137,26 @@ class ActiveSessionScreen extends StatelessWidget {
             children: [
               GlassButton(
                 icon: Icons.keyboard_arrow_down,
-                onTap: () => Navigator.pop(context),
+                onTap: () => _handleBackButton(context),
               ),
               _buildTitleWithIndicator(),
-              const GlassButton(icon: Icons.more_horiz),
+              BlocBuilder<SessionBloc, SessionState>(
+                builder: (context, state) {
+                  if (state is SessionActive) {
+                    return GlassButton(
+                      icon: state.isPaused ? Icons.play_arrow : Icons.pause,
+                      onTap: () {
+                        if (state.isPaused) {
+                          context.read<SessionBloc>().add(const ResumeSession());
+                        } else {
+                          context.read<SessionBloc>().add(const PauseSession());
+                        }
+                      },
+                    );
+                  }
+                  return const GlassButton(icon: Icons.more_horiz);
+                },
+              ),
             ],
           ),
         ),
@@ -125,34 +181,46 @@ class ActiveSessionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomSection(BuildContext context, bool isDark) {
+  Widget _buildBottomSection(
+    BuildContext context,
+    bool isDark,
+    SessionState state,
+  ) {
+    if (state is SessionCompleting) {
+      return _buildCompletingView(isDark);
+    }
+
+    if (state is! SessionActive) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildTimerSection(isDark),
-          _buildStatsRow(isDark),
+          _buildTimerSection(isDark, state),
+          _buildStatsRow(isDark, state),
           _buildTaskInfo(isDark),
           SwipeToEndButton(
             isDark: isDark,
-            onComplete: () => Navigator.pop(context),
+            onComplete: () => _handleCompleteSession(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTimerSection(bool isDark) {
+  Widget _buildTimerSection(bool isDark, SessionActive state) {
     return Column(
       children: [
         Text(
-          '12:45',
+          state.formattedTime,
           style: TextStyle(
             fontSize: 88,
             fontWeight: FontWeight.w900,
             height: 1.0,
-            letterSpacing: -4, // tight tracking
+            letterSpacing: -4,
             color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -164,7 +232,7 @@ class ActiveSessionScreen extends StatelessWidget {
             const Icon(Icons.timer, color: AppColors.secondary, size: 20),
             const SizedBox(width: 6),
             Text(
-              'TARGET 20:00',
+              'TARGET ${state.formattedTarget}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -176,17 +244,46 @@ class ActiveSessionScreen extends StatelessWidget {
             ),
           ],
         ),
+        if (state.isPaused) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.orange.withValues(alpha: 0.3),
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.pause_circle, color: Colors.orange, size: 16),
+                SizedBox(width: 6),
+                Text(
+                  'PAUSED',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildStatsRow(bool isDark) {
+  Widget _buildStatsRow(bool isDark, SessionActive state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SessionStatItem(
           icon: Icons.local_fire_department,
-          value: '184',
+          value: '${state.estimatedCalories}',
           label: 'CALORIES',
           color: AppColors.secondary,
           isDark: isDark,
@@ -199,7 +296,7 @@ class ActiveSessionScreen extends StatelessWidget {
         ),
         SessionStatItem(
           icon: Icons.bolt,
-          value: '320',
+          value: '${state.estimatedPoints}',
           label: 'POINTS',
           color: Colors.amber,
           isDark: isDark,
@@ -212,7 +309,7 @@ class ActiveSessionScreen extends StatelessWidget {
     return Column(
       children: [
         Text(
-          'Legs & Glutes: Vacuuming',
+          task.exerciseName,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 24,
@@ -223,7 +320,7 @@ class ActiveSessionScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'MODERATE • ROOM 1',
+          task.taskDescription?.toUpperCase() ?? 'EXERCISE',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -232,6 +329,124 @@ class ActiveSessionScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCompletingView(bool isDark) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 24),
+          Text(
+            'Saving your progress...',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleBackButton(BuildContext context) {
+    final state = context.read<SessionBloc>().state;
+    if (state is SessionActive) {
+      _showCancelDialog(context);
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void _handleCompleteSession(BuildContext context) {
+    context.read<SessionBloc>().add(const CompleteSession());
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancel Session?'),
+        content: const Text(
+          'Your progress will not be saved. Are you sure you want to cancel?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Continue Session'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<SessionBloc>().add(const CancelSession());
+              Navigator.pop(ctx); // Close dialog
+              Navigator.pop(context); // Close screen
+            },
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCompletionDialog(BuildContext context, SessionCompleted state) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.celebration, color: Colors.amber, size: 32),
+            SizedBox(width: 12),
+            Text('Great Job!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You earned ${state.pointsEarned} points!',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('New balance: ${state.newWalletBalance} EP'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx); // Close dialog
+              Navigator.pop(context); // Close screen
+            },
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        action: SnackBarAction(
+          label: 'Retry',
+          textColor: Colors.white,
+          onPressed: () {
+            context.read<SessionBloc>().add(const CompleteSession());
+          },
+        ),
+      ),
     );
   }
 }
@@ -307,4 +522,3 @@ class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
     );
   }
 }
-

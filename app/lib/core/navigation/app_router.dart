@@ -12,6 +12,7 @@ import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
+import 'package:ergo_life_app/data/models/task_model.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -91,10 +92,22 @@ class AppRouter {
       GoRoute(
         path: activeSession,
         name: 'activeSession',
-        pageBuilder: (context, state) => MaterialPage(
-          fullscreenDialog: true,
-          child: const ActiveSessionScreen(),
-        ),
+        pageBuilder: (context, state) {
+          final task = state.extra as TaskModel?;
+          if (task == null) {
+            // Fallback to a default task if no task provided
+            return MaterialPage(
+              fullscreenDialog: true,
+              child: ActiveSessionScreen(
+                task: PredefinedTasks.quickTasks.first,
+              ),
+            );
+          }
+          return MaterialPage(
+            fullscreenDialog: true,
+            child: ActiveSessionScreen(task: task),
+          );
+        },
       ),
       GoRoute(
         path: splash,

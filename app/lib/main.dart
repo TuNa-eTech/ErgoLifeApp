@@ -16,6 +16,10 @@ void main() async {
   // Initialize service locator (GetIt)
   AppLogger.info('Initializing service locator...', 'Main');
   await setupServiceLocator();
+  
+  // Wait for all async dependencies (AuthService, AuthRepository, AuthBloc) to be ready
+  AppLogger.info('Waiting for async dependencies...', 'Main');
+  await sl.allReady();
   AppLogger.success('Service locator initialized successfully', 'Main');
 
   runApp(const MyApp());

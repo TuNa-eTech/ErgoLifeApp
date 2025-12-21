@@ -43,6 +43,8 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>GIDClientID</key>
+	<string>939742430352-ep9v6be12ablo30tgdn2oc8e7kd2qaoa.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/constants/api_constants.dart';
 import 'package:ergo_life_app/core/errors/exceptions.dart';
+import 'package:ergo_life_app/core/network/logging_interceptor.dart';
 
 class ApiClient {
   late final Dio _dio;
@@ -24,6 +25,12 @@ class ApiClient {
   }
 
   void _setupInterceptors() {
+    // Add logging interceptor if enabled
+    if (AppConfig.enableLogging) {
+      _dio.interceptors.add(LoggingInterceptor());
+    }
+
+    // Add auth token interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -32,35 +39,7 @@ class ApiClient {
             options.headers[ApiConstants.headerAuth] =
                 '${ApiConstants.bearerPrefix}$_authToken';
           }
-
-          if (AppConfig.enableLogging) {
-            print('🚀 REQUEST[${options.method}] => ${options.uri}');
-            print('Headers: ${options.headers}');
-            print('Data: ${options.data}');
-          }
-
           return handler.next(options);
-        },
-        onResponse: (response, handler) {
-          if (AppConfig.enableLogging) {
-            print(
-              '✅ RESPONSE[${response.statusCode}] => ${response.requestOptions.uri}',
-            );
-            print('Data: ${response.data}');
-          }
-
-          return handler.next(response);
-        },
-        onError: (error, handler) {
-          if (AppConfig.enableLogging) {
-            print(
-              '❌ ERROR[${error.response?.statusCode}] => ${error.requestOptions.uri}',
-            );
-            print('Message: ${error.message}');
-            print('Data: ${error.response?.data}');
-          }
-
-          return handler.next(error);
         },
       ),
     );

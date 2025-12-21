@@ -29,7 +29,7 @@ class UserModel extends Equatable {
       firebaseUid: json['firebaseUid'] as String,
       provider: AuthProvider.fromJson(json['provider'] as String),
       email: json['email'] as String?,
-      name: json['name'] as String?,
+      name: json['displayName'] as String?, // Backend uses 'displayName' not 'name'
       avatarId: json['avatarId'] as int?,
       avatarUrl: json['avatarUrl'] as String?,
       createdAt: json['createdAt'] != null

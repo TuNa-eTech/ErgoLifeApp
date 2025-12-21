@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
+import 'package:ergo_life_app/blocs/home/home_bloc.dart';
+import 'package:ergo_life_app/blocs/home/home_event.dart';
+import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/arena_section.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
@@ -12,47 +17,263 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider<HomeBloc>(
+      create: (_) => sl<HomeBloc>()..add(const LoadHomeData()),
+      child: const HomeView(),
+    );
+  }
+}
+
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
-      body: SafeArea(
+      body: BlocConsumer<HomeBloc, HomeState>(
+        listener: (context, state) {
+          if (state is HomeError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+                action: SnackBarAction(
+                  label: 'Retry',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    context.read<HomeBloc>().add(const LoadHomeData());
+                  },
+                ),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is HomeLoading) {
+            return _buildLoadingState(isDark);
+          }
+
+          if (state is HomeError) {
+            return _buildErrorState(context, state.message, isDark);
+          }
+
+          if (state is HomeLoaded) {
+            return _buildLoadedState(context, state, isDark);
+          }
+
+          return _buildLoadingState(isDark);
+        },
+      ),
+      floatingActionButton: _buildCreateTaskButton(context),
+    );
+  }
+
+  Widget _buildLoadingState(bool isDark) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header skeleton
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSkeleton(120, 16, isDark),
+                      const SizedBox(height: 8),
+                      _buildSkeleton(180, 24, isDark),
+                    ],
+                  ),
+                  _buildSkeleton(48, 48, isDark, isCircle: true),
+                ],
+              ),
+            ),
+            // Arena skeleton
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _buildSkeleton(
+                double.infinity,
+                200,
+                isDark,
+                borderRadius: 24,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Quick tasks skeleton
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSkeleton(150, 20, isDark),
+                  const SizedBox(height: 16),
+                  ...List.generate(
+                    3,
+                    (_) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildSkeleton(double.infinity, 80, isDark),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeleton(
+    double width,
+    double height,
+    bool isDark, {
+    double borderRadius = 12,
+    bool isCircle = false,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.grey.shade800.withOpacity(0.3)
+            : Colors.grey.shade200,
+        borderRadius: isCircle ? null : BorderRadius.circular(borderRadius),
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String message, bool isDark) {
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: isDark ? Colors.red.shade300 : Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load home data',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  context.read<HomeBloc>().add(const LoadHomeData());
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadedState(
+    BuildContext context,
+    HomeLoaded state,
+    bool isDark,
+  ) {
+    return SafeArea(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          context.read<HomeBloc>().add(const RefreshHomeData());
+          // Wait for the refresh to complete
+          await Future.delayed(const Duration(seconds: 1));
+        },
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               HomeHeader(
                 isDark: isDark,
-                userName: 'Minh',
+                userName: state.firstName,
                 onNotificationTap: () {
                   // TODO: Handle notification tap
                 },
               ),
               ArenaSection(
                 isDark: isDark,
-                userPoints: 1240,
-                rivalPoints: 1100,
-                totalPoints: 1600,
+                userPoints: state.stats.totalPoints,
+                rivalPoints: state.house != null && state.stats.totalPoints > 0
+                    ? (state.stats.totalPoints * 0.85).toInt()
+                    : 0,
+                totalPoints: state.house != null
+                    ? (state.stats.totalPoints * 1.3).toInt()
+                    : state.stats.totalPoints,
                 onLeaderboardTap: () {
-                  // TODO: Navigate to leaderboard
+                  context.go('/rank');
                 },
               ),
               QuickTasksSection(
                 isDark: isDark,
-                tasks: _getQuickTasks(),
+                tasks: _convertToTaskData(state.quickTasks),
                 onTaskTap: (task) {
-                  context.push(AppRouter.activeSession);
+                  // Find the TaskModel from quick tasks
+                  final taskModel = state.quickTasks.firstWhere(
+                    (t) => t.exerciseName == task.title,
+                    orElse: () => state.quickTasks.first,
+                  );
+                  context.push(AppRouter.activeSession, extra: taskModel);
                 },
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: _buildCreateTaskButton(context),
     );
+  }
+
+  List<TaskData> _convertToTaskData(List tasks) {
+    return tasks.map((task) {
+      return TaskData(
+        icon: task.icon,
+        iconColor: task.color,
+        title: task.exerciseName,
+        subtitle: task.taskDescription ?? '',
+        duration: task.formattedDuration,
+        ep: task.estimatedPoints,
+      );
+    }).toList();
   }
 
   Widget _buildCreateTaskButton(BuildContext context) {
@@ -75,44 +296,5 @@ class HomeScreen extends StatelessWidget {
         onPressed: () => context.push(AppRouter.createTask),
       ),
     );
-  }
-
-  /// Returns hardcoded quick tasks data
-  /// TODO: Replace with actual data from state management
-  List<TaskData> _getQuickTasks() {
-    return const [
-      TaskData(
-        icon: Icons.cleaning_services,
-        iconColor: Colors.purple,
-        title: 'Legs & Glutes',
-        subtitle: 'Vacuuming the Living Room',
-        duration: '20 min',
-        ep: 150,
-      ),
-      TaskData(
-        icon: Icons.local_laundry_service,
-        iconColor: Colors.blue,
-        title: 'Upper Body Press',
-        subtitle: 'Laundry Loading',
-        duration: '15 min',
-        ep: 80,
-      ),
-      TaskData(
-        icon: Icons.shopping_bag,
-        iconColor: Colors.green,
-        title: 'Cardio Dash',
-        subtitle: 'Grocery Run',
-        duration: '45 min',
-        ep: 200,
-      ),
-      TaskData(
-        icon: Icons.water_drop,
-        iconColor: Colors.pink,
-        title: 'Core Stability',
-        subtitle: 'Dishwashing',
-        duration: '10 min',
-        ep: 50,
-      ),
-    ];
   }
 }

@@ -33,10 +33,20 @@ class AppConfig {
   }
 
   // API Configuration
-  static String get baseUrl => _apiUrl;
+  // Backend has global prefix '/api', so we need to append it to the base URL
+  static String get baseUrl => '$_apiUrl/api';
 
   // Google Sign-In Configuration
-  static String get googleClientId => _googleClientId;
+  static String get googleClientId {
+    // Prefer environment variable if set
+    if (_googleClientId.isNotEmpty) {
+      return _googleClientId;
+    }
+    
+    // Fallback for development (when dart-define not loaded or during hot restart)
+    // For production, this should be set via environment configuration
+    return '939742430352-ep9v6be12ablo30tgdn2oc8e7kd2qaoa.apps.googleusercontent.com';
+  }
 
   // Timeout Configuration
   static const Duration connectionTimeout = Duration(seconds: 30);
