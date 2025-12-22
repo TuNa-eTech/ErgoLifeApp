@@ -10,6 +10,7 @@ class UserModel extends Equatable {
   final String? name;
   final int? avatarId;
   final String? avatarUrl;
+  final String? houseId;
   final DateTime? createdAt;
 
   const UserModel({
@@ -20,18 +21,25 @@ class UserModel extends Equatable {
     this.name,
     this.avatarId,
     this.avatarUrl,
+    this.houseId,
     this.createdAt,
   });
+
+  /// Check if user needs onboarding (no house assigned yet)
+  bool get needsOnboarding => houseId == null;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as String,
-      firebaseUid: json['firebaseUid'] as String,
-      provider: AuthProvider.fromJson(json['provider'] as String),
+      firebaseUid: json['firebaseUid'] as String? ?? '',
+      provider: json['provider'] != null 
+          ? AuthProvider.fromJson(json['provider'] as String)
+          : AuthProvider.google,
       email: json['email'] as String?,
       name: json['displayName'] as String?, // Backend uses 'displayName' not 'name'
       avatarId: json['avatarId'] as int?,
       avatarUrl: json['avatarUrl'] as String?,
+      houseId: json['houseId'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -47,6 +55,7 @@ class UserModel extends Equatable {
       'name': name,
       'avatarId': avatarId,
       'avatarUrl': avatarUrl,
+      'houseId': houseId,
       'createdAt': createdAt?.toIso8601String(),
     };
   }
@@ -65,6 +74,7 @@ class UserModel extends Equatable {
     String? name,
     int? avatarId,
     String? avatarUrl,
+    String? houseId,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -75,11 +85,13 @@ class UserModel extends Equatable {
       name: name ?? this.name,
       avatarId: avatarId ?? this.avatarId,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      houseId: houseId ?? this.houseId,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, firebaseUid, provider, email, name, avatarId, avatarUrl, createdAt];
+      [id, firebaseUid, provider, email, name, avatarId, avatarUrl, houseId, createdAt];
 }
+

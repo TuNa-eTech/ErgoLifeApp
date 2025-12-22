@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { FirebaseModule } from './firebase';
@@ -8,6 +8,7 @@ import { HousesModule } from './modules/houses/houses.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { RewardsModule } from './modules/rewards/rewards.module';
 import { RedemptionsModule } from './modules/redemptions/redemptions.module';
+import { LoggingMiddleware } from './common/middleware/logging.middleware';
 
 @Module({
   imports: [
@@ -22,4 +23,8 @@ import { RedemptionsModule } from './modules/redemptions/redemptions.module';
     RedemptionsModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+  }
+}

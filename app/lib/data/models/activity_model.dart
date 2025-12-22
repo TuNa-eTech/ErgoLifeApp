@@ -26,17 +26,19 @@ class ActivityModel extends Equatable {
 
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      taskName: json['taskName'] as String,
-      durationSeconds: json['durationSeconds'] as int,
-      metsValue: (json['metsValue'] as num).toDouble(),
-      magicWipePercentage: json['magicWipePercentage'] as int,
-      pointsEarned: json['pointsEarned'] as int,
+      id: json['id'] as String? ?? '',
+      userId: json['userId'] as String? ?? '',
+      taskName: json['taskName'] as String? ?? '',
+      durationSeconds: json['durationSeconds'] as int? ?? 0,
+      metsValue: (json['metsValue'] as num?)?.toDouble() ?? 0.0,
+      magicWipePercentage: json['magicWipePercentage'] as int? ?? 0,
+      pointsEarned: json['pointsEarned'] as int? ?? 0,
       bonusMultiplier: json['bonusMultiplier'] != null
           ? (json['bonusMultiplier'] as num).toDouble()
           : null,
-      completedAt: DateTime.parse(json['completedAt'] as String),
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'] as String)
+          : DateTime.now(),
     );
   }
 
@@ -134,9 +136,9 @@ class WalletInfo {
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
     return WalletInfo(
-      previousBalance: json['previousBalance'] as int,
-      pointsEarned: json['pointsEarned'] as int,
-      newBalance: json['newBalance'] as int,
+      previousBalance: json['previousBalance'] as int? ?? 0,
+      pointsEarned: json['pointsEarned'] as int? ?? 0,
+      newBalance: json['newBalance'] as int? ?? 0,
     );
   }
 }
@@ -159,13 +161,14 @@ class PaginatedActivities {
 
   factory PaginatedActivities.fromJson(Map<String, dynamic> json) {
     return PaginatedActivities(
-      activities: (json['activities'] as List)
-          .map((e) => ActivityModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      total: json['total'] as int,
-      page: json['page'] as int,
-      limit: json['limit'] as int,
-      totalPages: json['totalPages'] as int,
+      activities: (json['activities'] as List?)
+              ?.map((e) => ActivityModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      total: json['total'] as int? ?? 0,
+      page: json['page'] as int? ?? 1,
+      limit: json['limit'] as int? ?? 10,
+      totalPages: json['totalPages'] as int? ?? 0,
     );
   }
 

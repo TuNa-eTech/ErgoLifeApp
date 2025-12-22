@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
-import 'package:ergo_life_app/core/network/api_client.dart';
+import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
+import 'package:ergo_life_app/blocs/onboarding/onboarding_event.dart';
+import 'package:ergo_life_app/blocs/onboarding/onboarding_state.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -34,11 +38,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final TextEditingController _houseNameController = TextEditingController();
   final FocusNode _houseNameFocusNode = FocusNode();
   bool _isHouseNameValid = false;
-  bool _isLoading = false;
+
+  late OnboardingBloc _onboardingBloc;
 
   @override
   void initState() {
     super.initState();
+    _onboardingBloc = sl<OnboardingBloc>();
     _nameController.addListener(() {
       setState(() {
         _isNameValid = _nameController.text.trim().isNotEmpty;
@@ -54,6 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   void dispose() {
+    _onboardingBloc.close();
     _pageController.dispose();
     _avatarController.dispose();
     _nameController.dispose();
@@ -87,36 +94,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Future<void> _createSoloHouse() async {
-    setState(() => _isLoading = true);
-
-    try {
-      // Update user profile
-      await sl<ApiClient>().put(
-        '/users/me',
-        data: {
-        'name': _nameController.text.trim(),
-        'avatarId': _currentAvatarIndex + 1,
-        },
-      );
-
-      // Create solo house
-      await sl<ApiClient>().post(
-        '/houses',
-        data: {
-          'name': '${_nameController.text.trim()}\'s Space',
-        },
-      );
-
-      if (!mounted) return;
-      _showSuccessAndNavigate('Personal Space Created! 🏡');
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  void _createSoloHouse() {
+    _onboardingBloc.add(
+      CreateSoloHouse(
+        displayName: _nameController.text.trim(),
+        avatarId: _currentAvatarIndex + 1,
+        houseName: '${_nameController.text.trim()}\'s Space',
+      ),
+    );
   }
 
   void _showArenaBottomSheet() {
@@ -131,41 +116,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  Future<void> _createArena() async {
-    setState(() => _isLoading = true);
+  void _createArena() {
+    // Close bottom sheet first
+    Navigator.of(context).pop();
 
-    try {
-      // Update user profile
-      await sl<ApiClient>().put(
-        '/users/me',
-        data: {
-        'name': _nameController.text.trim(),
-        'avatarId': _currentAvatarIndex + 1,
-        },
-      );
-
-      // Create shared house
-      await sl<ApiClient>().post(
-        '/houses',
-        data: {
-          'name': _houseNameController.text.trim(),
-        },
-      );
-
-      if (!mounted) return;
-
-      // Close bottom sheet
-      Navigator.of(context).pop();
-
-      // Show success
-      _showSuccessAndNavigate('Arena Created! 🎉');
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    _onboardingBloc.add(
+      CreateArenaHouse(
+        displayName: _nameController.text.trim(),
+        avatarId: _currentAvatarIndex + 1,
+        houseName: _houseNameController.text.trim(),
+      ),
+    );
   }
 
   void _showSuccessAndNavigate(String message) {
@@ -237,159 +198,189 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         : AppColors.backgroundLight;
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return BlocProvider.value(
+      value: _onboardingBloc,
+      child: BlocConsumer<OnboardingBloc, OnboardingState>(
+        listener: (context, state) {
+          if (state is OnboardingSuccess) {
+            _showSuccessAndNavigate(state.message);
+          } else if (state is OnboardingError) {
+            _showError(state.message);
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is OnboardingLoading;
+          return Scaffold(
+            backgroundColor: bgColor,
+            resizeToAvoidBottomInset: true,
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  Column(
                     children: [
-                      // Back Button
-                      if (_currentPage > 0)
-                        _buildCircleButton(
-                          isDark: isDark,
-                          icon: Icons.arrow_back_ios_new,
-                          onTap: _prevPage,
-                        )
-                      else
-                        const SizedBox(width: 40),
-
-                      // Indicators
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(_totalPages, (index) {
-                          final isActive = index == _currentPage;
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            height: 6,
-                            width: isActive ? 24 : 6,
-                            decoration: BoxDecoration(
-                              color: isActive
-                                  ? AppColors.secondary
-                                  : (isDark
-                                        ? Colors.white.withValues(alpha: 0.2)
-                                        : Colors.grey[300]),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          );
-                        }),
-                      ),
-
-                      // Step Counter
-                      Container(
+                      // Header
+                      Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                          horizontal: 16,
+                          vertical: 12,
                         ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Back Button
+                            if (_currentPage > 0)
+                              _buildCircleButton(
+                                isDark: isDark,
+                                icon: Icons.arrow_back_ios_new,
+                                onTap: _prevPage,
+                              )
+                            else
+                              const SizedBox(width: 40),
+
+                            // Indicators
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(_totalPages, (index) {
+                                final isActive = index == _currentPage;
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  height: 6,
+                                  width: isActive ? 24 : 6,
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppColors.secondary
+                                        : (isDark
+                                            ? Colors.white
+                                                .withValues(alpha: 0.2)
+                                            : Colors.grey[300]),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                );
+                              }),
+                            ),
+
+                            // Step Counter
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'Step ${_currentPage + 1}/$_totalPages',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // PageView
+                      Expanded(
+                        child: PageView(
+                          controller: _pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index;
+                            });
+                          },
+                          children: [
+                            _buildAvatarPage(isDark, textColor),
+                            _buildCreateSpacePage(isDark, textColor,
+                                isLoading: isLoading),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+
+                  // Footer Button
+                  if (_currentPage == 0)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                         decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Step ${_currentPage + 1}/$_totalPages',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.secondary,
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              bgColor,
+                              bgColor.withValues(alpha: 0.95),
+                              bgColor.withValues(alpha: 0.0),
+                            ],
+                            stops: const [0.0, 0.4, 1.0],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // PageView
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    children: [
-                      _buildAvatarPage(isDark, textColor),
-                      _buildCreateSpacePage(isDark, textColor),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 100),
-              ],
-            ),
-
-            // Footer Button
-            if (_currentPage == 0)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        bgColor,
-                        bgColor.withValues(alpha: 0.95),
-                        bgColor.withValues(alpha: 0.0),
-                      ],
-                      stops: const [0.0, 0.4, 1.0],
-                    ),
-                  ),
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isNameValid ? _nextPage : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
-                        disabledBackgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 8,
-                        shadowColor: AppColors.secondary.withValues(alpha: 0.3),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Continue',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        child: SizedBox(
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isNameValid ? _nextPage : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              disabledBackgroundColor: Colors.grey[300],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 8,
+                              shadowColor: AppColors.secondary
+                                  .withValues(alpha: 0.3),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_forward,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  
+                  // Loading Overlay
+                  if (isLoading)
+                     Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                     ),
+                ],
               ),
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -631,7 +622,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // PAGE 2: CREATE SPACE
   // ═══════════════════════════════════════
 
-  Widget _buildCreateSpacePage(bool isDark, Color textColor) {
+  Widget _buildCreateSpacePage(bool isDark, Color textColor, {required bool isLoading}) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -656,7 +647,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 40),
 
           // Personal Space Card
-          _buildPersonalSpaceCard(isDark),
+          _buildPersonalSpaceCard(isDark, isLoading: isLoading),
 
           const SizedBox(height: 24),
 
@@ -684,7 +675,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildPersonalSpaceCard(bool isDark) {
+  Widget _buildPersonalSpaceCard(bool isDark, {required bool isLoading}) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -740,7 +731,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: _isLoading ? null : _createSoloHouse,
+              onPressed: isLoading ? null : _createSoloHouse,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF6A00),
                 shape: RoundedRectangleBorder(
@@ -748,7 +739,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 elevation: 0,
               ),
-              child: _isLoading
+              child: isLoading
                   ? const SizedBox(
                       width: 24,
                       height: 24,
@@ -1004,9 +995,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isHouseNameValid && !_isLoading
-                      ? _createArena
-                      : null,
+                  onPressed: _isHouseNameValid ? _createArena : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF6A00),
                     disabledBackgroundColor: Colors.grey[300],
@@ -1014,30 +1003,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Create Arena',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, color: Colors.white),
-                          ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'Create Arena',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward, color: Colors.white),
+                    ],
+                  ),
                 ),
               ),
             ),

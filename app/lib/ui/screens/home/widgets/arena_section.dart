@@ -233,7 +233,8 @@ class _ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = current / total;
+    // Clamp progress to valid range [0.0, 1.0] to avoid widthFactor assertion error
+    final progress = total > 0 ? (current / total).clamp(0.0, 1.0) : 0.0;
 
     return Column(
       children: [

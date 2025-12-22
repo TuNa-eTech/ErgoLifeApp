@@ -43,8 +43,13 @@ class _LoginScreenContent extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          // Navigate to onboarding screen after successful sign-in
-          context.go(AppRouter.onboarding);
+          // Check if user needs onboarding (no house yet)
+          if (state.user.needsOnboarding) {
+            context.go(AppRouter.onboarding);
+          } else {
+            // User already has a house, go directly to home
+            context.go(AppRouter.home);
+          }
         } else if (state is AuthError) {
           // Show error message
           ScaffoldMessenger.of(context).showSnackBar(

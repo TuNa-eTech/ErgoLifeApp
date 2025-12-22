@@ -130,7 +130,10 @@ class ApiService {
   Future<UserModel> getCurrentUser() async {
     try {
       final response = await get(ApiConstants.authMe);
-      return UserModel.fromJson(response.data as Map<String, dynamic>);
+      // Unwrap response: backend wraps all responses in {success, data} format
+      final responseData = response.data as Map<String, dynamic>;
+      final userData = responseData['data'] ?? responseData;
+      return UserModel.fromJson(userData as Map<String, dynamic>);
     } catch (e) {
       AppLogger.error('Get current user failed', e, null, 'ApiService');
       rethrow;

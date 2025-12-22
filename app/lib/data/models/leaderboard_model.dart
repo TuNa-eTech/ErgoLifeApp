@@ -17,10 +17,10 @@ class LeaderboardEntry extends Equatable {
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
     return LeaderboardEntry(
-      rank: json['rank'] as int,
+      rank: json['rank'] as int? ?? 0,
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      weeklyPoints: json['weeklyPoints'] as int,
-      activityCount: json['activityCount'] as int,
+      weeklyPoints: json['weeklyPoints'] as int? ?? 0,
+      activityCount: json['activityCount'] as int? ?? 0,
     );
   }
 
@@ -61,12 +61,17 @@ class LeaderboardResponse extends Equatable {
 
   factory LeaderboardResponse.fromJson(Map<String, dynamic> json) {
     return LeaderboardResponse(
-      week: json['week'] as String,
-      weekStart: DateTime.parse(json['weekStart'] as String),
-      weekEnd: DateTime.parse(json['weekEnd'] as String),
-      rankings: (json['rankings'] as List)
-          .map((e) => LeaderboardEntry.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      week: json['week'] as String? ?? 'current',
+      weekStart: json['weekStart'] != null
+          ? DateTime.parse(json['weekStart'] as String)
+          : DateTime.now(),
+      weekEnd: json['weekEnd'] != null
+          ? DateTime.parse(json['weekEnd'] as String)
+          : DateTime.now(),
+      rankings: (json['rankings'] as List?)
+              ?.map((e) => LeaderboardEntry.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 

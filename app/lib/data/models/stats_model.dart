@@ -20,13 +20,14 @@ class StatsModel extends Equatable {
 
   factory StatsModel.fromJson(Map<String, dynamic> json) {
     return StatsModel(
-      period: json['period'] as String,
-      totalPoints: json['totalPoints'] as int,
-      activityCount: json['activityCount'] as int,
-      totalDurationMinutes: json['totalDurationMinutes'] as int,
-      streakDays: json['streakDays'] as int,
-      averagePointsPerActivity:
-          (json['averagePointsPerActivity'] as num).toDouble(),
+      period: json['period'] as String? ?? 'week',
+      totalPoints: json['totalPoints'] as int? ?? 0,
+      activityCount: json['activityCount'] as int? ?? 0,
+      totalDurationMinutes: json['totalDurationMinutes'] as int? ?? 0,
+      streakDays: json['streakDays'] as int? ?? 0,
+      averagePointsPerActivity: json['averagePointsPerActivity'] != null
+          ? (json['averagePointsPerActivity'] as num).toDouble()
+          : 0.0,
     );
   }
 
@@ -90,10 +91,10 @@ class WeeklyStats extends Equatable {
 
   factory WeeklyStats.fromJson(Map<String, dynamic> json) {
     return WeeklyStats(
-      totalPoints: json['totalPoints'] as int,
-      activityCount: json['activityCount'] as int,
-      totalDurationMinutes: json['totalDurationMinutes'] as int,
-      streakDays: json['streakDays'] as int,
+      totalPoints: json['totalPoints'] as int? ?? 0,
+      activityCount: json['activityCount'] as int? ?? 0,
+      totalDurationMinutes: json['totalDurationMinutes'] as int? ?? 0,
+      streakDays: json['streakDays'] as int? ?? 0,
       rankPosition: json['rankPosition'] as int? ?? 0,
       houseMemberCount: json['houseMemberCount'] as int? ?? 1,
     );

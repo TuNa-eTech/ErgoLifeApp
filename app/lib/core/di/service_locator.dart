@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Core
 import 'package:ergo_life_app/core/network/network_info.dart';
+import 'package:ergo_life_app/core/network/api_client.dart';
 import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
 
@@ -29,6 +30,7 @@ import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
+import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -45,6 +47,7 @@ Future<void> setupServiceLocator() async {
 
   // ===== Data - Services =====
   sl.registerLazySingleton<ApiService>(() => ApiService());
+  sl.registerLazySingleton<ApiClient>(() => ApiClient());
   
   // Register AuthService asynchronously to wait for Google Sign-In initialization
   sl.registerSingletonAsync<AuthService>(() async {
@@ -119,5 +122,8 @@ Future<void> setupServiceLocator() async {
 
   // HouseBloc - factory for independent instances
   sl.registerFactory<HouseBloc>(() => HouseBloc(houseRepository: sl()));
+
+  // OnboardingBloc - factory for fresh onboarding state
+  sl.registerFactory<OnboardingBloc>(() => OnboardingBloc(apiService: sl()));
 }
 

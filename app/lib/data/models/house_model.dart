@@ -21,11 +21,13 @@ class HouseModel extends Equatable {
 
   factory HouseModel.fromJson(Map<String, dynamic> json) {
     return HouseModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      inviteCode: json['inviteCode'] as String,
-      ownerId: json['ownerId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? 'Unnamed House',
+      inviteCode: json['inviteCode'] as String? ?? '',
+      ownerId: json['ownerId'] as String? ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
       members: json['members'] != null
           ? (json['members'] as List)
               .map((e) => HouseMember.fromJson(e as Map<String, dynamic>))
