@@ -12,6 +12,7 @@ class UserModel extends Equatable {
   final String? avatarUrl;
   final String? houseId;
   final DateTime? createdAt;
+  final int walletBalance;
 
   const UserModel({
     required this.id,
@@ -23,6 +24,7 @@ class UserModel extends Equatable {
     this.avatarUrl,
     this.houseId,
     this.createdAt,
+    this.walletBalance = 0,
   });
 
   /// Check if user needs onboarding (no house assigned yet)
@@ -43,6 +45,7 @@ class UserModel extends Equatable {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
+      walletBalance: json['walletBalance'] as int? ?? 0,
     );
   }
 
@@ -57,6 +60,7 @@ class UserModel extends Equatable {
       'avatarUrl': avatarUrl,
       'houseId': houseId,
       'createdAt': createdAt?.toIso8601String(),
+      'walletBalance': walletBalance,
     };
   }
 
@@ -76,6 +80,7 @@ class UserModel extends Equatable {
     String? avatarUrl,
     String? houseId,
     DateTime? createdAt,
+    int? walletBalance,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -87,11 +92,12 @@ class UserModel extends Equatable {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       houseId: houseId ?? this.houseId,
       createdAt: createdAt ?? this.createdAt,
+      walletBalance: walletBalance ?? this.walletBalance,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, firebaseUid, provider, email, name, avatarId, avatarUrl, houseId, createdAt];
+      [id, firebaseUid, provider, email, name, avatarId, avatarUrl, houseId, createdAt, walletBalance];
 }
 

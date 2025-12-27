@@ -1,3 +1,4 @@
+// Updated navigation to show Rewards instead of Rank
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
@@ -50,9 +51,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
               _buildNavItem(
                 context,
                 index: 1,
-                icon: Icons.leaderboard_outlined,
-                filledIcon: Icons.leaderboard,
-                label: 'Rank',
+                icon: Icons.local_mall_outlined,
+                filledIcon: Icons.local_mall,
+                label: 'Rewards',
                 isDark: isDark,
               ),
               _buildNavItem(

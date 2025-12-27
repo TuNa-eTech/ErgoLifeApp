@@ -49,3 +49,18 @@ class CreateArenaHouse extends OnboardingEvent {
   @override
   List<Object> get props => [houseName, displayName, avatarId];
 }
+
+class JoinHouse extends OnboardingEvent {
+  final String code;
+  final String displayName;
+  final int avatarId;
+
+  const JoinHouse({
+    required this.code,
+    required this.displayName,
+    required this.avatarId,
+  });
+
+  @override
+  List<Object> get props => [code, displayName, avatarId];
+}

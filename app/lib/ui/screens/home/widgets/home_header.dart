@@ -54,8 +54,8 @@ class HomeHeader extends StatelessWidget {
             radius: 24,
             backgroundImage: avatarUrl != null
                 ? NetworkImage(avatarUrl!)
-                : const NetworkImage(
-                    "https://lh3.googleusercontent.com/aida-public/AB6AXuC8cNp4p9S10dVV67Ocu6pA2hPZErbqWTgHgdAUGn0CA4y4BT7VJJpsRUWf67jTFvA6Oxt3wcI0Dk6AD2SquLO8RMX5oJOPRSmj7xpeXcuCQAzoL-YGBBaFOIcSRiPdU67QgnwyPF20TDuOxyBvcG8gZzNLc_U0qhllkVaoRE40AULggtrgvwOJU9nH4_SuoGnzj3zWc5zVws0VRdT7gTN5XTHQOMWF9N2Md2IMyZC6PvdjaamVIdDc_34LYL78G9ZvglhtRkrH4bU",
+                : const AssetImage(
+                    "assets/images/default_avatar.png",
                   ),
           ),
           // Online indicator
@@ -89,7 +89,7 @@ class HomeHeader extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

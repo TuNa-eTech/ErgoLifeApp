@@ -14,6 +14,7 @@ import {
   DeleteRewardResponseDto,
   RedeemRewardResponseDto,
 } from './dto';
+import { RedemptionStatus } from '@prisma/client';
 
 @Injectable()
 export class RewardsService {
@@ -228,6 +229,7 @@ export class RewardsService {
           houseId: user.houseId!,
           rewardTitle: reward.title,
           pointsSpent: reward.cost,
+          status: RedemptionStatus.USED,
         },
       });
 

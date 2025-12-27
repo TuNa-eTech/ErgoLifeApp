@@ -81,10 +81,10 @@ Hệ thống kinh tế trong game - người dùng tích lũy **ErgoPoints** t�
 5. Người dùng xác nhận
 6. Hệ thống thực hiện transaction:
    - Trừ `wallet_balance` của User
-   - Tạo `redemption` record với status `pending`
+   - Tạo `redemption` record với status `completed` (Instant Redeem)
 7. Hệ thống gửi Push Notification cho các thành viên khác:
    - "[User] vừa đổi coupon: [Tên Coupon]!"
-8. Hiển thị thông báo thành công
+8. Hiển thị thông báo thành công "Đổi quà thành công!"
 
 ### Alternative Flows
 
@@ -147,24 +147,7 @@ Hệ thống kinh tế trong game - người dùng tích lũy **ErgoPoints** t�
 
 ---
 
-## UC-15: Đánh dấu Coupon đã dùng (Use Coupon)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **ID** | UC-15 |
-| **Tên** | Đánh dấu Coupon đã dùng |
-| **Actor** | House Member (người nhận coupon hoặc người đổi) |
-| **Mô tả** | Đánh dấu một redemption đã được thực hiện |
-
-### Main Flow
-1. Người dùng vào History > Redemptions
-2. Người dùng tìm coupon với status `Pending`
-3. Người dùng nhấn "Đánh dấu đã dùng"
-4. Hệ thống cập nhật `status = 'used'`
-5. Hiển thị xác nhận
-
-### Business Rules
-- BR-25: Chỉ người đổi coupon hoặc member khác trong House mới có thể đánh dấu
+**(Đã loại bỏ trong MVP - Chuyển sang Instant Redeem)**
 
 ---
 

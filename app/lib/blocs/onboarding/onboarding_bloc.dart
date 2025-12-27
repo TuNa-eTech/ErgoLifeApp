@@ -13,6 +13,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         super(const OnboardingInitial()) {
     on<CreateSoloHouse>(_onCreateSoloHouse);
     on<CreateArenaHouse>(_onCreateArenaHouse);
+    on<JoinHouse>(_onJoinHouse);
   }
 
   Future<void> _onCreateSoloHouse(
@@ -81,6 +82,34 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         AppLogger.error('Create Arena House Failed', e, null, 'OnboardingBloc');
         emit(OnboardingError(e.toString()));
       }
+    }
+  }
+
+  Future<void> _onJoinHouse(
+    JoinHouse event,
+    Emitter<OnboardingState> emit,
+  ) async {
+    emit(const OnboardingLoading());
+    try {
+      // 1. Update profile (Display name and avatar are required before joining)
+      // Wait.. if user joins, they might not have set name yet? 
+      // In UI, Join is on Page 2. Page 1 sets Name/Avatar. 
+      // But Page 1 doesn't save to backend immediately? 
+      // Page 1 stores in state? No, OnboardingScreen stores in state.
+      // The event JoinHouse should act like CreateHouse: Update profile THEN Join.
+      
+      await _apiService.updateProfile(
+        displayName: event.displayName,
+        avatarId: event.avatarId,
+      );
+
+      // 2. Join house
+      await _apiService.joinHouse(event.code);
+
+      emit(const OnboardingSuccess('Joined House Successfully! 🏠'));
+    } catch (e) {
+      AppLogger.error('Join House Failed', e, null, 'OnboardingBloc');
+      emit(OnboardingError(e.toString()));
     }
   }
 }

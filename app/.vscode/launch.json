@@ -6,7 +6,7 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "toolArgs": [
+      "args": [
         "--dart-define-from-file=dart_define/dev.env"
       ]
     },
@@ -15,7 +15,7 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "toolArgs": [
+      "args": [
         "--dart-define-from-file=dart_define/staging.env"
       ]
     },
@@ -24,7 +24,7 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "toolArgs": [
+      "args": [
         "--dart-define-from-file=dart_define/prod.env"
       ]
     }

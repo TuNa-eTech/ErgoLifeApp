@@ -30,7 +30,7 @@ class UserRepository {
   // Get user from API (example)
   Future<UserModel> fetchUser() async {
     try {
-      final response = await _apiService.get('/user/profile');
+      final response = await _apiService.get('/auth/me');
       return UserModel.fromJson(response.data);
     } catch (e) {
       // If API fails, try to get from cache

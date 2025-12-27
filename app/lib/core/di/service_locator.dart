@@ -31,6 +31,8 @@ import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
+import 'package:ergo_life_app/data/repositories/reward_repository.dart';
+import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -73,6 +75,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<SessionRepository>(() => SessionRepository(sl()));
   sl.registerLazySingleton<ActivityRepository>(() => ActivityRepository(sl()));
   sl.registerLazySingleton<HouseRepository>(() => HouseRepository(sl()));
+  sl.registerLazySingleton<RewardRepository>(() => RewardRepository(sl()));
   
   // AuthRepository depends on async AuthService, so must wait for it
   sl.registerSingletonWithDependencies<AuthRepository>(
@@ -125,5 +128,11 @@ Future<void> setupServiceLocator() async {
 
   // OnboardingBloc - factory for fresh onboarding state
   sl.registerFactory<OnboardingBloc>(() => OnboardingBloc(apiService: sl()));
+
+  // RewardsBloc
+  sl.registerFactory<RewardsBloc>(() => RewardsBloc(
+    rewardRepository: sl(),
+    userRepository: sl(),
+  ));
 }
 

@@ -95,8 +95,8 @@ class ActiveSessionView extends StatelessWidget {
 
   Widget _buildBackgroundImage() {
     return Positioned.fill(
-      child: Image.network(
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDtXYc8ewuI4ZXCfxKjjphm98tp0-SyNTx3m5Y4pQ4_Z6gLZ4-x4pD9PXVCnRCJrQR7zw7TViMiAdlsAd2-QMNzTHBkocadgWanXb1DWSXxaUZuxX-N1sb4ocdh-wVKYVsOxdbBB_nTJ62ok1F_uxPjls-_3xABisYHc2ywuK3JTtN83p8vn7GtiEb08RdJeUy2WOLB_gnGdJXVBqo6rwHLbRQ9jDjsTenwodPLNuENnat_MTAsPIE-Enp7QcUO8XuXwrhrZH1Lfz0",
+      child: Image.asset(
+        "assets/images/active_session_bg.png",
         fit: BoxFit.cover,
       ),
     );

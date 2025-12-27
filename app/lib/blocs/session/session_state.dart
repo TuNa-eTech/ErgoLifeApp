@@ -53,7 +53,7 @@ class SessionActive extends SessionState {
   /// Calories = (METs × 3.5 × bodyWeight in kg) / 200 × minutes
   /// Using average 70kg body weight for estimation
   int get estimatedCalories {
-    const avgBodyWeight = 70.0;
+    const avgBodyWeight = 65.0;
     final minutes = elapsedSeconds / 60;
     return ((task.metsValue * 3.5 * avgBodyWeight) / 200 * minutes).round();
   }

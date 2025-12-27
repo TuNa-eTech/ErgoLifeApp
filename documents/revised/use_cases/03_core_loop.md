@@ -133,7 +133,7 @@ Module cốt lõi của ứng dụng - vòng lặp: **Chọn việc → Xem hư�
 ### Business Rules
 - BR-13: Thời gian tối thiểu: 1 phút để tính điểm
 - BR-14: Thời gian tối đa: 120 phút/session
-- BR-15: Calo = Duration(min) × METs × 3.5 × Weight(kg) / 200
+- BR-15: Calo = Duration(min) × METs × 3.5 × 65 (Default Weight) / 200
 
 ### UI Specifications
 - Timer font: Large, bold (56px+)

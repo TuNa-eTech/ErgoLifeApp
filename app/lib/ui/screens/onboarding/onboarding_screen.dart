@@ -10,7 +10,8 @@ import 'package:ergo_life_app/blocs/onboarding/onboarding_event.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_state.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  final OnboardingBloc? bloc;
+  const OnboardingScreen({super.key, this.bloc});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -44,7 +45,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _onboardingBloc = sl<OnboardingBloc>();
+    _onboardingBloc = widget.bloc ?? sl<OnboardingBloc>();
     _nameController.addListener(() {
       setState(() {
         _isNameValid = _nameController.text.trim().isNotEmpty;
@@ -670,6 +671,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // Family Arena Card
           _buildFamilyArenaCard(isDark),
+
+          const SizedBox(height: 24),
+          
+          // Join Code Button
+          Center(
+            child: TextButton.icon(
+              onPressed: () => _showJoinCodeDialog(context, isDark),
+              icon: Icon(Icons.qr_code, color: textColor),
+              label: Text(
+                'Already have an invite code?',
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -1048,4 +1069,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
+
+  void _showJoinCodeDialog(BuildContext context, bool isDark) {
+    final codeController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+        title: Text('Join House', style: TextStyle(color: isDark ? AppColors.textMainDark : AppColors.textMainLight)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter the 6-digit code shared by your house admin.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: codeController,
+              decoration: const InputDecoration(
+                labelText: 'Invite Code',
+                border: OutlineInputBorder(),
+              ),
+              textCapitalization: TextCapitalization.characters,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+               Navigator.pop(ctx);
+               _onboardingBloc.add(
+                 JoinHouse(
+                   code: codeController.text.trim(),
+                   displayName: _nameController.text.trim(),
+                   avatarId: _currentAvatarIndex + 1,
+                 ),
+               );
+            },
+            child: const Text('Join'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

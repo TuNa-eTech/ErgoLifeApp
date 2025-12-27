@@ -45,7 +45,7 @@ Module quản lý "Nhà" - đơn vị tổ chức chính trong ứng dụng. M�
 | **ID** | UC-05 |
 | **Tên** | Mời Thành viên |
 | **Actor** | House Member |
-| **Mô tả** | Tạo QR Code hoặc Link mời để chia sẻ |
+| **Mô tả** | Tạo Mã mời (House Code) để chia sẻ |
 
 ### Preconditions
 - Người dùng đã thuộc về một House
@@ -54,10 +54,8 @@ Module quản lý "Nhà" - đơn vị tổ chức chính trong ứng dụng. M�
 ### Main Flow
 1. Người dùng mở màn hình House Settings
 2. Người dùng nhấn "Mời Thành viên"
-3. Hệ thống tạo invite code / deep link chứa `house_id`
-4. Hệ thống hiển thị:
-   - QR Code để scan
-   - Nút "Chia sẻ Link"
+   - Mã mời 6 ký tự (VD: "123456")
+   - Nút "Copy Mã"
 5. Người dùng chia sẻ qua tin nhắn, email, hoặc để đối phương scan
 
 ### Alternative Flows
@@ -90,11 +88,8 @@ Module quản lý "Nhà" - đơn vị tổ chức chính trong ứng dụng. M�
 - Có invite link/QR hợp lệ
 
 ### Main Flow
-1. Người dùng scan QR Code hoặc nhấn vào Deep Link
-2. Ứng dụng mở và hiển thị thông tin Nhà:
-   - Tên Nhà
-   - Số thành viên hiện tại
-   - Danh sách avatar thành viên
+1. Người dùng chọn "Tham gia Nhà"
+2. Người dùng nhập Mã mời 6 ký tự
 3. Người dùng nhấn "Tham gia"
 4. Hệ thống validate:
    - House tồn tại

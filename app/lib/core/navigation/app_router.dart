@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
 import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
-import 'package:ergo_life_app/ui/screens/rank/rank_screen.dart';
+
 import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
@@ -12,6 +12,7 @@ import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
+import 'package:ergo_life_app/ui/screens/rewards/rewards_screen.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
 
 class AppRouter {
@@ -23,7 +24,9 @@ class AppRouter {
   static const String tasks = '/tasks';
   static const String profile = '/profile';
   static const String createTask = '/create-task';
+
   static const String activeSession = '/active-session';
+  static const String rewards = '/rewards';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -45,14 +48,14 @@ class AppRouter {
               ),
             ],
           ),
-          // Rank Branch
+          // Rewards Branch
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: rank,
-                name: 'rank',
+                path: rewards,
+                name: 'rewards',
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: RankScreen()),
+                    const NoTransitionPage(child: RewardsScreen()),
               ),
             ],
           ),
