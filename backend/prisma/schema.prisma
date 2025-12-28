@@ -56,8 +56,34 @@ model User {
   rewards      Reward[]     @relation("RewardCreator")
   redemptions  Redemption[]
   housesOwned  House[]      @relation("HouseOwner")
+  customTasks  CustomTask[]
 
   @@map("users")
+}
+
+model CustomTask {
+  id              String   @id @default(uuid())
+  
+  // Owner
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id])
+  
+  // Task details
+  exerciseName    String   @map("exercise_name")
+  taskDescription String?  @map("task_description")
+  durationMinutes Int      @map("duration_minutes")
+  metsValue       Float    @default(3.5) @map("mets_value")
+  icon            String   @default("fitness_center")
+  
+  // Flags
+  isFavorite      Boolean  @default(false) @map("is_favorite")
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  @@index([userId, createdAt])
+  @@map("custom_tasks")
 }
 
 model House {

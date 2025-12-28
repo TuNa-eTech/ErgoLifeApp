@@ -30,6 +30,9 @@ class ApiConstants {
   static const String rewards = '/rewards';
   static const String redemptions = '/redemptions';
 
+  // Tasks Endpoints
+  static const String tasksCustom = '/tasks/custom';
+
   // Headers
   static const String headerAuth = 'Authorization';
   static const String headerContentType = 'Content-Type';

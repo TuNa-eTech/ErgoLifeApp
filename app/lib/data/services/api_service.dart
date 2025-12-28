@@ -8,6 +8,7 @@ import 'package:ergo_life_app/data/models/activity_model.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
+import 'package:ergo_life_app/data/models/custom_task_model.dart';
 
 class ApiService {
   late final Dio _dio;
@@ -337,6 +338,63 @@ class ApiService {
       return HousePreview.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       AppLogger.error('Preview house failed', e, null, 'ApiService');
+      rethrow;
+    }
+  }
+
+  // ===== Custom Task Methods =====
+
+  /// Create a custom task
+  Future<CustomTaskModel> createCustomTask(CreateCustomTaskRequest request) async {
+    try {
+      final response = await post(
+        ApiConstants.tasksCustom,
+        data: request.toJson(),
+      );
+      final responseData = response.data as Map<String, dynamic>;
+      final taskData = responseData['data'] ?? responseData;
+      return CustomTaskModel.fromJson(taskData as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error('Create custom task failed', e, null, 'ApiService');
+      rethrow;
+    }
+  }
+
+  /// Get user's custom tasks
+  Future<List<CustomTaskModel>> getCustomTasks() async {
+    try {
+      final response = await get(ApiConstants.tasksCustom);
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] ?? responseData;
+      final tasksData = data['tasks'] as List<dynamic>? ?? [];
+      return tasksData
+          .map((json) => CustomTaskModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      AppLogger.error('Get custom tasks failed', e, null, 'ApiService');
+      rethrow;
+    }
+  }
+
+  /// Delete a custom task
+  Future<void> deleteCustomTask(String taskId) async {
+    try {
+      await delete('${ApiConstants.tasksCustom}/$taskId');
+    } catch (e) {
+      AppLogger.error('Delete custom task failed', e, null, 'ApiService');
+      rethrow;
+    }
+  }
+
+  /// Toggle favorite status of a custom task
+  Future<CustomTaskModel> toggleCustomTaskFavorite(String taskId) async {
+    try {
+      final response = await patch('${ApiConstants.tasksCustom}/$taskId/favorite');
+      final responseData = response.data as Map<String, dynamic>;
+      final taskData = responseData['data'] ?? responseData;
+      return CustomTaskModel.fromJson(taskData as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error('Toggle favorite failed', e, null, 'ApiService');
       rethrow;
     }
   }
