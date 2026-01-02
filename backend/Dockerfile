@@ -1,12 +1,12 @@
-# Stage 1: Build
-FROM node:20-alpine AS builder
+# Stage 1: Development
+FROM node:20-alpine AS development
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json yarn.lock ./
 
-# Install dependencies
+# Install dependencies (including dev dependencies)
 RUN yarn install --frozen-lockfile
 
 # Copy prisma schema
@@ -17,6 +17,9 @@ RUN yarn prisma:generate
 
 # Copy source code
 COPY . .
+
+# Stage 2: Build
+FROM development AS builder
 
 # Build the application
 RUN yarn build

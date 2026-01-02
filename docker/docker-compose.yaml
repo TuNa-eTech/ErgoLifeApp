@@ -26,6 +26,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+      target: development
     container_name: ergolife-backend
     restart: unless-stopped
     ports:
@@ -52,7 +53,6 @@ services:
     volumes:
       - ../backend:/app
       - /app/node_modules
-      - /app/dist
     command: sh -c "yarn prisma:generate && yarn prisma:migrate && yarn start:dev"
 
 networks:
