@@ -32,7 +32,7 @@ import { JwtPayload } from '../auth/auth.service';
 @ApiTags('rewards')
 @Controller('rewards')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class RewardsController {
   constructor(private readonly rewardsService: RewardsService) {}
 

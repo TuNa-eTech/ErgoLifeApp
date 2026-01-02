@@ -36,7 +36,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current user',
     description: 'Get authenticated user information with house details. Requires JWT token.',
@@ -53,7 +53,7 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Logout user',
     description: 'Logout and invalidate FCM token. Client should delete local JWT.',

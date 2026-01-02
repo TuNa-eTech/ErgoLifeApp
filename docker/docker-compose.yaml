@@ -1,5 +1,5 @@
-version: "3.8"
-name: ergolife
+# version: "3.8"
+name: "ergolife"
 services:
   postgres:
     image: postgres:15

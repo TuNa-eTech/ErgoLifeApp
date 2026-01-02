@@ -32,7 +32,7 @@ export class HousesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Create a new house',
     description: 'Create a new household. User becomes the first member and owner.',
@@ -52,7 +52,7 @@ export class HousesController {
 
   @Get('mine')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current house',
     description: 'Get information about the current user\'s house',
@@ -69,7 +69,7 @@ export class HousesController {
 
   @Get('invite')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get invite info',
     description: 'Get invite code and deep link for current house',
@@ -86,7 +86,7 @@ export class HousesController {
 
   @Post('join')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Join a house',
     description: 'Join an existing house using invite code',
@@ -107,7 +107,7 @@ export class HousesController {
 
   @Post('leave')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Leave current house',
     description: 'Leave the current house. Wallet balance will be reset to 0.',

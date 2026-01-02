@@ -36,18 +36,49 @@ async function bootstrap() {
   // Global response transformer
   app.useGlobalInterceptors(new TransformInterceptor());
 
+  const port = process.env.PORT || 3000;
+
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('ErgoLife API')
-    .setDescription('ErgoLife Backend API Documentation')
+    .setDescription(
+      'ErgoLife Backend API Documentation - A gamified wellness and household management app.',
+    )
     .setVersion('1.0')
-    .addTag('users')
-    .addBearerAuth()
+    .setContact('ErgoLife Team', '', 'support@ergolife.app')
+    .addServer(`http://localhost:${port}`, 'Local Development')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('users', 'User management endpoints')
+    .addTag('houses', 'House/Family management endpoints')
+    .addTag('tasks', 'Task management endpoints')
+    .addTag('activities', 'Activity tracking endpoints')
+    .addTag('rewards', 'Rewards management endpoints')
+    .addTag('redemptions', 'Reward redemption endpoints')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.PORT || 3000;
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'list',
+      filter: true,
+      showRequestDuration: true,
+    },
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'ErgoLife API Docs',
+  });
+
   await app.listen(port);
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);

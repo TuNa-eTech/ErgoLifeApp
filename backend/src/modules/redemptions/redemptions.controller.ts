@@ -25,7 +25,7 @@ import { JwtPayload } from '../auth/auth.service';
 @ApiTags('redemptions')
 @Controller('redemptions')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class RedemptionsController {
   constructor(private readonly redemptionsService: RedemptionsService) {}
 

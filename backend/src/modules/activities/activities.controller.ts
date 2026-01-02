@@ -30,7 +30,7 @@ import { JwtPayload } from '../auth/auth.service';
 @ApiTags('activities')
 @Controller('activities')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
