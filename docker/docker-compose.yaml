@@ -19,27 +19,39 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - ergolife-network
 
-  # Uncomment this section when you want to run the backend in Docker
-  # backend:
-  #   build:
-  #     context: ../backend
-  #     dockerfile: Dockerfile
-  #   container_name: ergolife-backend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${BACKEND_PORT:-3000}:3000"
-  #   environment:
-  #     DATABASE_URL: postgresql://${POSTGRES_USER:-ergolife}:${POSTGRES_PASSWORD:-ergolife123}@postgres:5432/${POSTGRES_DB:-ergolife_db}
-  #     NODE_ENV: ${NODE_ENV:-development}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - ergolife-network
-  #   volumes:
-  #     - ../backend:/app
-  #     - /app/node_modules
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: ergolife-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ergolife}:${POSTGRES_PASSWORD:-ergolife123}@postgres:5432/${POSTGRES_DB:-ergolife_db}?schema=public
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-./ergolife-firebase-adminsdk.json}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ergolife-network
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+      - /app/dist
+    command: sh -c "yarn prisma:generate && yarn prisma:migrate && yarn start:dev"
+
+networks:
+  ergolife-network:
+    driver: bridge
 
 volumes:
   postgres_data:
