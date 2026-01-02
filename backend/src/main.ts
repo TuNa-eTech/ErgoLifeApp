@@ -55,8 +55,8 @@ async function bootstrap() {
     )
     .setVersion('1.0')
     .setContact('ErgoLife Team', '', 'support@ergolife.app')
-    .addServer(`http://localhost:${port}`, 'Local Development')
     .addServer('https://ergolife.e-tech.network', 'Production Server')
+    .addServer(`http://localhost:${port}`, 'Local Development')
     .addBearerAuth(
       {
         type: 'http',
