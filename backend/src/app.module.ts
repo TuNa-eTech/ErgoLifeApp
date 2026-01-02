@@ -9,6 +9,7 @@ import { ActivitiesModule } from './modules/activities/activities.module';
 import { RewardsModule } from './modules/rewards/rewards.module';
 import { RedemptionsModule } from './modules/redemptions/redemptions.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { HealthModule } from './health/health.module';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
 
 @Module({
@@ -16,6 +17,7 @@ import { LoggingMiddleware } from './common/middleware/logging.middleware';
     AppConfigModule,
     PrismaModule,
     FirebaseModule,
+    HealthModule,
     AuthModule,
     UserModule,
     HousesModule,

@@ -65,6 +65,7 @@ async function bootstrap() {
     .addTag('activities', 'Activity tracking endpoints')
     .addTag('rewards', 'Rewards management endpoints')
     .addTag('redemptions', 'Reward redemption endpoints')
+    .addTag('health', 'Health check endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

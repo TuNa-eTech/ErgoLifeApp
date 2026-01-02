@@ -24,6 +24,9 @@ RUN yarn build
 # Stage 2: Production
 FROM node:20-alpine AS production
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copy package files
