@@ -19,10 +19,15 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS
+  // Enable CORS (temporarily allow all origins for debugging)
+  const corsOrigin = process.env.CORS_ORIGIN?.split(',') || '*';
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+    origin: true, // Temporarily allow all origins
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,
+    maxAge: 3600,
   });
 
   // Global validation pipe
