@@ -19,10 +19,10 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS (temporarily allow all origins for debugging)
+  // Enable CORS
   const corsOrigin = process.env.CORS_ORIGIN?.split(',') || '*';
   app.enableCors({
-    origin: true, // Temporarily allow all origins
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
