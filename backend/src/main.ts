@@ -12,8 +12,12 @@ async function bootstrap() {
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
-  // Security headers
-  app.use(helmet());
+  // Security headers (disable CSP for Swagger to work)
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
 
   // Enable CORS
   app.enableCors({
