@@ -3,15 +3,18 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_event.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_state.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  final OnboardingBloc? bloc;
-  const OnboardingScreen({super.key, this.bloc});
+  final OnboardingBloc onboardingBloc;
+  
+  const OnboardingScreen({
+    super.key,
+    required this.onboardingBloc,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -45,7 +48,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _onboardingBloc = widget.bloc ?? sl<OnboardingBloc>();
+    _onboardingBloc = widget.onboardingBloc;
     _nameController.addListener(() {
       setState(() {
         _isNameValid = _nameController.text.trim().isNotEmpty;

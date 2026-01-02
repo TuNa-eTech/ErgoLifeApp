@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/data/models/custom_task_model.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_event.dart';
@@ -9,12 +8,17 @@ import 'package:ergo_life_app/blocs/task/task_state.dart';
 import 'package:go_router/go_router.dart';
 
 class CreateTaskScreen extends StatelessWidget {
-  const CreateTaskScreen({super.key});
+  final TaskBloc taskBloc;
+
+  const CreateTaskScreen({
+    super.key,
+    required this.taskBloc,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<TaskBloc>(),
+    return BlocProvider.value(
+      value: taskBloc,
       child: const _CreateTaskScreenContent(),
     );
   }

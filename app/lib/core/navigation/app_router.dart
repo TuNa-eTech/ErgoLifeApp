@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
 import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
-
 import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
@@ -10,10 +9,24 @@ import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
 import 'package:ergo_life_app/ui/screens/splash/splash_screen.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
-import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/ui/screens/rewards/rewards_screen.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
+
+// DI
+import 'package:ergo_life_app/core/di/service_locator.dart';
+
+// BLoCs
+import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
+import 'package:ergo_life_app/blocs/home/home_bloc.dart';
+import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
+import 'package:ergo_life_app/blocs/task/task_bloc.dart';
+import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
+import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
+import 'package:ergo_life_app/blocs/house/house_bloc.dart';
+
+// House screens
+import 'package:ergo_life_app/ui/screens/house/invite_members_screen.dart';
+import 'package:ergo_life_app/ui/screens/house/join_house_screen.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -27,6 +40,10 @@ class AppRouter {
 
   static const String activeSession = '/active-session';
   static const String rewards = '/rewards';
+
+  // House routes
+  static const String inviteMembers = '/house/invite';
+  static const String joinHouse = '/house/join';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -43,8 +60,9 @@ class AppRouter {
               GoRoute(
                 path: home,
                 name: 'home',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: HomeScreen()),
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: HomeScreen(homeBloc: sl<HomeBloc>()),
+                ),
               ),
             ],
           ),
@@ -54,8 +72,9 @@ class AppRouter {
               GoRoute(
                 path: rewards,
                 name: 'rewards',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: RewardsScreen()),
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: RewardsScreen(rewardsBloc: sl<RewardsBloc>()),
+                ),
               ),
             ],
           ),
@@ -65,8 +84,9 @@ class AppRouter {
               GoRoute(
                 path: tasks,
                 name: 'tasks',
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: TasksScreen()),
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: TasksScreen(tasksBloc: sl<TasksBloc>()),
+                ),
               ),
             ],
           ),
@@ -77,7 +97,7 @@ class AppRouter {
                 path: profile,
                 name: 'profile',
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ProfileScreen()),
+                    NoTransitionPage(child: const ProfileScreen()),
               ),
             ],
           ),
@@ -89,7 +109,7 @@ class AppRouter {
         name: 'createTask',
         pageBuilder: (context, state) => MaterialPage(
           fullscreenDialog: true,
-          child: const CreateTaskScreen(),
+          child: CreateTaskScreen(taskBloc: sl<TaskBloc>()),
         ),
       ),
       GoRoute(
@@ -115,22 +135,39 @@ class AppRouter {
       GoRoute(
         path: splash,
         name: 'splash',
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: SplashScreen(authBloc: sl<AuthBloc>()),
-        ),
+        pageBuilder: (context, state) =>
+            NoTransitionPage(child: SplashScreen(authBloc: sl<AuthBloc>())),
       ),
 
       GoRoute(
         path: onboarding,
         name: 'onboarding',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: OnboardingScreen()),
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: OnboardingScreen(onboardingBloc: sl<OnboardingBloc>()),
+        ),
       ),
       GoRoute(
         path: login,
         name: 'login',
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: LoginScreen(authBloc: sl<AuthBloc>()),
+        pageBuilder: (context, state) =>
+            NoTransitionPage(child: LoginScreen(authBloc: sl<AuthBloc>())),
+      ),
+
+      // House Management Routes
+      GoRoute(
+        path: inviteMembers,
+        name: 'inviteMembers',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: InviteMembersScreen(houseBloc: sl<HouseBloc>()),
+        ),
+      ),
+      GoRoute(
+        path: joinHouse,
+        name: 'joinHouse',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: JoinHouseScreen(houseBloc: sl<HouseBloc>()),
         ),
       ),
     ],

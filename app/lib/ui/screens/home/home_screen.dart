@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/home/home_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_event.dart';
@@ -10,15 +9,18 @@ import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/arena_section.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
+import 'package:ergo_life_app/ui/widgets/ergo_coach_overlay.dart';
 
 /// Home screen displaying user dashboard with arena and quick tasks
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final HomeBloc homeBloc;
+
+  const HomeScreen({super.key, required this.homeBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomeBloc>(
-      create: (_) => sl<HomeBloc>()..add(const LoadHomeData()),
+    return BlocProvider<HomeBloc>.value(
+      value: homeBloc..add(const LoadHomeData()),
       child: const HomeView(),
     );
   }
@@ -172,7 +174,9 @@ class HomeView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color: isDark
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 8),
@@ -180,7 +184,9 @@ class HomeView extends StatelessWidget {
                 message,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color: isDark
+                      ? AppColors.textSubDark
+                      : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(height: 24),
@@ -253,7 +259,7 @@ class HomeView extends StatelessWidget {
                     (t) => t.exerciseName == task.title,
                     orElse: () => state.quickTasks.first,
                   );
-                  context.push(AppRouter.activeSession, extra: taskModel);
+                  _showErgoCoachAndNavigate(context, taskModel);
                 },
               ),
             ],
@@ -294,6 +300,24 @@ class HomeView extends StatelessWidget {
       child: IconButton(
         icon: const Icon(Icons.add, size: 32, color: Colors.white),
         onPressed: () => context.push(AppRouter.createTask),
+      ),
+    );
+  }
+
+  void _showErgoCoachAndNavigate(BuildContext context, dynamic taskModel) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => ErgoCoachOverlay(
+        task: taskModel,
+        onReady: () {
+          Navigator.pop(ctx);
+          context.push(AppRouter.activeSession, extra: taskModel);
+        },
+        onSkip: () {
+          Navigator.pop(ctx);
+          context.push(AppRouter.activeSession, extra: taskModel);
+        },
       ),
     );
   }

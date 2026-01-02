@@ -20,7 +20,7 @@ void main() {
   testWidgets('OnboardingScreen renders "Who are you?" initially', (tester) async {
     when(() => mockOnboardingBloc.state).thenReturn(const OnboardingInitial());
 
-    await tester.pumpWidget(MaterialApp(home: OnboardingScreen(bloc: mockOnboardingBloc)));
+    await tester.pumpWidget(MaterialApp(home: OnboardingScreen(onboardingBloc: mockOnboardingBloc)));
 
     expect(find.text('Choose your avatar'), findsOneWidget);
     expect(find.text('Pick one for the leaderboard (optional)'), findsOneWidget);
@@ -29,7 +29,7 @@ void main() {
   testWidgets('Button is disabled when name is empty', (tester) async {
       when(() => mockOnboardingBloc.state).thenReturn(const OnboardingInitial());
       
-      await tester.pumpWidget(MaterialApp(home: OnboardingScreen(bloc: mockOnboardingBloc)));
+      await tester.pumpWidget(MaterialApp(home: OnboardingScreen(onboardingBloc: mockOnboardingBloc)));
       
       expect(find.byType(TextField), findsOneWidget);
   });

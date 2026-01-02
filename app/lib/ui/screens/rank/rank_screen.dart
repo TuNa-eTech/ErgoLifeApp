@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_state.dart';
 
 class RankScreen extends StatelessWidget {
-  const RankScreen({super.key});
+  final LeaderboardBloc leaderboardBloc;
+
+  const RankScreen({super.key, required this.leaderboardBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LeaderboardBloc>(
-      create: (_) => sl<LeaderboardBloc>()..add(const LoadLeaderboard()),
+    return BlocProvider<LeaderboardBloc>.value(
+      value: leaderboardBloc..add(const LoadLeaderboard()),
       child: const RankView(),
     );
   }
@@ -26,7 +29,9 @@ class RankView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: BlocConsumer<LeaderboardBloc, LeaderboardState>(
         listener: (context, state) {
           if (state is LeaderboardError) {
@@ -37,7 +42,9 @@ class RankView extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'Retry',
                   textColor: Colors.white,
-                  onPressed: () => context.read<LeaderboardBloc>().add(const LoadLeaderboard()),
+                  onPressed: () => context.read<LeaderboardBloc>().add(
+                    const LoadLeaderboard(),
+                  ),
                 ),
               ),
             );
@@ -73,25 +80,34 @@ class RankView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: isDark ? Colors.red.shade300 : Colors.red),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: isDark ? Colors.red.shade300 : Colors.red,
+            ),
             const SizedBox(height: 16),
             Text(
               'Failed to load leaderboard',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+              style: TextStyle(
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => context.read<LeaderboardBloc>().add(const LoadLeaderboard()),
+              onPressed: () =>
+                  context.read<LeaderboardBloc>().add(const LoadLeaderboard()),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
@@ -105,7 +121,11 @@ class RankView extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadedState(BuildContext context, LeaderboardLoaded state, bool isDark) {
+  Widget _buildLoadedState(
+    BuildContext context,
+    LeaderboardLoaded state,
+    bool isDark,
+  ) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<LeaderboardBloc>().add(const RefreshLeaderboard());
@@ -116,17 +136,18 @@ class RankView extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
-            _buildHeader(isDark),
+            _buildHeader(context, isDark),
             if (state.podium.isNotEmpty) _buildPodium(state, isDark),
             if (state.runnersUp.isNotEmpty) _buildRunnersUp(state, isDark),
-            if (state.podium.isEmpty && state.runnersUp.isEmpty) _buildEmptyState(isDark),
+            if (state.podium.isEmpty && state.runnersUp.isEmpty)
+              _buildEmptyState(isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
       child: Row(
@@ -141,7 +162,9 @@ class RankView extends StatelessWidget {
                   fontSize: 12,
                   letterSpacing: 1.5,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color: isDark
+                      ? AppColors.textSubDark
+                      : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(height: 4),
@@ -150,10 +173,34 @@ class RankView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color: isDark
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
                 ),
               ),
             ],
+          ),
+          // Invite Members Button
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.secondary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.person_add, color: Colors.white),
+              tooltip: 'Invite Members',
+              onPressed: () {
+                // Navigate to invite screen
+                context.push(AppRouter.inviteMembers);
+              },
+            ),
           ),
         ],
       ),
@@ -198,7 +245,10 @@ class RankView extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: color, width: 3),
             image: user.photoUrl != null
-                ? DecorationImage(image: NetworkImage(user.photoUrl!), fit: BoxFit.cover)
+                ? DecorationImage(
+                    image: NetworkImage(user.photoUrl!),
+                    fit: BoxFit.cover,
+                  )
                 : null,
             color: user.photoUrl == null ? Colors.grey.shade300 : null,
           ),
@@ -232,7 +282,10 @@ class RankView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [color.withValues(alpha: 0.8), color.withValues(alpha: 0.4)],
+              colors: [
+                color.withValues(alpha: 0.8),
+                color.withValues(alpha: 0.4),
+              ],
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           ),
@@ -284,7 +337,9 @@ class RankView extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: Row(
         children: [
@@ -312,7 +367,10 @@ class RankView extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: user.photoUrl != null
-                  ? DecorationImage(image: NetworkImage(user.photoUrl!), fit: BoxFit.cover)
+                  ? DecorationImage(
+                      image: NetworkImage(user.photoUrl!),
+                      fit: BoxFit.cover,
+                    )
                   : null,
               color: user.photoUrl == null ? Colors.grey.shade300 : null,
             ),
@@ -330,14 +388,18 @@ class RankView extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 Text(
                   'Level ${user.level ?? 1}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color: isDark
+                        ? AppColors.textSubDark
+                        : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -351,15 +413,14 @@ class RankView extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color: isDark
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
                 ),
               ),
               const Text(
                 'EP',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.secondary,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.secondary),
               ),
             ],
           ),

@@ -9,6 +9,8 @@ import 'package:ergo_life_app/blocs/profile/profile_event.dart';
 import 'package:ergo_life_app/blocs/profile/profile_state.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
+import 'package:ergo_life_app/blocs/house/house_bloc.dart';
+import 'package:ergo_life_app/blocs/house/house_event.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -30,7 +32,9 @@ class ProfileView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileError) {
@@ -41,7 +45,8 @@ class ProfileView extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'Retry',
                   textColor: Colors.white,
-                  onPressed: () => context.read<ProfileBloc>().add(const LoadProfile()),
+                  onPressed: () =>
+                      context.read<ProfileBloc>().add(const LoadProfile()),
                 ),
               ),
             );
@@ -73,25 +78,34 @@ class ProfileView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: isDark ? Colors.red.shade300 : Colors.red),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: isDark ? Colors.red.shade300 : Colors.red,
+            ),
             const SizedBox(height: 16),
             Text(
               'Failed to load profile',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+              style: TextStyle(
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => context.read<ProfileBloc>().add(const LoadProfile()),
+              onPressed: () =>
+                  context.read<ProfileBloc>().add(const LoadProfile()),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
@@ -105,7 +119,11 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadedState(BuildContext context, ProfileLoaded state, bool isDark) {
+  Widget _buildLoadedState(
+    BuildContext context,
+    ProfileLoaded state,
+    bool isDark,
+  ) {
     final user = state.user;
     final stats = state.stats;
 
@@ -140,11 +158,18 @@ class ProfileView extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.secondary, width: 3),
                       image: user.avatarUrl != null
-                          ? DecorationImage(image: NetworkImage(user.avatarUrl!), fit: BoxFit.cover)
+                          ? DecorationImage(
+                              image: NetworkImage(user.avatarUrl!),
+                              fit: BoxFit.cover,
+                            )
                           : null,
-                      color: user.avatarUrl == null ? Colors.grey.shade300 : null,
+                      color: user.avatarUrl == null
+                          ? Colors.grey.shade300
+                          : null,
                     ),
-                    child: user.avatarUrl == null ? const Icon(Icons.person, size: 50, color: Colors.grey) : null,
+                    child: user.avatarUrl == null
+                        ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   // Name
@@ -153,13 +178,18 @@ class ProfileView extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
                   const SizedBox(height: 8),
                   // Level
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -184,17 +214,45 @@ class ProfileView extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: _buildStatCard('Total Points', '${stats.totalPoints}', Icons.stars, isDark)),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Total Points',
+                          '${stats.totalPoints}',
+                          Icons.stars,
+                          isDark,
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildStatCard('Activities', '${stats.totalActivities}', Icons.fitness_center, isDark)),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Activities',
+                          '${stats.totalActivities}',
+                          Icons.fitness_center,
+                          isDark,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildStatCard('Duration', '${stats.totalMinutes ~/ 60} hrs', Icons.timer, isDark)),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Duration',
+                          '${stats.totalMinutes ~/ 60} hrs',
+                          Icons.timer,
+                          isDark,
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildStatCard('Best Streak', '${stats.longestStreak} days', Icons.local_fire_department, isDark)),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Best Streak',
+                          '${stats.longestStreak} days',
+                          Icons.local_fire_department,
+                          isDark,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -209,27 +267,26 @@ class ProfileView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
+                  _buildActionTile('Edit Profile', Icons.edit, () {
+                    // TODO: Navigate to edit profile
+                  }, isDark),
+                  _buildActionTile('Settings', Icons.settings, () {
+                    // TODO: Navigate to settings
+                  }, isDark),
                   _buildActionTile(
-                    'Edit Profile',
-                    Icons.edit,
-                    () {
-                      // TODO: Navigate to edit profile
-                    },
+                    'Leave House',
+                    Icons.exit_to_app,
+                    () => _showLeaveHouseDialog(context),
                     isDark,
-                  ),
-                  _buildActionTile(
-                    'Settings',
-                    Icons.settings,
-                    () {
-                      // TODO: Navigate to settings
-                    },
-                    isDark,
+                    isDestructive: true,
                   ),
                   _buildActionTile(
                     'Logout',
                     Icons.logout,
                     () {
-                      context.read<AuthBloc>().add(const AuthSignOutRequested());
+                      context.read<AuthBloc>().add(
+                        const AuthSignOutRequested(),
+                      );
                       context.go(AppRouter.login);
                     },
                     isDark,
@@ -245,13 +302,20 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, bool isDark) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: Column(
         children: [
@@ -278,61 +342,21 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildHouseSection(dynamic house, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.home, color: Colors.white, size: 28),
-                SizedBox(width: 12),
-                Text(
-                  'My House',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              house.name ?? 'Unnamed House',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${house.memberCount ?? 0} members',
-              style: const TextStyle(color: Colors.white70),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionTile(String title, IconData icon, VoidCallback onTap, bool isDark, {bool isDestructive = false}) {
+  Widget _buildActionTile(
+    String title,
+    IconData icon,
+    VoidCallback onTap,
+    bool isDark, {
+    bool isDestructive = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: ListTile(
         leading: Icon(
@@ -343,7 +367,9 @@ class ProfileView extends StatelessWidget {
           title,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: isDestructive ? Colors.red : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+            color: isDestructive
+                ? Colors.red
+                : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
           ),
         ),
         trailing: const Icon(Icons.chevron_right),
@@ -351,4 +377,38 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showLeaveHouseDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Row(
+        children: [
+          Icon(Icons.warning, color: Colors.orange),
+          SizedBox(width: 12),
+          Text('Leave House?'),
+        ],
+      ),
+      content: const Text(
+        'You will lose all points and activity history in this house. '
+        'Are you sure you want to leave?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            context.read<HouseBloc>().add(const LeaveHouse());
+            Navigator.pop(ctx);
+            // Navigate to create/join screen
+            context.go(AppRouter.joinHouse);
+          },
+          child: const Text('Leave House', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
 }

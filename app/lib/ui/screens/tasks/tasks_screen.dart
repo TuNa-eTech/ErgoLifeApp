@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_event.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_state.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
+import 'package:ergo_life_app/ui/widgets/ergo_coach_overlay.dart';
 
 class TasksScreen extends StatelessWidget {
-  const TasksScreen({super.key});
+  final TasksBloc tasksBloc;
+
+  const TasksScreen({super.key, required this.tasksBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TasksBloc>(
-      create: (_) => sl<TasksBloc>()..add(const LoadTasks()),
+    return BlocProvider<TasksBloc>.value(
+      value: tasksBloc..add(const LoadTasks()),
       child: const TasksView(),
     );
   }
@@ -30,7 +32,9 @@ class TasksView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: BlocConsumer<TasksBloc, TasksState>(
         listener: (context, state) {
           if (state is TasksError) {
@@ -41,7 +45,8 @@ class TasksView extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'Retry',
                   textColor: Colors.white,
-                  onPressed: () => context.read<TasksBloc>().add(const LoadTasks()),
+                  onPressed: () =>
+                      context.read<TasksBloc>().add(const LoadTasks()),
                 ),
               ),
             );
@@ -77,21 +82,29 @@ class TasksView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: isDark ? Colors.red.shade300 : Colors.red),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: isDark ? Colors.red.shade300 : Colors.red,
+            ),
             const SizedBox(height: 16),
             Text(
               'Failed to load tasks',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+              style: TextStyle(
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -109,7 +122,11 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadedState(BuildContext context, TasksLoaded state, bool isDark) {
+  Widget _buildLoadedState(
+    BuildContext context,
+    TasksLoaded state,
+    bool isDark,
+  ) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<TasksBloc>().add(const RefreshTasks());
@@ -125,7 +142,11 @@ class TasksView extends StatelessWidget {
               children: [
                 _buildHeader(context, isDark, state),
                 if (state.highPriorityTask != null)
-                  _buildHighPriorityTask(context, isDark, state.highPriorityTask!),
+                  _buildHighPriorityTask(
+                    context,
+                    isDark,
+                    state.highPriorityTask!,
+                  ),
                 _buildTasksList(context, isDark, state),
               ],
             ),
@@ -142,7 +163,8 @@ class TasksView extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, bool isDark, TasksLoaded state) {
     return Container(
-      color: (isDark ? AppColors.backgroundDark : AppColors.backgroundLight).withValues(alpha: 0.95),
+      color: (isDark ? AppColors.backgroundDark : AppColors.backgroundLight)
+          .withValues(alpha: 0.95),
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +184,13 @@ class TasksView extends StatelessWidget {
               children: [
                 _buildFilterChip(context, 'Active', 'active', state, isDark),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, 'Completed', 'completed', state, isDark),
+                _buildFilterChip(
+                  context,
+                  'Completed',
+                  'completed',
+                  state,
+                  isDark,
+                ),
                 const SizedBox(width: 8),
                 _buildFilterChip(context, 'Saved', 'saved', state, isDark),
               ],
@@ -173,20 +201,30 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, String label, String filter, TasksLoaded state, bool isDark) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    String label,
+    String filter,
+    TasksLoaded state,
+    bool isDark,
+  ) {
     final isActive = state.currentFilter == filter;
     return GestureDetector(
       onTap: () => context.read<TasksBloc>().add(FilterTasks(filter: filter)),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.secondary : (isDark ? AppColors.surfaceDark : Colors.grey.shade100),
+          color: isActive
+              ? AppColors.secondary
+              : (isDark ? AppColors.surfaceDark : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? Colors.white : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+            color: isActive
+                ? Colors.white
+                : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -194,7 +232,11 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  Widget _buildHighPriorityTask(BuildContext context, bool isDark, TaskModel task) {
+  Widget _buildHighPriorityTask(
+    BuildContext context,
+    bool isDark,
+    TaskModel task,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
       child: Container(
@@ -266,19 +308,24 @@ class TasksView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => context.push(AppRouter.activeSession, extra: task),
+                      onPressed: () => _showErgoCoachAndNavigate(context, task),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFFFF6A00),
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.play_arrow),
                           SizedBox(width: 8),
-                          Text('Start Now', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Start Now',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ),
@@ -299,7 +346,9 @@ class TasksView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            state.currentFilter == 'completed' ? 'Recent Activities' : 'Available Tasks',
+            state.currentFilter == 'completed'
+                ? 'Recent Activities'
+                : 'Available Tasks',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -308,9 +357,13 @@ class TasksView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (state.currentFilter == 'active')
-            ...state.availableTasks.map((task) => _buildTaskCard(context, isDark, task)),
+            ...state.availableTasks.map(
+              (task) => _buildTaskCard(context, isDark, task),
+            ),
           if (state.currentFilter == 'completed')
-            ...state.recentActivities.map((activity) => _buildActivityCard(context, isDark, activity)),
+            ...state.recentActivities.map(
+              (activity) => _buildActivityCard(context, isDark, activity),
+            ),
           if (state.currentFilter == 'saved')
             _buildEmptyState(isDark, 'No saved routines yet'),
         ],
@@ -324,7 +377,9 @@ class TasksView extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
@@ -346,24 +401,36 @@ class TasksView extends StatelessWidget {
         ),
         subtitle: Text(
           task.taskDescription ?? '',
-          style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+          style: TextStyle(
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+          ),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.play_circle_fill, color: AppColors.secondary, size: 32),
-          onPressed: () => context.push(AppRouter.activeSession, extra: task),
+          icon: const Icon(
+            Icons.play_circle_fill,
+            color: AppColors.secondary,
+            size: 32,
+          ),
+          onPressed: () => _showErgoCoachAndNavigate(context, task),
         ),
       ),
     );
   }
 
-  Widget _buildActivityCard(BuildContext context, bool isDark, dynamic activity) {
+  Widget _buildActivityCard(
+    BuildContext context,
+    bool isDark,
+    dynamic activity,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: Row(
         children: [
@@ -377,13 +444,19 @@ class TasksView extends StatelessWidget {
                   activity.exerciseName ?? 'Activity',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${activity.pointsEarned} EP earned',
-                  style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.textSubDark
+                        : AppColors.textSubLight,
+                  ),
                 ),
               ],
             ),
@@ -436,6 +509,24 @@ class TasksView extends StatelessWidget {
       child: IconButton(
         icon: const Icon(Icons.add, size: 32, color: Colors.white),
         onPressed: () => context.push(AppRouter.createTask),
+      ),
+    );
+  }
+
+  void _showErgoCoachAndNavigate(BuildContext context, TaskModel task) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => ErgoCoachOverlay(
+        task: task,
+        onReady: () {
+          Navigator.pop(ctx);
+          context.push(AppRouter.activeSession, extra: task);
+        },
+        onSkip: () {
+          Navigator.pop(ctx);
+          context.push(AppRouter.activeSession, extra: task);
+        },
       ),
     );
   }

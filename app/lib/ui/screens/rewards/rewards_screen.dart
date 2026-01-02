@@ -4,16 +4,20 @@ import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_event.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/data/models/reward_model.dart';
 
 class RewardsScreen extends StatelessWidget {
-  const RewardsScreen({super.key});
+  final RewardsBloc rewardsBloc;
+
+  const RewardsScreen({
+    super.key,
+    required this.rewardsBloc,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RewardsBloc>(
-      create: (_) => sl<RewardsBloc>()..add(const LoadRewards()),
+    return BlocProvider<RewardsBloc>.value(
+      value: rewardsBloc..add(const LoadRewards()),
       child: const RewardsView(),
     );
   }
