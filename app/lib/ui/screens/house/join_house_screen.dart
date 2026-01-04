@@ -7,6 +7,7 @@ import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/blocs/house/house_state.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Screen for joining a house with invite code
 class JoinHouseScreen extends StatefulWidget {
@@ -84,7 +85,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                 onPressed: () => context.pop(),
               ),
               title: Text(
-                'Join House',
+                AppLocalizations.of(context)!.joinHouse,
                 style: TextStyle(
                   color: isDark
                       ? AppColors.textMainDark
@@ -127,7 +128,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
 
                   // Title
                   Text(
-                    'Enter Invite Code',
+                    AppLocalizations.of(context)!.enterInviteCode,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
@@ -139,7 +140,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Ask your friend for the 6-digit code',
+                    AppLocalizations.of(context)!.askYourFriendForCode,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -225,8 +226,8 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                               ),
                             ),
                           )
-                        : const Text(
-                            'Join House',
+                        : Text(
+                            AppLocalizations.of(context)!.joinHouse,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -254,7 +255,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Good to know',
+                              AppLocalizations.of(context)!.goodToKnow,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.blue.shade700,

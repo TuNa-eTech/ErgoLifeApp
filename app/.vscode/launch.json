@@ -11,15 +11,6 @@
       ]
     },
     {
-      "name": "Staging",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main.dart",
-      "args": [
-        "--dart-define-from-file=dart_define/staging.env"
-      ]
-    },
-    {
       "name": "Production",
       "request": "launch",
       "type": "dart",

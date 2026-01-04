@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "939742430352",
+    "project_id": "ergolife-941d7",
+    "storage_bucket": "ergolife-941d7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939742430352:android:db5fc59d9a0ff85c3c4415",
+        "android_client_info": {
+          "package_name": "com.anhtu.ergolife"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939742430352-2jrssulsq9j9smbh47q3hp0c0tp6flsr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkSYxHZd2MIGfjvqEUUTAdoTC36qw9zx4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939742430352-2jrssulsq9j9smbh47q3hp0c0tp6flsr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "939742430352-2c39h01inivn8ol7anusdlok2uqa015e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anhtu.ergolife",
+                "app_store_id": "6756805315"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

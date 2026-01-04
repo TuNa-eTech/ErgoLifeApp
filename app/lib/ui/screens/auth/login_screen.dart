@@ -5,8 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
 import 'package:ergo_life_app/blocs/auth/auth_state.dart';
+import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
+
+
+
+
+
 
 class LoginScreen extends StatefulWidget {
   final AuthBloc authBloc;
@@ -70,22 +77,31 @@ class _LoginScreenContent extends StatelessWidget {
 
               return Column(
                 children: [
-                  // Header
+                  // Header with Language Switcher
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 24,
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         GestureDetector(
-                          onTap: isLoading ? null : () => context.pop(),
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  context
+                                      .read<LocaleCubit>()
+                                      .toggleLocale();
+                                },
                           child: Container(
-                            width: 40,
-                            height: 40,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: surfaceColor,
-                              shape: BoxShape.circle,
+                              borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 if (!isDark)
                                   BoxShadow(
@@ -95,10 +111,28 @@ class _LoginScreenContent extends StatelessWidget {
                                   ),
                               ],
                             ),
-                            child: Icon(
-                              Icons.arrow_back,
-                              size: 20,
-                              color: secondaryColor,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.language,
+                                  size: 18,
+                                  color: secondaryColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  Localizations.localeOf(context)
+                                              .languageCode ==
+                                          'vi'
+                                      ? 'VI'
+                                      : 'EN',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: secondaryColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -148,7 +182,7 @@ class _LoginScreenContent extends StatelessWidget {
 
                           // Texts
                           Text(
-                            "Let's Get Moving",
+                            AppLocalizations.of(context)!.loginTitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 32,
@@ -160,7 +194,7 @@ class _LoginScreenContent extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Log in to track your progress and compete.',
+                            AppLocalizations.of(context)!.loginSubtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -215,39 +249,6 @@ class _LoginScreenContent extends StatelessWidget {
                   ),
 
                   const Spacer(),
-
-                  // Footer
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'New to ErgoLife? ',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: secondaryColor,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: isLoading
-                              ? null
-                              : () {
-                                  // TODO: Register navigation
-                                },
-                          child: Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: primaryColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               );
             },

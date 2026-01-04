@@ -6,6 +6,7 @@ import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_event.dart';
 import 'package:ergo_life_app/blocs/task/task_state.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class CreateTaskScreen extends StatelessWidget {
   final TaskBloc taskBloc;
@@ -64,13 +65,19 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
     Icons.kitchen: 'kitchen',
   };
 
-  // METs options for intensity
-  final List<({double value, String label})> _metsOptions = [
-    (value: 2.0, label: 'Light'),
-    (value: 3.5, label: 'Moderate'),
-    (value: 5.0, label: 'Vigorous'),
-    (value: 7.0, label: 'Intense'),
-  ];
+  // METs options for intensity - labels are static strings, will be localized in UI
+  late final List<({double value, String labelKey})> _metsOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _metsOptions = [
+      (value: 2.0, labelKey: 'Light'),
+      (value: 3.5, labelKey: 'Moderate'),
+      (value: 5.0, labelKey: 'Vigorous'),
+      (value: 7.0, labelKey: 'Intense'),
+    ];
+  }
 
   int get _estimatedPoints {
     final duration = int.tryParse(_durationController.text) ?? 0;
@@ -87,13 +94,13 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
 
   bool _validateForm() {
     if (_nameController.text.trim().isEmpty) {
-      _showError('Please enter exercise name');
+      _showError(AppLocalizations.of(context)!.pleaseEnterExerciseName);
       return false;
     }
 
     final duration = int.tryParse(_durationController.text);
     if (duration == null || duration < 1 || duration > 120) {
-      _showError('Duration must be 1-120 minutes');
+      _showError(AppLocalizations.of(context)!.durationMustBe1To120);
       return false;
     }
 
@@ -143,7 +150,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
     return BlocListener<TaskBloc, TaskState>(
       listener: (context, state) {
         if (state is TaskCreated) {
-          _showSuccess('Task created successfully!');
+          _showSuccess(AppLocalizations.of(context)!.taskCreatedSuccessfully);
           context.pop();
         } else if (state is TaskError) {
           _showError(state.message);
@@ -168,7 +175,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                         children: [
                           const SizedBox(height: 16),
                           Text(
-                            'Create your\nexercise. 🏋️',
+                            AppLocalizations.of(context)!.createYourExercise,
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
@@ -179,7 +186,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Turn your daily chores into a workout challenge.',
+                            AppLocalizations.of(context)!.turnDailyChoresToWorkout,
                             style: TextStyle(
                               fontSize: 16,
                               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -188,21 +195,21 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           const SizedBox(height: 32),
 
                           // Form Inputs
-                          _buildLabel('EXERCISE NAME'),
+                          _buildLabel(AppLocalizations.of(context)!.exerciseNameLabel),
                            TextField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              hintText: 'e.g. Vacuum Lunges',
+                              hintText: AppLocalizations.of(context)!.exerciseNameHint,
                               prefixIcon: Icon(Icons.fitness_center, color: AppColors.primary.withOpacity(0.7)),
                             ),
                           ),
                           const SizedBox(height: 24),
 
-                          _buildLabel('REAL LIFE TASK (Optional)'),
+                          _buildLabel(AppLocalizations.of(context)!.realLifeTaskLabel),
                           TextField(
                             controller: _descController,
                             decoration: InputDecoration(
-                              hintText: 'e.g. Vacuuming living room',
+                              hintText: AppLocalizations.of(context)!.taskDescriptionHint,
                               prefixIcon: Icon(Icons.cleaning_services, color: AppColors.purple.withOpacity(0.7)),
                             ),
                           ),
@@ -279,7 +286,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           const SizedBox(height: 24),
 
                           // Intensity Selector
-                          _buildLabel('INTENSITY'),
+                          _buildLabel(AppLocalizations.of(context)!.intensityLabel),
                           SizedBox(
                             height: 48,
                             child: ListView.separated(
@@ -305,7 +312,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                                       ),
                                     ),
                                     child: Text(
-                                      option.label,
+                                      _getLocalizedIntensityLabel(context, option.labelKey),
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -319,7 +326,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           ),
                           const SizedBox(height: 24),
 
-                          _buildLabel('CHOOSE ICON'),
+                          _buildLabel(AppLocalizations.of(context)!.chooseIcon),
                           SizedBox(
                             height: 64,
                             child: ListView.separated(
@@ -475,7 +482,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
           ),
           
           Text(
-            'New Custom Task',
+            AppLocalizations.of(context)!.newCustomTask,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -487,6 +494,22 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
         ],
       ),
     );
+  }
+
+  String _getLocalizedIntensityLabel(BuildContext context, String labelKey) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (labelKey) {
+      case 'Light':
+        return l10n.intensityLight;
+      case 'Moderate':
+        return l10n.intensityModerate;
+      case 'Vigorous':
+        return l10n.intensityVigorous;
+      case 'Intense':
+        return l10n.intensityIntense;
+      default:
+        return labelKey;
+    }
   }
 
   Widget _buildLabel(String text) {

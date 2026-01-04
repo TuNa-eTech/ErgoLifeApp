@@ -11,6 +11,8 @@ import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
+import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -85,7 +87,7 @@ class ProfileView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load profile',
+              AppLocalizations.of(context)!.failedToLoadProfile,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -107,7 +109,7 @@ class ProfileView extends StatelessWidget {
               onPressed: () =>
                   context.read<ProfileBloc>().add(const LoadProfile()),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.white,
@@ -195,7 +197,7 @@ class ProfileView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Member since ${state.membershipDuration}',
+                      AppLocalizations.of(context)!.memberSince(state.membershipDuration),
                       style: const TextStyle(
                         color: AppColors.secondary,
                         fontWeight: FontWeight.bold,
@@ -216,7 +218,7 @@ class ProfileView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Total Points',
+                          AppLocalizations.of(context)!.totalPoints,
                           '${stats.totalPoints}',
                           Icons.stars,
                           isDark,
@@ -225,7 +227,7 @@ class ProfileView extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildStatCard(
-                          'Activities',
+                          AppLocalizations.of(context)!.activities,
                           '${stats.totalActivities}',
                           Icons.fitness_center,
                           isDark,
@@ -238,7 +240,7 @@ class ProfileView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Duration',
+                          AppLocalizations.of(context)!.durationStat,
                           '${stats.totalMinutes ~/ 60} hrs',
                           Icons.timer,
                           isDark,
@@ -247,7 +249,7 @@ class ProfileView extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildStatCard(
-                          'Best Streak',
+                          AppLocalizations.of(context)!.bestStreak,
                           '${stats.longestStreak} days',
                           Icons.local_fire_department,
                           isDark,
@@ -267,21 +269,36 @@ class ProfileView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  _buildActionTile('Edit Profile', Icons.edit, () {
+                  _buildActionTile(AppLocalizations.of(context)!.editProfile, Icons.edit, () {
                     // TODO: Navigate to edit profile
                   }, isDark),
-                  _buildActionTile('Settings', Icons.settings, () {
+                  _buildActionTile(AppLocalizations.of(context)!.settings, Icons.settings, () {
                     // TODO: Navigate to settings
                   }, isDark),
+                  // Language Switcher
+                  BlocBuilder<LocaleCubit, Locale>(
+                    builder: (context, locale) {
+                      final currentLanguage = locale.languageCode == 'vi'
+                          ? AppLocalizations.of(context)!.vietnamese
+                          : AppLocalizations.of(context)!.english;
+                      
+                      return _buildLanguageTile(
+                        AppLocalizations.of(context)!.language,
+                        currentLanguage,
+                        () => _showLanguageDialog(context, locale),
+                        isDark,
+                      );
+                    },
+                  ),
                   _buildActionTile(
-                    'Leave House',
+                    AppLocalizations.of(context)!.leaveHouse,
                     Icons.exit_to_app,
                     () => _showLeaveHouseDialog(context),
                     isDark,
                     isDestructive: true,
                   ),
                   _buildActionTile(
-                    'Logout',
+                    AppLocalizations.of(context)!.logout,
                     Icons.logout,
                     () {
                       context.read<AuthBloc>().add(
@@ -377,6 +394,52 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildLanguageTile(
+    String title,
+    String currentValue,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
+      ),
+      child: ListTile(
+        leading: const Icon(
+          Icons.language,
+          color: AppColors.secondary,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              currentValue,
+              style: TextStyle(
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
 }
 
 void _showLeaveHouseDialog(BuildContext context) {
@@ -409,6 +472,97 @@ void _showLeaveHouseDialog(BuildContext context) {
           child: const Text('Leave House', style: TextStyle(color: Colors.red)),
         ),
       ],
+    ),
+  );
+}
+
+void _showLanguageDialog(BuildContext context, Locale currentLocale) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.language, color: AppColors.secondary),
+          const SizedBox(width: 12),
+          Text(AppLocalizations.of(context)!.language),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildLanguageOption(
+            context: context,
+            ctx: ctx,
+            languageCode: 'en',
+            languageName: AppLocalizations.of(context)!.english,
+            isSelected: currentLocale.languageCode == 'en',
+            isDark: isDark,
+          ),
+          const SizedBox(height: 12),
+          _buildLanguageOption(
+            context: context,
+            ctx: ctx,
+            languageCode: 'vi',
+            languageName: AppLocalizations.of(context)!.vietnamese,
+            isSelected: currentLocale.languageCode == 'vi',
+            isDark: isDark,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildLanguageOption({
+  required BuildContext context,
+  required BuildContext ctx,
+  required String languageCode,
+  required String languageName,
+  required bool isSelected,
+  required bool isDark,
+}) {
+  return InkWell(
+    onTap: () {
+      context.read<LocaleCubit>().setLocale(Locale(languageCode));
+      Navigator.pop(ctx);
+    },
+    borderRadius: BorderRadius.circular(12),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppColors.secondary.withValues(alpha: 0.1)
+            : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected
+              ? AppColors.secondary
+              : (isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            languageName,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected
+                  ? AppColors.secondary
+                  : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+            ),
+          ),
+          const Spacer(),
+          if (isSelected)
+            const Icon(
+              Icons.check_circle,
+              color: AppColors.secondary,
+            ),
+        ],
+      ),
     ),
   );
 }

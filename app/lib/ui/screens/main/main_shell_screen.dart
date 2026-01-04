@@ -45,7 +45,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 index: 0,
                 icon: Icons.home,
                 filledIcon: Icons.home,
-                label: 'Arena',
+                label: 'Home',
                 isDark: isDark,
               ),
               _buildNavItem(
