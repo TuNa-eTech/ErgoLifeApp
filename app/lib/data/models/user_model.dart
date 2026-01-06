@@ -32,7 +32,7 @@ class UserModel extends Equatable {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       firebaseUid: json['firebaseUid'] as String? ?? '',
       provider: json['provider'] != null 
           ? AuthProvider.fromJson(json['provider'] as String)

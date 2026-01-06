@@ -5,21 +5,21 @@ import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/data/repositories/auth_repository.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
-import 'package:ergo_life_app/data/services/api_service.dart';
+import 'package:ergo_life_app/data/repositories/user_repository.dart';
 
 /// BLoC for managing profile screen state
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final AuthRepository _authRepository;
   final ActivityRepository _activityRepository;
-  final ApiService _apiService;
+  final UserRepository _userRepository;
 
   ProfileBloc({
     required AuthRepository authRepository,
     required ActivityRepository activityRepository,
-    required ApiService apiService,
+    required UserRepository userRepository,
   })  : _authRepository = authRepository,
         _activityRepository = activityRepository,
-        _apiService = apiService,
+        _userRepository = userRepository,
         super(const ProfileInitial()) {
     on<LoadProfile>(_onLoadProfile);
     on<RefreshProfile>(_onRefreshProfile);
@@ -92,20 +92,22 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     AppLogger.info('Updating profile...', 'ProfileBloc');
     emit(ProfileUpdating(user: currentState.user, stats: currentState.stats));
 
-    try {
-      final updatedUser = await _apiService.updateProfile(
-        displayName: event.displayName,
-        avatarId: event.avatarId,
-      );
+    final result = await _userRepository.updateProfile(
+      displayName: event.displayName,
+      avatarId: event.avatarId,
+    );
 
-      AppLogger.success('Profile updated', 'ProfileBloc');
-      emit(ProfileLoaded(user: updatedUser, stats: currentState.stats));
-    } catch (e) {
-      AppLogger.error('Failed to update profile', e, null, 'ProfileBloc');
-      emit(const ProfileError(message: 'Failed to update profile'));
-
-      // Restore previous state
-      emit(ProfileLoaded(user: currentState.user, stats: currentState.stats));
-    }
+    result.fold(
+      (failure) {
+        AppLogger.error('Failed to update profile', failure.message, null, 'ProfileBloc');
+        emit(const ProfileError(message: 'Failed to update profile'));
+        // Restore previous state
+        emit(ProfileLoaded(user: currentState.user, stats: currentState.stats));
+      },
+      (updatedUser) {
+        AppLogger.success('Profile updated', 'ProfileBloc');
+        emit(ProfileLoaded(user: updatedUser, stats: currentState.stats));
+      },
+    );
   }
 }

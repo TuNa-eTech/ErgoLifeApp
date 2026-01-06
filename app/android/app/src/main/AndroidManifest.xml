@@ -2,7 +2,7 @@
     <application
         android:label="ergo_life_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:localeConfig="@xml/locales_config">
         <activity
             android:name=".MainActivity"

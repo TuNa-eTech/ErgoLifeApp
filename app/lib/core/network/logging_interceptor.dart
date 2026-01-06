@@ -48,12 +48,12 @@ class LoggingInterceptor extends Interceptor {
     AppLogger.info('│ ${response.requestOptions.method} ${response.requestOptions.uri}', _tag);
     AppLogger.info('│ Status: ${response.statusCode} ${response.statusMessage}', _tag);
     
-   if (response.headers.map.isNotEmpty) {
-      AppLogger.info('│ Headers:', _tag);
-      response.headers.map.forEach((key, value) {
-        AppLogger.info('│   $key: ${value.join(", ")}', _tag);
-      });
-    }
+  //  if (response.headers.map.isNotEmpty) {
+  //     AppLogger.info('│ Headers:', _tag);
+  //     response.headers.map.forEach((key, value) {
+  //       AppLogger.info('│   $key: ${value.join(", ")}', _tag);
+  //     });
+  //   }
     
     if (response.data != null) {
       AppLogger.info('│ Data:', _tag);

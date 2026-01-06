@@ -47,6 +47,9 @@ model User {
   // Push notifications
   fcmToken     String?      @map("fcm_token")
   
+  // Task seeding flag
+  hasSeededTasks Boolean    @default(false) @map("has_seeded_tasks")
+  
   // Timestamps
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
@@ -61,6 +64,54 @@ model User {
   @@map("users")
 }
 
+// ===========================================
+// TASK TEMPLATES (CMS-managed)
+// ===========================================
+
+model TaskTemplate {
+  id              String   @id @default(uuid())
+  
+  // Task metadata
+  metsValue       Float    @map("mets_value")
+  defaultDuration Int      @map("default_duration") // minutes
+  icon            String   @default("fitness_center")
+  animation       String?  // Lottie animation file name
+  color           String   @default("#FF6A00")
+  category        String   @default("general")
+  sortOrder       Int      @default(0) @map("sort_order")
+  
+  // Status
+  isActive        Boolean  @default(true) @map("is_active")
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  translations    TaskTemplateTranslation[]
+  
+  @@index([isActive, sortOrder])
+  @@map("task_templates")
+}
+
+model TaskTemplateTranslation {
+  id          String       @id @default(uuid())
+  
+  templateId  String       @map("template_id")
+  template    TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  locale      String       // "en", "vi", etc.
+  name        String       // Localized name
+  description String?      // Localized description
+  
+  @@unique([templateId, locale])
+  @@map("task_template_translations")
+}
+
+// ===========================================
+// USER TASKS
+// ===========================================
+
 model CustomTask {
   id              String   @id @default(uuid())
   
@@ -68,21 +119,28 @@ model CustomTask {
   userId          String   @map("user_id")
   user            User     @relation(fields: [userId], references: [id])
   
+  // From template or custom
+  templateId      String?  @map("template_id") // null = custom task
+  
   // Task details
   exerciseName    String   @map("exercise_name")
   taskDescription String?  @map("task_description")
   durationMinutes Int      @map("duration_minutes")
   metsValue       Float    @default(3.5) @map("mets_value")
   icon            String   @default("fitness_center")
+  animation       String?  // Lottie animation file name
+  color           String   @default("#FF6A00")
   
-  // Flags
+  // User preferences
+  sortOrder       Int      @default(0) @map("sort_order")
+  isHidden        Boolean  @default(false) @map("is_hidden")
   isFavorite      Boolean  @default(false) @map("is_favorite")
   
   // Timestamps
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
   
-  @@index([userId, createdAt])
+  @@index([userId, isHidden, sortOrder])
   @@map("custom_tasks")
 }
 

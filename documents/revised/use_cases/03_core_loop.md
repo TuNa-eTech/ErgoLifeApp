@@ -5,6 +5,42 @@ Module cốt lõi của ứng dụng - vòng lặp: **Chọn việc → Xem hư�
 
 ---
 
+## UC-07: Seed Tasks cho User mới (First-time Task Seeding)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **ID** | UC-07 |
+| **Tên** | Seed Tasks cho User mới |
+| **Actor** | System (tự động) |
+| **Mô tả** | Khi user mới đăng nhập lần đầu, hệ thống tự động tạo danh sách công việc mặc định |
+
+### Preconditions
+- User vừa đăng nhập
+- `User.hasSeededTasks = false`
+
+### Main Flow
+1. HomeBloc/TasksBloc kiểm tra `GET /tasks/needs-seeding`
+2. Nếu `needsSeeding = true`:
+   - Gọi `GET /task-templates?locale=vi` để lấy danh sách template
+   - Gọi `POST /tasks/seed` với danh sách tasks
+3. Backend tạo CustomTask cho mỗi template
+4. Backend set `User.hasSeededTasks = true`
+5. App load danh sách tasks của user
+
+### Postconditions
+- User có 20 công việc mặc định
+- `User.hasSeededTasks = true`
+
+### API Sequence
+```
+GET  /tasks/needs-seeding     → {needsSeeding: true}
+GET  /task-templates?locale=vi → [{id, name, metsValue...}, ...]
+POST /tasks/seed              → {seeded: true, tasksCreated: 20}
+GET  /tasks                   → [{id, exerciseName...}, ...]
+```
+
+---
+
 ## UC-08: Xem danh sách Công việc (Browse Tasks)
 
 | Thuộc tính | Giá trị |
@@ -16,35 +52,57 @@ Module cốt lõi của ứng dụng - vòng lặp: **Chọn việc → Xem hư�
 
 ### Preconditions
 - Người dùng đã đăng nhập
-- Người dùng thuộc về một House
+- Tasks đã được seeded (xem UC-07)
 
 ### Main Flow
-1. Người dùng mở Home Screen
-2. Hệ thống hiển thị danh sách Task dạng Grid (2 cột)
-3. Mỗi Card hiển thị:
+1. Người dùng mở Tasks Screen
+2. App gọi `GET /tasks` để lấy danh sách tasks
+3. Hệ thống hiển thị danh sách Task dạng Grid (2 cột)
+4. Mỗi Card hiển thị:
    - Icon công việc
    - Tên công việc
    - Điểm ước tính/phút (METs)
-4. Người dùng có thể scroll để xem tất cả
+   - Thời gian mặc định
+5. Người dùng có thể scroll để xem tất cả
+6. Tasks có thể sắp xếp lại, ẩn, hoặc đánh dấu yêu thích
 
-### Danh sách Task (MVP - Hard-coded)
+### Danh sách Task Mặc định (từ TaskTemplates)
 
-| # | Task Name | METs | Icon |
-|---|-----------|------|------|
-| 1 | Hút bụi | 3.5 | 🧹 |
-| 2 | Lau nhà | 3.0 | 🧽 |
-| 3 | Rửa bát | 2.5 | 🍽️ |
-| 4 | Cọ Toilet | 4.0 | 🚽 |
-| 5 | Dọn giường | 2.0 | 🛏️ |
-| 6 | Phơi đồ | 2.5 | 👕 |
-| 7 | Đi chợ | 2.5 | 🛒 |
-| 8 | Nấu ăn | 2.0 | 🍳 |
-| 9 | Đổ rác | 3.0 | 🗑️ |
-| 10 | Chăm thú cưng | 3.0 | 🐕 |
+| # | Task Name | METs | Default Duration | Category |
+|---|-----------|------|------------------|----------|
+| 1 | Vacuuming | 3.5 | 20 min | Cleaning |
+| 2 | Mopping | 3.0 | 20 min | Cleaning |
+| 3 | Sweeping | 2.5 | 15 min | Cleaning |
+| 4 | Dusting | 2.0 | 15 min | Cleaning |
+| 5 | Window Cleaning | 3.0 | 30 min | Cleaning |
+| 6 | Dishwashing | 2.5 | 20 min | Kitchen |
+| 7 | Cooking | 2.0 | 45 min | Kitchen |
+| 8 | Kitchen Cleanup | 2.5 | 15 min | Kitchen |
+| 9 | Taking Out Trash | 3.0 | 5 min | Kitchen |
+| 10 | Hanging Laundry | 2.5 | 15 min | Laundry |
+| 11 | Folding Clothes | 2.0 | 15 min | Laundry |
+| 12 | Ironing | 2.5 | 30 min | Laundry |
+| 13 | Toilet Cleaning | 4.0 | 15 min | Bathroom |
+| 14 | Bathroom Scrubbing | 3.5 | 20 min | Bathroom |
+| 15 | Making Bed | 2.0 | 5 min | Bedroom |
+| 16 | Organizing Closet | 2.5 | 30 min | Organizing |
+| 17 | Watering Plants | 2.0 | 10 min | Outdoor |
+| 18 | Yard Sweeping | 3.5 | 25 min | Outdoor |
+| 19 | Pet Care | 3.0 | 20 min | Care |
+| 20 | Grocery Shopping | 2.5 | 45 min | Shopping |
+
+### Task Management Features
+- **Reorder**: Thay đổi thứ tự tasks (drag & drop)
+- **Hide/Show**: Ẩn tasks không dùng
+- **Favorite**: Đánh dấu yêu thích (hiển thị ưu tiên)
+- **Edit**: Chỉnh sửa tên, mô tả, thời gian, METs
+- **Add Custom**: Thêm task tự tạo
 
 ### Business Rules
 - BR-11: METs (Metabolic Equivalent of Task) dùng để tính điểm
 - BR-12: Công thức: `Points = Duration(min) × METs × 10`
+- BR-19: Tasks được lưu ở backend, sync qua API
+- BR-20: Hidden tasks không hiển thị trên Home Screen quick tasks
 
 ---
 

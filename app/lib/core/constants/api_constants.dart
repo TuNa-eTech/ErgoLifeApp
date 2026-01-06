@@ -31,7 +31,14 @@ class ApiConstants {
   static const String redemptions = '/redemptions';
 
   // Tasks Endpoints
+  static const String tasks = '/tasks';
   static const String tasksCustom = '/tasks/custom';
+  static const String tasksSeed = '/tasks/seed';
+  static const String tasksReorder = '/tasks/reorder';
+  static const String tasksNeedsSeeding = '/tasks/needs-seeding';
+
+  // Task Templates Endpoints
+  static const String taskTemplates = '/task-templates';
 
   // Headers
   static const String headerAuth = 'Authorization';

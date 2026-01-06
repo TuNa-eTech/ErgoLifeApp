@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/custom_task_model.dart';
+import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_event.dart';
 import 'package:ergo_life_app/blocs/task/task_state.dart';
@@ -10,26 +11,27 @@ import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class CreateTaskScreen extends StatelessWidget {
   final TaskBloc taskBloc;
+  final TaskModel? taskToEdit;
 
-  const CreateTaskScreen({
-    super.key,
-    required this.taskBloc,
-  });
+  const CreateTaskScreen({super.key, required this.taskBloc, this.taskToEdit});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: taskBloc,
-      child: const _CreateTaskScreenContent(),
+      child: _CreateTaskScreenContent(taskToEdit: taskToEdit),
     );
   }
 }
 
 class _CreateTaskScreenContent extends StatefulWidget {
-  const _CreateTaskScreenContent();
+  final TaskModel? taskToEdit;
+
+  const _CreateTaskScreenContent({this.taskToEdit});
 
   @override
-  State<_CreateTaskScreenContent> createState() => _CreateTaskScreenContentState();
+  State<_CreateTaskScreenContent> createState() =>
+      _CreateTaskScreenContentState();
 }
 
 class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
@@ -77,6 +79,15 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
       (value: 5.0, labelKey: 'Vigorous'),
       (value: 7.0, labelKey: 'Intense'),
     ];
+
+    // Pre-fill form if editing
+    if (widget.taskToEdit != null) {
+      _nameController.text = widget.taskToEdit!.exerciseName;
+      _descController.text = widget.taskToEdit!.taskDescription ?? '';
+      _durationController.text = widget.taskToEdit!.durationMinutes.toString();
+      _selectedMets = widget.taskToEdit!.metsValue;
+      _selectedIcon = widget.taskToEdit!.icon;
+    }
   }
 
   int get _estimatedPoints {
@@ -109,19 +120,13 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 
@@ -138,13 +143,21 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
       icon: _iconNameMap[_selectedIcon] ?? 'fitness_center',
     );
 
-    context.read<TaskBloc>().add(CreateCustomTask(request));
+    if (widget.taskToEdit != null) {
+      // TODO: Add UpdateCustomTask event when backend is ready
+      // For now, show a message
+      _showError('Edit functionality coming soon!');
+    } else {
+      context.read<TaskBloc>().add(CreateCustomTask(request));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
+    final bgColor = isDark
+        ? AppColors.backgroundDark
+        : AppColors.backgroundLight;
     final textColor = isDark ? Colors.white : AppColors.textMainLight;
 
     return BlocListener<TaskBloc, TaskState>(
@@ -165,7 +178,7 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                 children: [
                   // Header
                   _buildHeader(context, isDark, textColor),
-                  
+
                   // Form Content
                   Expanded(
                     child: SingleChildScrollView(
@@ -175,7 +188,11 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                         children: [
                           const SizedBox(height: 16),
                           Text(
-                            AppLocalizations.of(context)!.createYourExercise,
+                            widget.taskToEdit != null
+                                ? 'Edit Exercise'
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.createYourExercise,
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
@@ -186,31 +203,49 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            AppLocalizations.of(context)!.turnDailyChoresToWorkout,
+                            AppLocalizations.of(
+                              context,
+                            )!.turnDailyChoresToWorkout,
                             style: TextStyle(
                               fontSize: 16,
-                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
                             ),
                           ),
                           const SizedBox(height: 32),
 
                           // Form Inputs
-                          _buildLabel(AppLocalizations.of(context)!.exerciseNameLabel),
-                           TextField(
+                          _buildLabel(
+                            AppLocalizations.of(context)!.exerciseNameLabel,
+                          ),
+                          TextField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              hintText: AppLocalizations.of(context)!.exerciseNameHint,
-                              prefixIcon: Icon(Icons.fitness_center, color: AppColors.primary.withOpacity(0.7)),
+                              hintText: AppLocalizations.of(
+                                context,
+                              )!.exerciseNameHint,
+                              prefixIcon: Icon(
+                                Icons.fitness_center,
+                                color: AppColors.primary.withOpacity(0.7),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
 
-                          _buildLabel(AppLocalizations.of(context)!.realLifeTaskLabel),
+                          _buildLabel(
+                            AppLocalizations.of(context)!.realLifeTaskLabel,
+                          ),
                           TextField(
                             controller: _descController,
                             decoration: InputDecoration(
-                              hintText: AppLocalizations.of(context)!.taskDescriptionHint,
-                              prefixIcon: Icon(Icons.cleaning_services, color: AppColors.purple.withOpacity(0.7)),
+                              hintText: AppLocalizations.of(
+                                context,
+                              )!.taskDescriptionHint,
+                              prefixIcon: Icon(
+                                Icons.cleaning_services,
+                                color: AppColors.purple.withOpacity(0.7),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -237,7 +272,9 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                                         suffixStyle: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                          color: isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600],
                                         ),
                                       ),
                                     ),
@@ -251,9 +288,14 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                                   children: [
                                     _buildLabel('EST. REWARD'),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 12,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+                                        color: isDark
+                                            ? Colors.white.withOpacity(0.05)
+                                            : Colors.white,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Row(
@@ -286,37 +328,57 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                           const SizedBox(height: 24),
 
                           // Intensity Selector
-                          _buildLabel(AppLocalizations.of(context)!.intensityLabel),
+                          _buildLabel(
+                            AppLocalizations.of(context)!.intensityLabel,
+                          ),
                           SizedBox(
                             height: 48,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: _metsOptions.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 12),
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 12),
                               itemBuilder: (context, index) {
                                 final option = _metsOptions[index];
-                                final isSelected = option.value == _selectedMets;
+                                final isSelected =
+                                    option.value == _selectedMets;
                                 return GestureDetector(
-                                  onTap: () => setState(() => _selectedMets = option.value),
+                                  onTap: () => setState(
+                                    () => _selectedMets = option.value,
+                                  ),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: isSelected 
-                                        ? AppColors.primary 
-                                        : (isDark ? Colors.white.withOpacity(0.05) : Colors.white),
+                                      color: isSelected
+                                          ? AppColors.primary
+                                          : (isDark
+                                                ? Colors.white.withOpacity(0.05)
+                                                : Colors.white),
                                       borderRadius: BorderRadius.circular(24),
                                       border: Border.all(
-                                        color: isSelected ? AppColors.primary : Colors.transparent,
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : Colors.transparent,
                                         width: 2,
                                       ),
                                     ),
                                     child: Text(
-                                      _getLocalizedIntensityLabel(context, option.labelKey),
+                                      _getLocalizedIntensityLabel(
+                                        context,
+                                        option.labelKey,
+                                      ),
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: isSelected ? Colors.white : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                        color: isSelected
+                                            ? Colors.white
+                                            : (isDark
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[600]),
                                       ),
                                     ),
                                   ),
@@ -332,36 +394,49 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: _availableIcons.length,
-                              separatorBuilder: (context, index) => const SizedBox(width: 12),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 12),
                               itemBuilder: (context, index) {
                                 final icon = _availableIcons[index];
                                 final isSelected = icon == _selectedIcon;
                                 return GestureDetector(
-                                  onTap: () => setState(() => _selectedIcon = icon),
+                                  onTap: () =>
+                                      setState(() => _selectedIcon = icon),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     width: 64,
                                     height: 64,
                                     decoration: BoxDecoration(
-                                      color: isSelected 
-                                        ? AppColors.primary 
-                                        : (isDark ? Colors.white.withOpacity(0.05) : Colors.white),
+                                      color: isSelected
+                                          ? AppColors.primary
+                                          : (isDark
+                                                ? Colors.white.withOpacity(0.05)
+                                                : Colors.white),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: isSelected ? AppColors.primary : Colors.transparent,
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : Colors.transparent,
                                         width: 2,
                                       ),
-                                      boxShadow: isSelected ? [
-                                        BoxShadow(
-                                          color: AppColors.primary.withOpacity(0.4),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        )
-                                      ] : [],
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: AppColors.primary
+                                                    .withOpacity(0.4),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ]
+                                          : [],
                                     ),
                                     child: Icon(
                                       icon,
-                                      color: isSelected ? Colors.white : (isDark ? Colors.grey[500] : Colors.grey[400]),
+                                      color: isSelected
+                                          ? Colors.white
+                                          : (isDark
+                                                ? Colors.grey[500]
+                                                : Colors.grey[400]),
                                       size: 28,
                                     ),
                                   ),
@@ -399,43 +474,54 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
                     builder: (context, state) {
                       final isLoading = state is TaskCreating;
                       return SizedBox(
-                         height: 56,
-                         child: ElevatedButton(
-                           onPressed: isLoading ? null : _createTask,
-                           style: ElevatedButton.styleFrom(
-                             backgroundColor: AppColors.secondary,
-                             disabledBackgroundColor: AppColors.secondary.withOpacity(0.5),
-                             shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(30),
-                             ),
-                             elevation: 8,
-                             shadowColor: AppColors.secondary.withOpacity(0.4),
-                           ),
-                           child: isLoading
-                               ? const SizedBox(
-                                   width: 24,
-                                   height: 24,
-                                   child: CircularProgressIndicator(
-                                     strokeWidth: 2,
-                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                   ),
-                                 )
-                               : const Row(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Icon(Icons.add_circle, size: 24, color: Colors.white),
-                                     SizedBox(width: 8),
-                                     Text(
-                                       'Create Exercise',
-                                       style: TextStyle(
-                                         fontSize: 18,
-                                         fontWeight: FontWeight.bold,
-                                         color: Colors.white,
-                                       ),
-                                     ),
-                                   ],
-                                 ),
-                         ),
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _createTask,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.secondary,
+                            disabledBackgroundColor: AppColors.secondary
+                                .withOpacity(0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 8,
+                            shadowColor: AppColors.secondary.withOpacity(0.4),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      widget.taskToEdit != null
+                                          ? Icons.check_circle
+                                          : Icons.add_circle,
+                                      size: 24,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      widget.taskToEdit != null
+                                          ? 'Update Exercise'
+                                          : 'Create Exercise',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       );
                     },
                   ),
@@ -472,17 +558,15 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
             ),
             child: IconButton(
               padding: EdgeInsets.zero,
-              icon: Icon(
-                Icons.arrow_back_ios_new,
-                size: 18,
-                color: textColor,
-              ),
+              icon: Icon(Icons.arrow_back_ios_new, size: 18, color: textColor),
               onPressed: () => context.pop(),
             ),
           ),
-          
+
           Text(
-            AppLocalizations.of(context)!.newCustomTask,
+            widget.taskToEdit != null
+                ? 'Edit Task'
+                : AppLocalizations.of(context)!.newCustomTask,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

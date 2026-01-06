@@ -9,7 +9,7 @@ import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
 import 'package:ergo_life_app/ui/screens/splash/splash_screen.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
-import 'package:ergo_life_app/ui/screens/rewards/rewards_screen.dart';
+import 'package:ergo_life_app/ui/screens/leaderboard/leaderboard_screen.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
 
 // DI
@@ -20,7 +20,7 @@ import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
-import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
+import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 
@@ -39,7 +39,7 @@ class AppRouter {
   static const String createTask = '/create-task';
 
   static const String activeSession = '/active-session';
-  static const String rewards = '/rewards';
+  static const String leaderboard = '/leaderboard';
 
   // House routes
   static const String inviteMembers = '/house/invite';
@@ -66,14 +66,14 @@ class AppRouter {
               ),
             ],
           ),
-          // Rewards Branch
+          // Leaderboard Branch
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: rewards,
-                name: 'rewards',
+                path: leaderboard,
+                name: 'leaderboard',
                 pageBuilder: (context, state) => NoTransitionPage(
-                  child: RewardsScreen(rewardsBloc: sl<RewardsBloc>()),
+                  child: LeaderboardScreen(leaderboardBloc: sl<LeaderboardBloc>()),
                 ),
               ),
             ],
@@ -103,14 +103,19 @@ class AppRouter {
           ),
         ],
       ),
-      // Top-level routes (outside shell)
       GoRoute(
         path: createTask,
         name: 'createTask',
-        pageBuilder: (context, state) => MaterialPage(
-          fullscreenDialog: true,
-          child: CreateTaskScreen(taskBloc: sl<TaskBloc>()),
-        ),
+        pageBuilder: (context, state) {
+          final taskToEdit = state.extra as TaskModel?;
+          return MaterialPage(
+            fullscreenDialog: true,
+            child: CreateTaskScreen(
+              taskBloc: sl<TaskBloc>(),
+              taskToEdit: taskToEdit,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: activeSession,
@@ -118,11 +123,26 @@ class AppRouter {
         pageBuilder: (context, state) {
           final task = state.extra as TaskModel?;
           if (task == null) {
-            // Fallback to a default task if no task provided
+            // Redirect to home if no task provided
+            // This shouldn't happen in normal flow
             return MaterialPage(
               fullscreenDialog: true,
-              child: ActiveSessionScreen(
-                task: PredefinedTasks.quickTasks.first,
+              child: Scaffold(
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 64),
+                      const SizedBox(height: 16),
+                      const Text('No task selected'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => context.go(home),
+                        child: const Text('Go back'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           }

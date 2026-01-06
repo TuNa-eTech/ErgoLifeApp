@@ -55,6 +55,15 @@ class ApiClient {
     _authToken = null;
   }
 
+  /// Unwrap backend response to get actual data
+  /// Backend wraps responses in {success: bool, data: {...}} format
+  dynamic unwrapResponse(dynamic responseData) {
+    if (responseData is Map<String, dynamic> && responseData.containsKey('data')) {
+      return responseData['data'];
+    }
+    return responseData;
+  }
+
   /// GET request
   Future<Response> get(
     String path, {

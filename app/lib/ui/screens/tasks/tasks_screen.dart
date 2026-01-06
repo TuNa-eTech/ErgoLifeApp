@@ -9,6 +9,11 @@ import 'package:ergo_life_app/blocs/tasks/tasks_event.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_state.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/ui/widgets/ergo_coach_overlay.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/task_card_widget.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/high_priority_task_card.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/activity_card_widget.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_filter_chip.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_empty_state.dart';
 
 class TasksScreen extends StatelessWidget {
   final TasksBloc tasksBloc;
@@ -142,10 +147,12 @@ class TasksView extends StatelessWidget {
               children: [
                 _buildHeader(context, isDark, state),
                 if (state.highPriorityTask != null)
-                  _buildHighPriorityTask(
-                    context,
-                    isDark,
-                    state.highPriorityTask!,
+                  HighPriorityTaskCard(
+                    task: state.highPriorityTask!,
+                    onStart: () => _showErgoCoachAndNavigate(
+                      context,
+                      state.highPriorityTask!,
+                    ),
                   ),
                 _buildTasksList(context, isDark, state),
               ],
@@ -182,159 +189,36 @@ class TasksView extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterChip(context, 'Active', 'active', state, isDark),
-                const SizedBox(width: 8),
-                _buildFilterChip(
-                  context,
-                  'Completed',
-                  'completed',
-                  state,
-                  isDark,
+                TasksFilterChip(
+                  label: 'Active',
+                  isActive: state.currentFilter == 'active',
+                  isDark: isDark,
+                  onTap: () => context.read<TasksBloc>().add(
+                    const FilterTasks(filter: 'active'),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                _buildFilterChip(context, 'Saved', 'saved', state, isDark),
+                TasksFilterChip(
+                  label: 'Completed',
+                  isActive: state.currentFilter == 'completed',
+                  isDark: isDark,
+                  onTap: () => context.read<TasksBloc>().add(
+                    const FilterTasks(filter: 'completed'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TasksFilterChip(
+                  label: 'Saved',
+                  isActive: state.currentFilter == 'saved',
+                  isDark: isDark,
+                  onTap: () => context.read<TasksBloc>().add(
+                    const FilterTasks(filter: 'saved'),
+                  ),
+                ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(
-    BuildContext context,
-    String label,
-    String filter,
-    TasksLoaded state,
-    bool isDark,
-  ) {
-    final isActive = state.currentFilter == filter;
-    return GestureDetector(
-      onTap: () => context.read<TasksBloc>().add(FilterTasks(filter: filter)),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.secondary
-              : (isDark ? AppColors.surfaceDark : Colors.grey.shade100),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive
-                ? Colors.white
-                : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHighPriorityTask(
-    BuildContext context,
-    bool isDark,
-    TaskModel task,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFFF6A00), Color(0xFFEE0979)],
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFFF6A00).withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Colors.white24,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(task.icon, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'HIGH PRIORITY',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                task.exerciseName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                task.taskDescription ?? '',
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _showErgoCoachAndNavigate(context, task),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFFFF6A00),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.play_arrow),
-                          SizedBox(width: 8),
-                          Text(
-                            'Start Now',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -358,157 +242,49 @@ class TasksView extends StatelessWidget {
           const SizedBox(height: 16),
           if (state.currentFilter == 'active')
             ...state.availableTasks.map(
-              (task) => _buildTaskCard(context, isDark, task),
+              (task) => TaskCardWidget(
+                task: task,
+                isDark: isDark,
+                onPlay: () => _showErgoCoachAndNavigate(context, task),
+                onEdit: () => _editTask(context, task),
+                onDelete: () => _deleteTask(context, task),
+              ),
             ),
           if (state.currentFilter == 'completed')
             ...state.recentActivities.map(
-              (activity) => _buildActivityCard(context, isDark, activity),
+              (activity) =>
+                  ActivityCardWidget(activity: activity, isDark: isDark),
             ),
           if (state.currentFilter == 'saved')
-            _buildEmptyState(isDark, 'No saved routines yet'),
+            TasksEmptyState(message: 'No saved routines yet', isDark: isDark),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTaskCard(BuildContext context, bool isDark, TaskModel task) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: task.color.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(task.icon, color: task.color, size: 28),
-        ),
-        title: Text(
-          task.exerciseName,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-          ),
-        ),
-        subtitle: Text(
-          task.taskDescription ?? '',
-          style: TextStyle(
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(
-            Icons.play_circle_fill,
-            color: AppColors.secondary,
-            size: 32,
-          ),
-          onPressed: () => _showErgoCoachAndNavigate(context, task),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActivityCard(
-    BuildContext context,
-    bool isDark,
-    dynamic activity,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, color: Colors.green, size: 32),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity.exerciseName ?? 'Activity',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${activity.pointsEarned} EP earned',
-                  style: TextStyle(
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(bool isDark, String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          children: [
-            Icon(
-              Icons.inbox_outlined,
-              size: 64,
-              color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: TextStyle(
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
   Widget _buildFloatingButton(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.secondary.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.add, size: 32, color: Colors.white),
-        onPressed: () => context.push(AppRouter.createTask),
+    return Semantics(
+      label: 'Create new custom task',
+      button: true,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: AppColors.secondary,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondary.withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.add, size: 32, color: Colors.white),
+          tooltip: 'Create custom task',
+          onPressed: () => context.push(AppRouter.createTask),
+        ),
       ),
     );
   }
@@ -527,6 +303,58 @@ class TasksView extends StatelessWidget {
           Navigator.pop(ctx);
           context.push(AppRouter.activeSession, extra: task);
         },
+      ),
+    );
+  }
+
+  void _editTask(BuildContext context, TaskModel task) {
+    // Navigate to CreateTaskScreen with task data to edit
+    context.push(AppRouter.createTask, extra: task);
+  }
+
+  void _deleteTask(BuildContext context, TaskModel task) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+        title: Text(
+          'Delete Task?',
+          style: TextStyle(
+            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${task.exerciseName}"? This action cannot be undone.',
+          style: TextStyle(
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              // TODO: Add DeleteTask event when backend is ready
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Delete functionality coming soon!'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

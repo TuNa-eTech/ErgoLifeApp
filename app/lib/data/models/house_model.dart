@@ -24,7 +24,8 @@ class HouseModel extends Equatable {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? 'Unnamed House',
       inviteCode: json['inviteCode'] as String? ?? '',
-      ownerId: json['ownerId'] as String? ?? '',
+      // API returns 'createdBy' instead of 'ownerId'
+      ownerId: (json['ownerId'] ?? json['createdBy']) as String? ?? '',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -74,12 +75,17 @@ class HouseMember extends Equatable {
   });
 
   factory HouseMember.fromJson(Map<String, dynamic> json) {
+    // API may return flat member object or nested 'user' object
+    final userData = json['user'] as Map<String, dynamic>? ?? json;
+    
     return HouseMember(
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      weeklyPoints: json['weeklyPoints'] as int,
-      totalPoints: json['totalPoints'] as int,
-      role: json['role'] as String,
-      joinedAt: DateTime.parse(json['joinedAt'] as String),
+      user: UserModel.fromJson(userData),
+      weeklyPoints: json['weeklyPoints'] as int? ?? 0,
+      totalPoints: json['totalPoints'] as int? ?? 0,
+      role: json['role'] as String? ?? 'member',
+      joinedAt: json['joinedAt'] != null
+          ? DateTime.parse(json['joinedAt'] as String)
+          : DateTime.now(),
     );
   }
 

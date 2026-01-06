@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/blocs/home/home_bloc.dart';
+import 'package:ergo_life_app/blocs/home/home_event.dart';
+import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
+import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/session/session_bloc.dart';
 import 'package:ergo_life_app/blocs/session/session_event.dart';
 import 'package:ergo_life_app/blocs/session/session_state.dart';
@@ -14,10 +18,7 @@ import 'package:ergo_life_app/ui/screens/tasks/widgets/session_stat_item.dart';
 class ActiveSessionScreen extends StatelessWidget {
   final TaskModel task;
 
-  const ActiveSessionScreen({
-    super.key,
-    required this.task,
-  });
+  const ActiveSessionScreen({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +148,9 @@ class ActiveSessionView extends StatelessWidget {
                       icon: state.isPaused ? Icons.play_arrow : Icons.pause,
                       onTap: () {
                         if (state.isPaused) {
-                          context.read<SessionBloc>().add(const ResumeSession());
+                          context.read<SessionBloc>().add(
+                            const ResumeSession(),
+                          );
                         } else {
                           context.read<SessionBloc>().add(const PauseSession());
                         }
@@ -251,9 +254,7 @@ class ActiveSessionView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.orange.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
@@ -384,10 +385,7 @@ class ActiveSessionView extends StatelessWidget {
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Close screen
             },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -412,10 +410,7 @@ class ActiveSessionView extends StatelessWidget {
           children: [
             Text(
               'You earned ${state.pointsEarned} points!',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text('New balance: ${state.newWalletBalance} EP'),
@@ -424,6 +419,10 @@ class ActiveSessionView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
+              // Refresh HomeBloc and LeaderboardBloc after activity completion
+              sl<HomeBloc>().add(const RefreshHomeData());
+              sl<LeaderboardBloc>().add(const RefreshLeaderboard());
+
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Close screen
             },
@@ -488,17 +487,11 @@ class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
           // Ping animation
           ScaleTransition(
             scale: Tween<double>(begin: 1.0, end: 2.0).animate(
-              CurvedAnimation(
-                parent: _controller,
-                curve: Curves.easeOut,
-              ),
+              CurvedAnimation(parent: _controller, curve: Curves.easeOut),
             ),
             child: FadeTransition(
               opacity: Tween<double>(begin: 0.75, end: 0.0).animate(
-                CurvedAnimation(
-                  parent: _controller,
-                  curve: Curves.easeOut,
-                ),
+                CurvedAnimation(parent: _controller, curve: Curves.easeOut),
               ),
               child: Container(
                 decoration: const BoxDecoration(

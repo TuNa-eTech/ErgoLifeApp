@@ -140,7 +140,7 @@ GET /activities?page=1&limit=10&startDate=2025-12-01
 
 ## GET `/activities/leaderboard`
 
-Bảng xếp hạng tuần của house.
+Bảng xếp hạng tuần - hỗ trợ 2 scope: House (trong gia đình) và Global (toàn app).
 
 ### Request
 
@@ -152,7 +152,14 @@ Authorization: Bearer <access_token>
 **Query Parameters:**
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
-| week | string | current | Tuần (format: `YYYY-Www`, VD: `2025-W51`) |
+| scope | string | `house` | Phạm vi: `house` (trong gia đình) hoặc `global` (toàn app) |
+| week | string | `current` | Tuần (format: `YYYY-Www`, VD: `2025-W51`) |
+
+**Examples:**
+```
+GET /activities/leaderboard?scope=house&week=current
+GET /activities/leaderboard?scope=global&week=2025-W51
+```
 
 ### Response
 
@@ -161,16 +168,19 @@ Authorization: Bearer <access_token>
 {
   "success": true,
   "data": {
+    "scope": "house",
     "week": "2025-W51",
     "weekStart": "2025-12-16T00:00:00.000Z",
     "weekEnd": "2025-12-22T23:59:59.999Z",
+    "houseName": "Nhà Nguyễn",
     "rankings": [
       {
         "rank": 1,
         "user": {
           "id": "550e8400-e29b-41d4-a716-446655440000",
           "displayName": "Minh Nguyễn",
-          "avatarId": 3
+          "avatarId": 3,
+          "avatarUrl": "https://storage.ergolife.app/avatars/3.png"
         },
         "weeklyPoints": 5200,
         "activityCount": 12
@@ -180,15 +190,43 @@ Authorization: Bearer <access_token>
         "user": {
           "id": "550e8400-e29b-41d4-a716-446655440001",
           "displayName": "Lan Trần",
-          "avatarId": 8
+          "avatarId": 8,
+          "avatarUrl": null
         },
         "weeklyPoints": 4800,
         "activityCount": 10
       }
-    ]
+    ],
+    "myRanking": {
+      "rank": 4,
+      "weeklyPoints": 2100,
+      "activityCount": 5
+    },
+    "totalParticipants": 6
   }
 }
 ```
+
+### Response Fields
+
+| Field | Type | Scope | Description |
+|-------|------|-------|-------------|
+| `scope` | string | Both | `house` hoặc `global` |
+| `week` | string | Both | Tuần (format: `YYYY-Www`) |
+| `weekStart` | ISO8601 | Both | Thời gian bắt đầu tuần |
+| `weekEnd` | ISO8601 | Both | Thời gian kết thúc tuần |
+| `houseName` | string | House only | Tên nhà (chỉ có với scope=house) |
+| `rankings` | array | Both | Danh sách top users |
+| `myRanking` | object | Both | Vị trí của current user |
+| `totalParticipants` | number | Both | Tổng số users trong scope |
+
+### Scope Comparison
+
+| Aspect | `scope=house` | `scope=global` |
+|--------|---------------|----------------|
+| Data Source | Members trong House | Tất cả users có activity |
+| `houseName` | ✅ Có | ❌ `null` |
+| Performance | Nhanh (ít data) | Có thể cần cache |
 
 ---
 

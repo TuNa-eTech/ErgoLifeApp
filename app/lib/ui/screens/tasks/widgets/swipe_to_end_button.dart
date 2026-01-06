@@ -92,8 +92,9 @@ class _SwipeToEndButtonState extends State<SwipeToEndButton>
             child: Icon(
               Icons.chevron_right,
               size: 16,
-              color:
-                  widget.isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+              color: widget.isDark
+                  ? Colors.grey.shade600
+                  : Colors.grey.shade400,
             ),
           ),
         ],

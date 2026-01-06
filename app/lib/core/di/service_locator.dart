@@ -10,7 +10,6 @@ import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
 
 // Data - Services
-import 'package:ergo_life_app/data/services/api_service.dart';
 import 'package:ergo_life_app/data/services/auth_service.dart';
 import 'package:ergo_life_app/data/services/storage_service.dart';
 
@@ -20,6 +19,8 @@ import 'package:ergo_life_app/data/repositories/session_repository.dart';
 import 'package:ergo_life_app/data/repositories/auth_repository.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 import 'package:ergo_life_app/data/repositories/house_repository.dart';
+import 'package:ergo_life_app/data/repositories/task_repository.dart';
+import 'package:ergo_life_app/data/repositories/reward_repository.dart';
 
 // BLoCs/Cubits
 import 'package:ergo_life_app/blocs/user/user_cubit.dart';
@@ -31,7 +32,6 @@ import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
-import 'package:ergo_life_app/data/repositories/reward_repository.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 
@@ -47,11 +47,9 @@ Future<void> setupServiceLocator() async {
 
   // ===== Core =====
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+  sl.registerLazySingleton<ApiClient>(() => ApiClient());
 
   // ===== Data - Services =====
-  sl.registerLazySingleton<ApiService>(() => ApiService());
-  sl.registerLazySingleton<ApiClient>(() => ApiClient());
-  
   // Register AuthService asynchronously to wait for Google Sign-In initialization
   sl.registerSingletonAsync<AuthService>(() async {
     final authService = AuthService(firebaseAuth: sl());
@@ -76,6 +74,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<SessionRepository>(() => SessionRepository(sl()));
   sl.registerLazySingleton<ActivityRepository>(() => ActivityRepository(sl()));
   sl.registerLazySingleton<HouseRepository>(() => HouseRepository(sl()));
+  sl.registerLazySingleton<TaskRepository>(() => TaskRepository(sl()));
   sl.registerLazySingleton<RewardRepository>(() => RewardRepository(sl()));
   
   // AuthRepository depends on async AuthService, so must wait for it
@@ -99,10 +98,12 @@ Future<void> setupServiceLocator() async {
         authRepository: sl(),
         activityRepository: sl(),
         houseRepository: sl(),
+        taskRepository: sl(),
       ));
 
-  // SessionBloc - singleton because session state should persist across screens
-  sl.registerLazySingleton<SessionBloc>(
+  // SessionBloc - factory to ensure fresh instance for each session
+  // Previous singleton approach caused "Cannot add events after close" error
+  sl.registerFactory<SessionBloc>(
     () => SessionBloc(activityRepository: sl()),
   );
 
@@ -114,7 +115,10 @@ Future<void> setupServiceLocator() async {
 
   // TasksBloc - factory for independent instances
   sl.registerFactory<TasksBloc>(
-    () => TasksBloc(activityRepository: sl()),
+    () => TasksBloc(
+      activityRepository: sl(),
+      taskRepository: sl(),
+    ),
   );
 
   // TaskBloc - factory for custom task management
@@ -126,14 +130,17 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ProfileBloc>(() => ProfileBloc(
         authRepository: sl(),
         activityRepository: sl(),
-        apiService: sl(),
+        userRepository: sl(),
       ));
 
   // HouseBloc - factory for independent instances
   sl.registerFactory<HouseBloc>(() => HouseBloc(houseRepository: sl()));
 
   // OnboardingBloc - factory for fresh onboarding state
-  sl.registerFactory<OnboardingBloc>(() => OnboardingBloc(apiService: sl()));
+  sl.registerFactory<OnboardingBloc>(() => OnboardingBloc(
+        userRepository: sl(),
+        houseRepository: sl(),
+      ));
 
   // RewardsBloc
   sl.registerFactory<RewardsBloc>(() => RewardsBloc(
@@ -141,4 +148,3 @@ Future<void> setupServiceLocator() async {
     userRepository: sl(),
   ));
 }
-

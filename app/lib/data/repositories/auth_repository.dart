@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ergo_life_app/core/constants/api_constants.dart';
 import 'package:ergo_life_app/core/errors/exceptions.dart';
 import 'package:ergo_life_app/core/errors/failures.dart';
+import 'package:ergo_life_app/core/network/api_client.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
+import 'package:ergo_life_app/data/models/auth_model.dart';
 import 'package:ergo_life_app/data/models/user_model.dart';
-import 'package:ergo_life_app/data/services/api_service.dart';
 import 'package:ergo_life_app/data/services/auth_service.dart'
     hide FirebaseAuthException;
 import 'package:ergo_life_app/data/services/storage_service.dart';
@@ -12,14 +14,31 @@ import 'package:ergo_life_app/data/services/storage_service.dart';
 /// Repository for authentication operations
 class AuthRepository {
   final AuthService _authService;
-  final ApiService _apiService;
+  final ApiClient _apiClient;
   final StorageService _storageService;
 
   AuthRepository(
     this._authService,
-    this._apiService,
+    this._apiClient,
     this._storageService,
   );
+
+  /// Social login with Firebase ID token
+  Future<AuthResponse> _socialLogin(String idToken) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.socialLogin,
+        data: {'idToken': idToken},
+      );
+
+      // Backend wraps response in {success: bool, data: {...}}
+      final actualData = _apiClient.unwrapResponse(response.data);
+      return AuthResponse.fromJson(actualData as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error('Social login failed', e, null, 'AuthRepository');
+      rethrow;
+    }
+  }
 
   /// Sign in with Google
   Future<Either<Failure, UserModel>> signInWithGoogle() async {
@@ -45,13 +64,13 @@ class AuthRepository {
       AppLogger.info('Got Firebase ID token, calling backend', 'AuthRepository');
 
       // 3. Send ID token to backend
-      final authResponse = await _apiService.socialLogin(idToken);
+      final authResponse = await _socialLogin(idToken);
 
       // 4. Store JWT token
       await _storageService.saveAuthToken(authResponse.accessToken);
 
       // 5. Update API client with token
-      _apiService.setAuthToken(authResponse.accessToken);
+      _apiClient.setAuthToken(authResponse.accessToken);
 
       AppLogger.success(
         'Google sign-in successful for user: ${authResponse.user.email}',
@@ -100,13 +119,13 @@ class AuthRepository {
       AppLogger.info('Got Firebase ID token, calling backend', 'AuthRepository');
 
       // 3. Send ID token to backend
-      final authResponse = await _apiService.socialLogin(idToken);
+      final authResponse = await _socialLogin(idToken);
 
       // 4. Store JWT token
       await _storageService.saveAuthToken(authResponse.accessToken);
 
       // 5. Update API client with token
-      _apiService.setAuthToken(authResponse.accessToken);
+      _apiClient.setAuthToken(authResponse.accessToken);
 
       AppLogger.success(
         'Apple sign-in successful for user: ${authResponse.user.email}',
@@ -143,7 +162,7 @@ class AuthRepository {
       await _storageService.clearAuthToken();
 
       // Clear API client token
-      _apiService.clearAuthToken();
+      _apiClient.clearAuthToken();
 
       AppLogger.success('Sign out successful', 'AuthRepository');
     } catch (e) {
@@ -162,6 +181,18 @@ class AuthRepository {
     return _storageService.hasAuthToken();
   }
 
+  /// Get current authenticated user
+  Future<UserModel> _getCurrentUserFromApi() async {
+    try {
+      final response = await _apiClient.get(ApiConstants.authMe);
+      final userData = _apiClient.unwrapResponse(response.data);
+      return UserModel.fromJson(userData as Map<String, dynamic>);
+    } catch (e) {
+      AppLogger.error('Get current user failed', e, null, 'AuthRepository');
+      rethrow;
+    }
+  }
+
   /// Attempt to get current user with stored token
   Future<Either<Failure, UserModel>> getCurrentUser() async {
     try {
@@ -173,10 +204,10 @@ class AuthRepository {
       AppLogger.info('Attempting auto sign-in with stored token', 'AuthRepository');
 
       // Set token in API client
-      _apiService.setAuthToken(token);
+      _apiClient.setAuthToken(token);
 
       // Fetch current user from backend
-      final user = await _apiService.getCurrentUser();
+      final user = await _getCurrentUserFromApi();
 
       AppLogger.success('Auto sign-in successful', 'AuthRepository');
       return Right(user);
@@ -184,7 +215,7 @@ class AuthRepository {
       AppLogger.warning('Token is invalid or expired', 'AuthRepository');
       // Clear invalid token
       await _storageService.clearAuthToken();
-      _apiService.clearAuthToken();
+      _apiClient.clearAuthToken();
       return Left(AuthFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'AuthRepository');

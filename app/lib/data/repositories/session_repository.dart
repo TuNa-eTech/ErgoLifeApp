@@ -1,17 +1,18 @@
+import 'package:ergo_life_app/core/network/api_client.dart';
 import 'package:ergo_life_app/data/models/session_model.dart';
-import 'package:ergo_life_app/data/services/api_service.dart';
 
 class SessionRepository {
-  final ApiService _apiService;
+  final ApiClient _apiClient;
 
-  SessionRepository(this._apiService);
+  SessionRepository(this._apiClient);
 
   // Get active sessions
   Future<List<SessionModel>> getActiveSessions() async {
     try {
-      final response = await _apiService.get('/sessions/active');
-      final List<dynamic> data = response.data['sessions'];
-      return data.map((json) => SessionModel.fromJson(json)).toList();
+      final response = await _apiClient.get('/sessions/active');
+      final data = _apiClient.unwrapResponse(response.data);
+      final List<dynamic> sessions = data['sessions'] ?? [];
+      return sessions.map((json) => SessionModel.fromJson(json)).toList();
     } catch (e) {
       rethrow;
     }
@@ -20,9 +21,10 @@ class SessionRepository {
   // Get session history
   Future<List<SessionModel>> getSessionHistory() async {
     try {
-      final response = await _apiService.get('/sessions/history');
-      final List<dynamic> data = response.data['sessions'];
-      return data.map((json) => SessionModel.fromJson(json)).toList();
+      final response = await _apiClient.get('/sessions/history');
+      final data = _apiClient.unwrapResponse(response.data);
+      final List<dynamic> sessions = data['sessions'] ?? [];
+      return sessions.map((json) => SessionModel.fromJson(json)).toList();
     } catch (e) {
       rethrow;
     }
@@ -34,11 +36,12 @@ class SessionRepository {
     required String description,
   }) async {
     try {
-      final response = await _apiService.post(
+      final response = await _apiClient.post(
         '/sessions/start',
         data: {'title': title, 'description': description},
       );
-      return SessionModel.fromJson(response.data);
+      final data = _apiClient.unwrapResponse(response.data);
+      return SessionModel.fromJson(data);
     } catch (e) {
       rethrow;
     }
@@ -47,8 +50,9 @@ class SessionRepository {
   // End a session
   Future<SessionModel> endSession(String sessionId) async {
     try {
-      final response = await _apiService.post('/sessions/$sessionId/end');
-      return SessionModel.fromJson(response.data);
+      final response = await _apiClient.post('/sessions/$sessionId/end');
+      final data = _apiClient.unwrapResponse(response.data);
+      return SessionModel.fromJson(data);
     } catch (e) {
       rethrow;
     }
@@ -57,8 +61,9 @@ class SessionRepository {
   // Pause a session
   Future<SessionModel> pauseSession(String sessionId) async {
     try {
-      final response = await _apiService.post('/sessions/$sessionId/pause');
-      return SessionModel.fromJson(response.data);
+      final response = await _apiClient.post('/sessions/$sessionId/pause');
+      final data = _apiClient.unwrapResponse(response.data);
+      return SessionModel.fromJson(data);
     } catch (e) {
       rethrow;
     }
@@ -67,8 +72,9 @@ class SessionRepository {
   // Resume a session
   Future<SessionModel> resumeSession(String sessionId) async {
     try {
-      final response = await _apiService.post('/sessions/$sessionId/resume');
-      return SessionModel.fromJson(response.data);
+      final response = await _apiClient.post('/sessions/$sessionId/resume');
+      final data = _apiClient.unwrapResponse(response.data);
+      return SessionModel.fromJson(data);
     } catch (e) {
       rethrow;
     }

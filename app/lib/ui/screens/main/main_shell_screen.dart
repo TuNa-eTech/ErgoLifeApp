@@ -51,9 +51,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
               _buildNavItem(
                 context,
                 index: 1,
-                icon: Icons.local_mall_outlined,
-                filledIcon: Icons.local_mall,
-                label: 'Rewards',
+                icon: Icons.leaderboard_outlined,
+                filledIcon: Icons.leaderboard,
+                label: 'Leaderboard',
                 isDark: isDark,
               ),
               _buildNavItem(

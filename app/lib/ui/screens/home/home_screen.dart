@@ -9,7 +9,6 @@ import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/arena_section.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
-import 'package:ergo_life_app/ui/widgets/ergo_coach_overlay.dart';
 
 /// Home screen displaying user dashboard with arena and quick tasks
 class HomeScreen extends StatelessWidget {
@@ -305,20 +304,6 @@ class HomeView extends StatelessWidget {
   }
 
   void _showErgoCoachAndNavigate(BuildContext context, dynamic taskModel) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => ErgoCoachOverlay(
-        task: taskModel,
-        onReady: () {
-          Navigator.pop(ctx);
-          context.push(AppRouter.activeSession, extra: taskModel);
-        },
-        onSkip: () {
-          Navigator.pop(ctx);
-          context.push(AppRouter.activeSession, extra: taskModel);
-        },
-      ),
-    );
+    context.push(AppRouter.activeSession, extra: taskModel);
   }
 }

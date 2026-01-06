@@ -30,12 +30,12 @@ export class CreateActivityDto {
 
   @ApiProperty({
     example: 1200,
-    description: 'Duration in seconds (60-7200)',
-    minimum: 60,
+    description: 'Duration in seconds (1-7200)',
+    minimum: 1,
     maximum: 7200,
   })
   @IsInt()
-  @Min(60, { message: 'Duration must be at least 60 seconds (1 minute)' })
+  @Min(1, { message: 'Duration must be at least 1 second' })
   @Max(7200, { message: 'Duration must be at most 7200 seconds (2 hours)' })
   durationSeconds: number;
 
