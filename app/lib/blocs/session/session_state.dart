@@ -15,6 +15,27 @@ class SessionInactive extends SessionState {
   const SessionInactive();
 }
 
+/// Session is pending - waiting for user to start
+class SessionPending extends SessionState {
+  final TaskModel task;
+  final int targetSeconds;
+
+  const SessionPending({
+    required this.task,
+    required this.targetSeconds,
+  });
+
+  /// Get formatted target time as MM:SS
+  String get formattedTarget {
+    final minutes = targetSeconds ~/ 60;
+    final seconds = targetSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  List<Object?> get props => [task, targetSeconds];
+}
+
 /// Session is currently running
 class SessionActive extends SessionState {
   final TaskModel task;

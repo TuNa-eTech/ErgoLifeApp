@@ -109,19 +109,22 @@ class HouseMember extends Equatable {
 class HouseInvite {
   final String inviteCode;
   final String inviteLink;
-  final DateTime expiresAt;
+  final DateTime? expiresAt;
 
   const HouseInvite({
     required this.inviteCode,
     required this.inviteLink,
-    required this.expiresAt,
+    this.expiresAt,
   });
 
   factory HouseInvite.fromJson(Map<String, dynamic> json) {
     return HouseInvite(
-      inviteCode: json['inviteCode'] as String,
-      inviteLink: json['inviteLink'] as String,
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
+      inviteCode: json['inviteCode'] as String? ?? '',
+      // API returns 'deepLink', map to 'inviteLink'
+      inviteLink: (json['inviteLink'] ?? json['deepLink']) as String? ?? '',
+      expiresAt: json['expiresAt'] != null
+          ? DateTime.parse(json['expiresAt'] as String)
+          : null,
     );
   }
 }
@@ -130,19 +133,28 @@ class HouseInvite {
 class HousePreview {
   final String name;
   final int memberCount;
-  final String ownerName;
+  final String? ownerName;
+  final bool isFull;
+  final List<int?> memberAvatars;
 
   const HousePreview({
     required this.name,
     required this.memberCount,
-    required this.ownerName,
+    this.ownerName,
+    this.isFull = false,
+    this.memberAvatars = const [],
   });
 
   factory HousePreview.fromJson(Map<String, dynamic> json) {
     return HousePreview(
-      name: json['name'] as String,
-      memberCount: json['memberCount'] as int,
-      ownerName: json['ownerName'] as String,
+      name: json['name'] as String? ?? 'Unknown',
+      memberCount: json['memberCount'] as int? ?? 0,
+      ownerName: json['ownerName'] as String?,
+      isFull: json['isFull'] as bool? ?? false,
+      memberAvatars: (json['memberAvatars'] as List<dynamic>?)
+              ?.map((e) => e as int?)
+              .toList() ??
+          [],
     );
   }
 }

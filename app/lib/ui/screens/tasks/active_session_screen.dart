@@ -13,6 +13,7 @@ import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/ui/common/widgets/glass_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/swipe_to_end_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/session_stat_item.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/session_start_overlay.dart';
 
 /// Screen showing active exercise session with real timer and stats
 class ActiveSessionScreen extends StatelessWidget {
@@ -23,7 +24,7 @@ class ActiveSessionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SessionBloc>(
-      create: (_) => sl<SessionBloc>()..add(StartSession(task: task)),
+      create: (_) => sl<SessionBloc>()..add(PrepareSession(task: task)),
       child: ActiveSessionView(task: task),
     );
   }
@@ -48,6 +49,21 @@ class ActiveSessionView extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        // Show beautiful start overlay when session is pending
+        if (state is SessionPending) {
+          return Scaffold(
+            backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+            body: SessionStartOverlay(
+              task: task,
+              formattedTarget: state.formattedTarget,
+              onStart: () {
+                context.read<SessionBloc>().add(StartSession(task: task));
+              },
+              onCancel: () => Navigator.pop(context),
+            ),
+          );
+        }
+
         return Scaffold(
           backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
           body: Column(

@@ -8,7 +8,7 @@ import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_event.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_state.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
-import 'package:ergo_life_app/ui/widgets/ergo_coach_overlay.dart';
+
 import 'package:ergo_life_app/ui/screens/tasks/widgets/task_card_widget.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/high_priority_task_card.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/activity_card_widget.dart';
@@ -149,7 +149,7 @@ class TasksView extends StatelessWidget {
                 if (state.highPriorityTask != null)
                   HighPriorityTaskCard(
                     task: state.highPriorityTask!,
-                    onStart: () => _showErgoCoachAndNavigate(
+                    onStart: () => _navigateToSession(
                       context,
                       state.highPriorityTask!,
                     ),
@@ -245,7 +245,7 @@ class TasksView extends StatelessWidget {
               (task) => TaskCardWidget(
                 task: task,
                 isDark: isDark,
-                onPlay: () => _showErgoCoachAndNavigate(context, task),
+                onPlay: () => _navigateToSession(context, task),
                 onEdit: () => _editTask(context, task),
                 onDelete: () => _deleteTask(context, task),
               ),
@@ -289,22 +289,10 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  void _showErgoCoachAndNavigate(BuildContext context, TaskModel task) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => ErgoCoachOverlay(
-        task: task,
-        onReady: () {
-          Navigator.pop(ctx);
-          context.push(AppRouter.activeSession, extra: task);
-        },
-        onSkip: () {
-          Navigator.pop(ctx);
-          context.push(AppRouter.activeSession, extra: task);
-        },
-      ),
-    );
+  /// Navigate directly to active session screen
+  /// The session screen now shows a beautiful start overlay in pending state
+  void _navigateToSession(BuildContext context, TaskModel task) {
+    context.push(AppRouter.activeSession, extra: task);
   }
 
   void _editTask(BuildContext context, TaskModel task) {

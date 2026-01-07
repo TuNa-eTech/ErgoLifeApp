@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ergo_life_app/core/constants/api_constants.dart';
+import 'package:ergo_life_app/core/constants/app_constants.dart';
 import 'package:ergo_life_app/core/errors/exceptions.dart';
 import 'package:ergo_life_app/core/errors/failures.dart';
 import 'package:ergo_life_app/core/network/api_client.dart';
@@ -155,11 +156,26 @@ class AuthRepository {
     try {
       AppLogger.info('Signing out', 'AuthRepository');
 
+      // Call backend logout API to invalidate FCM token
+      try {
+        await _apiClient.post(ApiConstants.logout);
+        AppLogger.info('Backend logout successful', 'AuthRepository');
+      } catch (e) {
+        // Log but continue - we still want to sign out locally
+        AppLogger.warning(
+          'Backend logout failed, continuing with local sign out: $e',
+          'AuthRepository',
+        );
+      }
+
       // Sign out from Firebase
       await _authService.signOut();
 
       // Clear JWT token
       await _storageService.clearAuthToken();
+
+      // Clear user profile cache
+      await _storageService.remove(AppConstants.keyUserProfile);
 
       // Clear API client token
       _apiClient.clearAuthToken();

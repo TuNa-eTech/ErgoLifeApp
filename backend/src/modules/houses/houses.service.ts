@@ -16,6 +16,19 @@ import {
 
 const MAX_HOUSE_MEMBERS = 4;
 const APP_DEEP_LINK_BASE = 'https://ergolife.app/join';
+const INVITE_CODE_LENGTH = 6;
+const INVITE_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1 to avoid confusion
+
+// Generate a short, user-friendly invite code
+function generateShortCode(length: number = INVITE_CODE_LENGTH): string {
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += INVITE_CODE_CHARS.charAt(
+      Math.floor(Math.random() * INVITE_CODE_CHARS.length),
+    );
+  }
+  return code;
+}
 
 @Injectable()
 export class HousesService {
@@ -37,11 +50,31 @@ export class HousesService {
 
     // Create house and update user in a transaction
     const house = await this.prisma.$transaction(async (tx) => {
-      // Create the house
+      // Generate a unique short invite code
+      let inviteCode: string;
+      let isUnique = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!isUnique && attempts < maxAttempts) {
+        inviteCode = generateShortCode();
+        const existing = await tx.house.findUnique({
+          where: { inviteCode },
+        });
+        isUnique = !existing;
+        attempts++;
+      }
+
+      if (!isUnique) {
+        throw new Error('Failed to generate unique invite code');
+      }
+
+      // Create the house with custom invite code
       const newHouse = await tx.house.create({
         data: {
           name: createHouseDto.name,
           createdById: userId,
+          inviteCode: inviteCode!,
         },
         include: {
           members: {
@@ -148,10 +181,21 @@ export class HousesService {
     // Check if user is already in a house
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { houseId: true },
+      include: {
+        house: {
+          select: { inviteCode: true },
+        },
+      },
     });
 
     if (user?.houseId) {
+      // Check if trying to join own house
+      if (user.house?.inviteCode === inviteCode) {
+        throw new ConflictException({
+          code: 'ALREADY_MEMBER',
+          message: 'You are already a member of this house',
+        });
+      }
       throw new ConflictException({
         code: 'ALREADY_IN_HOUSE',
         message: 'You are already a member of another house',

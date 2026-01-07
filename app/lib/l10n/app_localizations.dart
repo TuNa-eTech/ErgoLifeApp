@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout? You will need to sign in again to access your account.'**
+  String get logoutConfirmation;
+
   /// No description provided for @welcomeBack.
   ///
   /// In en, this message translates to:

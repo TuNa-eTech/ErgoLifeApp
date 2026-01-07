@@ -9,6 +9,16 @@ abstract class SessionEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// Prepare a session (show preview, wait for user to start)
+class PrepareSession extends SessionEvent {
+  final TaskModel task;
+
+  const PrepareSession({required this.task});
+
+  @override
+  List<Object?> get props => [task];
+}
+
 /// Start a new session with a task
 class StartSession extends SessionEvent {
   final TaskModel task;

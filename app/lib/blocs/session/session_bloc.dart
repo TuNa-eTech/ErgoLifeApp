@@ -16,12 +16,29 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     required ActivityRepository activityRepository,
   })  : _activityRepository = activityRepository,
         super(const SessionInactive()) {
+    on<PrepareSession>(_onPrepareSession);
     on<StartSession>(_onStartSession);
     on<TimerTicked>(_onTimerTicked);
     on<PauseSession>(_onPauseSession);
     on<ResumeSession>(_onResumeSession);
     on<CompleteSession>(_onCompleteSession);
     on<CancelSession>(_onCancelSession);
+  }
+
+  /// Prepare session (waiting for user to start)
+  Future<void> _onPrepareSession(
+    PrepareSession event,
+    Emitter<SessionState> emit,
+  ) async {
+    AppLogger.info(
+      'Preparing session: ${event.task.exerciseName}',
+      'SessionBloc',
+    );
+
+    emit(SessionPending(
+      task: event.task,
+      targetSeconds: event.task.durationSeconds,
+    ));
   }
 
   /// Start a new session

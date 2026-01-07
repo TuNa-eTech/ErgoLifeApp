@@ -21,11 +21,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required ActivityRepository activityRepository,
     required HouseRepository houseRepository,
     required TaskRepository taskRepository,
-  })  : _authRepository = authRepository,
-        _activityRepository = activityRepository,
-        _houseRepository = houseRepository,
-        _taskRepository = taskRepository,
-        super(const HomeInitial()) {
+  }) : _authRepository = authRepository,
+       _activityRepository = activityRepository,
+       _houseRepository = houseRepository,
+       _taskRepository = taskRepository,
+       super(const HomeInitial()) {
     on<LoadHomeData>(_onLoadHomeData);
     on<RefreshHomeData>(_onRefreshHomeData);
   }
@@ -44,13 +44,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       await userResult.fold(
         (failure) async {
-          AppLogger.error('Failed to load user', failure.message, null, 'HomeBloc');
+          AppLogger.error(
+            'Failed to load user',
+            failure.message,
+            null,
+            'HomeBloc',
+          );
           emit(HomeError(message: failure.message));
         },
         (user) async {
           // Fetch stats (with fallback to mock)
           WeeklyStats stats;
-          final statsResult = await _activityRepository.getStats(period: 'week');
+          final statsResult = await _activityRepository.getStats(
+            period: 'week',
+          );
           stats = statsResult.fold(
             (_) => WeeklyStats.empty(),
             (s) => WeeklyStats(
@@ -81,13 +88,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 .toList(),
           );
 
-          AppLogger.success('Home data loaded with ${quickTasks.length} tasks', 'HomeBloc');
-          emit(HomeLoaded(
-            user: user,
-            stats: stats,
-            house: house,
-            quickTasks: quickTasks,
-          ));
+          AppLogger.success(
+            'Home data loaded with ${quickTasks.length} tasks',
+            'HomeBloc',
+          );
+          emit(
+            HomeLoaded(
+              user: user,
+              stats: stats,
+              house: house,
+              quickTasks: quickTasks,
+            ),
+          );
         },
       );
     } catch (e) {
@@ -116,23 +128,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _ensureTasksSeeded() async {
     try {
       AppLogger.info('Checking if user needs task seeding...', 'HomeBloc');
-      
+
       // Check if user needs seeding
       final needsSeedingResult = await _taskRepository.needsTaskSeeding();
-      
+
       // Log the raw result for debugging
       needsSeedingResult.fold(
-        (failure) => AppLogger.error('needsTaskSeeding returned failure: ${failure.message}', null, null, 'HomeBloc'),
-        (value) => AppLogger.info('needsTaskSeeding returned: $value', 'HomeBloc'),
+        (failure) => AppLogger.error(
+          'needsTaskSeeding returned failure: ${failure.message}',
+          null,
+          null,
+          'HomeBloc',
+        ),
+        (value) =>
+            AppLogger.info('needsTaskSeeding returned: $value', 'HomeBloc'),
       );
-      
+
       final needsSeeding = needsSeedingResult.fold(
         (_) => false,
         (value) => value,
       );
 
       if (!needsSeeding) {
-        AppLogger.info('User already has tasks (needsSeeding=$needsSeeding), skipping seeding', 'HomeBloc');
+        AppLogger.info(
+          'User already has tasks (needsSeeding=$needsSeeding), skipping seeding',
+          'HomeBloc',
+        );
         return;
       }
 
@@ -140,27 +161,34 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       // Get task templates
       final templatesResult = await _taskRepository.getTaskTemplates();
-      final templates = templatesResult.fold(
-        (failure) {
-          AppLogger.error('Failed to fetch templates', failure.message, null, 'HomeBloc');
-          return <Map<String, dynamic>>[];
-        },
-        (value) => value,
-      );
+      final templates = templatesResult.fold((failure) {
+        AppLogger.error(
+          'Failed to fetch templates',
+          failure.message,
+          null,
+          'HomeBloc',
+        );
+        return <Map<String, dynamic>>[];
+      }, (value) => value);
 
       if (templates.isEmpty) {
         AppLogger.warning('No templates available for seeding', 'HomeBloc');
         return;
       }
 
-      AppLogger.info('Got ${templates.length} templates, seeding...', 'HomeBloc');
+      AppLogger.info(
+        'Got ${templates.length} templates, seeding...',
+        'HomeBloc',
+      );
 
       // Convert templates to seed format
       final tasksToSeed = templates.map((template) {
         return {
           'exerciseName': template['name'] ?? template['exerciseName'],
-          'taskDescription': template['description'] ?? template['taskDescription'],
-          'durationMinutes': template['defaultDuration'] ?? template['durationMinutes'] ?? 15,
+          'taskDescription':
+              template['description'] ?? template['taskDescription'],
+          'durationMinutes':
+              template['defaultDuration'] ?? template['durationMinutes'] ?? 15,
           'metsValue': template['metsValue'] ?? 3.5,
           'icon': template['icon'] ?? 'fitness_center',
           'animation': template['animation'],
@@ -172,8 +200,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       // Seed tasks
       final seedResult = await _taskRepository.seedTasks(tasksToSeed);
       seedResult.fold(
-        (failure) => AppLogger.error('Failed to seed tasks', failure.message, null, 'HomeBloc'),
-        (data) => AppLogger.success('Tasks seeded successfully: ${data['tasksCreated']} tasks', 'HomeBloc'),
+        (failure) => AppLogger.error(
+          'Failed to seed tasks',
+          failure.message,
+          null,
+          'HomeBloc',
+        ),
+        (data) => AppLogger.success(
+          'Tasks seeded successfully: ${data['tasksCreated']} tasks',
+          'HomeBloc',
+        ),
       );
     } catch (e) {
       AppLogger.error('Error during task seeding', e, null, 'HomeBloc');

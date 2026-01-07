@@ -36,6 +36,7 @@
   "signIn": "Đăng Nhập",
   "signOut": "Đăng Xuất",
   "logout": "Đăng Xuất",
+  "logoutConfirmation": "Bạn có chắc chắn muốn đăng xuất? Bạn sẽ cần đăng nhập lại để truy cập tài khoản.",
   "welcomeBack": "Chào mừng trở lại!",
 
   "chooseYourAvatar": "Chọn avatar của bạn",

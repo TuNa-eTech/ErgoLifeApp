@@ -108,6 +108,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get logout => 'Đăng Xuất';
 
   @override
+  String get logoutConfirmation =>
+      'Bạn có chắc chắn muốn đăng xuất? Bạn sẽ cần đăng nhập lại để truy cập tài khoản.';
+
+  @override
   String get welcomeBack => 'Chào mừng trở lại!';
 
   @override

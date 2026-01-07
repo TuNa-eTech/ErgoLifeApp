@@ -9,6 +9,7 @@ import 'package:ergo_life_app/blocs/profile/profile_event.dart';
 import 'package:ergo_life_app/blocs/profile/profile_state.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
+import 'package:ergo_life_app/blocs/auth/auth_state.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
@@ -19,8 +20,14 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (_) => sl<ProfileBloc>()..add(const LoadProfile()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProfileBloc>(
+          create: (_) => sl<ProfileBloc>()..add(const LoadProfile()),
+        ),
+        BlocProvider<AuthBloc>.value(value: sl<AuthBloc>()),
+        BlocProvider<HouseBloc>.value(value: sl<HouseBloc>()),
+      ],
       child: const ProfileView(),
     );
   }
@@ -33,42 +40,50 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
-      body: BlocConsumer<ProfileBloc, ProfileState>(
-        listener: (context, state) {
-          if (state is ProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-                action: SnackBarAction(
-                  label: 'Retry',
-                  textColor: Colors.white,
-                  onPressed: () =>
-                      context.read<ProfileBloc>().add(const LoadProfile()),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthUnauthenticated) {
+          // Navigate to login when logged out
+          context.go(AppRouter.login);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: isDark
+            ? AppColors.backgroundDark
+            : AppColors.backgroundLight,
+        body: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                  action: SnackBarAction(
+                    label: 'Retry',
+                    textColor: Colors.white,
+                    onPressed: () =>
+                        context.read<ProfileBloc>().add(const LoadProfile()),
+                  ),
                 ),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is ProfileLoading) {
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is ProfileLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is ProfileError) {
+              return _buildErrorState(context, state.message, isDark);
+            }
+
+            if (state is ProfileLoaded) {
+              return _buildLoadedState(context, state, isDark);
+            }
+
             return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is ProfileError) {
-            return _buildErrorState(context, state.message, isDark);
-          }
-
-          if (state is ProfileLoaded) {
-            return _buildLoadedState(context, state, isDark);
-          }
-
-          return const Center(child: CircularProgressIndicator());
-        },
+          },
+        ),
       ),
     );
   }
@@ -300,12 +315,7 @@ class ProfileView extends StatelessWidget {
                   _buildActionTile(
                     AppLocalizations.of(context)!.logout,
                     Icons.logout,
-                    () {
-                      context.read<AuthBloc>().add(
-                        const AuthSignOutRequested(),
-                      );
-                      context.go(AppRouter.login);
-                    },
+                    () => _showLogoutDialog(context),
                     isDark,
                     isDestructive: true,
                   ),
@@ -470,6 +480,40 @@ void _showLeaveHouseDialog(BuildContext context) {
             context.go(AppRouter.joinHouse);
           },
           child: const Text('Leave House', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.logout, color: Colors.red),
+          const SizedBox(width: 12),
+          Text(AppLocalizations.of(context)!.logout),
+        ],
+      ),
+      content: Text(
+        AppLocalizations.of(context)!.logoutConfirmation,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(AppLocalizations.of(context)!.cancel),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(ctx);
+            context.read<AuthBloc>().add(const AuthSignOutRequested());
+          },
+          child: Text(
+            AppLocalizations.of(context)!.logout,
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       ],
     ),

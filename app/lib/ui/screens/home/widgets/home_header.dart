@@ -54,9 +54,7 @@ class HomeHeader extends StatelessWidget {
             radius: 24,
             backgroundImage: avatarUrl != null
                 ? NetworkImage(avatarUrl!)
-                : const AssetImage(
-                    "assets/images/default_avatar.png",
-                  ),
+                : const AssetImage("assets/images/default_avatar.png"),
           ),
           // Online indicator
           Positioned(

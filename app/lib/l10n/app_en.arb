@@ -39,6 +39,7 @@
   "signIn": "Sign In",
   "signOut": "Sign Out",
   "logout": "Logout",
+  "logoutConfirmation": "Are you sure you want to logout? You will need to sign in again to access your account.",
   "welcomeBack": "Welcome back!",
 
   "chooseYourAvatar": "Choose your avatar",

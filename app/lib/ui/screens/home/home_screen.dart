@@ -9,6 +9,12 @@ import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/arena_section.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/personal_stats_section.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/house_actions_row.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/join_house_bottom_sheet.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/invite_house_bottom_sheet.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/data/repositories/house_repository.dart';
 
 /// Home screen displaying user dashboard with arena and quick tasks
 class HomeScreen extends StatelessWidget {
@@ -236,19 +242,31 @@ class HomeView extends StatelessWidget {
                   // TODO: Handle notification tap
                 },
               ),
-              ArenaSection(
-                isDark: isDark,
-                userPoints: state.stats.totalPoints,
-                rivalPoints: state.house != null && state.stats.totalPoints > 0
-                    ? (state.stats.totalPoints * 0.85).toInt()
-                    : 0,
-                totalPoints: state.house != null
-                    ? (state.stats.totalPoints * 1.3).toInt()
-                    : state.stats.totalPoints,
-                onLeaderboardTap: () {
-                  context.go('/rank');
-                },
-              ),
+              // Show ArenaSection only for arena mode (house with > 1 member)
+              // Show PersonalStatsSection for solo mode (single member or no house)
+              if (state.house != null && state.house!.memberCount > 1)
+                ArenaSection(
+                  isDark: isDark,
+                  userPoints: state.stats.totalPoints,
+                  rivalPoints: state.stats.totalPoints > 0
+                      ? (state.stats.totalPoints * 0.85).toInt()
+                      : 0,
+                  totalPoints: (state.stats.totalPoints * 1.3).toInt(),
+                  onLeaderboardTap: () {
+                    context.go('/rank');
+                  },
+                )
+              else ...[
+                PersonalStatsSection(isDark: isDark, stats: state.stats),
+                const SizedBox(height: 8),
+                // House actions: Join House + Invite Friends
+                HouseActionsRow(
+                  isDark: isDark,
+                  onJoinTap: () => _showJoinHouseSheet(context, state),
+                  onInviteTap: () => _showInviteSheet(context, state),
+                ),
+                const SizedBox(height: 8),
+              ],
               QuickTasksSection(
                 isDark: isDark,
                 tasks: _convertToTaskData(state.quickTasks),
@@ -305,5 +323,67 @@ class HomeView extends StatelessWidget {
 
   void _showErgoCoachAndNavigate(BuildContext context, dynamic taskModel) {
     context.push(AppRouter.activeSession, extra: taskModel);
+  }
+
+  void _showJoinHouseSheet(BuildContext context, HomeLoaded state) {
+    final houseRepo = sl<HouseRepository>();
+    final currentInviteCode = state.house?.inviteCode;
+
+    JoinHouseBottomSheet.show(
+      context,
+      onPreview: (code) async {
+        // Check if trying to join own house
+        if (currentInviteCode != null &&
+            code.toUpperCase() == currentInviteCode.toUpperCase()) {
+          return null; // Will show "Invalid invite code" message
+        }
+        final result = await houseRepo.previewHouse(code);
+        return result.fold((_) => null, (preview) => preview);
+      },
+      onJoin: (code) async {
+        // Double-check: don't join own house
+        if (currentInviteCode != null &&
+            code.toUpperCase() == currentInviteCode.toUpperCase()) {
+          return false;
+        }
+
+        // First leave current house
+        final leaveResult = await houseRepo.leaveHouse();
+        if (leaveResult.isLeft()) return false;
+
+        // Then join new house
+        final joinResult = await houseRepo.joinHouse(code);
+        if (joinResult.isRight()) {
+          // Refresh home data
+          if (context.mounted) {
+            context.read<HomeBloc>().add(const RefreshHomeData());
+          }
+          return true;
+        }
+        return false;
+      },
+    );
+  }
+
+  void _showInviteSheet(BuildContext context, HomeLoaded state) {
+    final houseRepo = sl<HouseRepository>();
+    final houseName = state.house?.name ?? "My Space";
+    // Check if name is default (ends with "'s Space")
+    final isDefaultName = houseName.endsWith("'s Space");
+
+    InviteHouseBottomSheet.show(
+      context,
+      houseName: houseName,
+      isDefaultName: isDefaultName,
+      onGetInvite: () async {
+        final result = await houseRepo.getInviteDetails();
+        return result.fold((_) => null, (invite) => invite);
+      },
+      onRenameHouse: (newName) async {
+        // TODO: Implement house rename API
+        // For now, just return true to skip renaming step
+        return true;
+      },
+    );
   }
 }
