@@ -278,6 +278,10 @@ class HomeView extends StatelessWidget {
                   );
                   _showErgoCoachAndNavigate(context, taskModel);
                 },
+                onTasksChanged: () {
+                  // Reload home data when tasks are modified
+                  context.read<HomeBloc>().add(const RefreshHomeData());
+                },
               ),
             ],
           ),

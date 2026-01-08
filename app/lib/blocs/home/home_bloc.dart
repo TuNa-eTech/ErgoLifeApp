@@ -81,11 +81,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           final tasksResult = await _taskRepository.getTasks();
           final quickTasks = tasksResult.fold(
             (_) => <TaskModel>[],
-            (taskMaps) => taskMaps
-                .where((json) => json['isHidden'] != true)
-                .take(5) // Limit to 5 quick tasks for home screen
-                .map((json) => TaskModel.fromJson(json))
-                .toList(),
+            (taskMaps) {
+              // Convert to TaskModel and filter hidden tasks
+              final allTasks = taskMaps
+                  .where((json) => json['isHidden'] != true)
+                  .map((json) => TaskModel.fromJson(json))
+                  .toList();
+
+              // Sort by sortOrder (ascending) - respects user's custom order
+              allTasks.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+              // Return all visible tasks (user controls visibility in manage screen)
+              return allTasks;
+            },
           );
 
           AppLogger.success(

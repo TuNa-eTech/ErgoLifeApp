@@ -107,13 +107,13 @@ When a new user logs in for the first time, the system automatically seeds defau
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks` | Get all user tasks |
+| GET | `/tasks` | Get all user tasks (query param: `includeHidden`) |
 | POST | `/tasks` | Create a new task |
 | PATCH | `/tasks/:id` | Update task |
 | DELETE | `/tasks/:id` | Delete task |
 | PATCH | `/tasks/:id/favorite` | Toggle favorite status |
 | PATCH | `/tasks/:id/visibility` | Toggle hidden status |
-| POST | `/tasks/reorder` | Reorder tasks |
+| POST | `/tasks/reorder` | Reorder tasks (batch update sortOrder) |
 
 ### Seeding
 

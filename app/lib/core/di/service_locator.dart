@@ -34,6 +34,7 @@ import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
+import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -147,4 +148,7 @@ Future<void> setupServiceLocator() async {
     rewardRepository: sl(),
     userRepository: sl(),
   ));
+
+  // ManageTasksBloc - factory for independent instances
+  sl.registerFactory(() => ManageTasksBloc(taskRepository: sl()));
 }

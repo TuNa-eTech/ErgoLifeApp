@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
 import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
@@ -23,10 +24,14 @@ import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
+import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 
 // House screens
 import 'package:ergo_life_app/ui/screens/house/invite_members_screen.dart';
 import 'package:ergo_life_app/ui/screens/house/join_house_screen.dart';
+
+// Task management
+import 'package:ergo_life_app/ui/screens/tasks/manage_tasks_screen.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -44,6 +49,9 @@ class AppRouter {
   // House routes
   static const String inviteMembers = '/house/invite';
   static const String joinHouse = '/house/join';
+
+  // Task management
+  static const String manageTasks = '/manage-tasks';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -188,6 +196,18 @@ class AppRouter {
         pageBuilder: (context, state) => MaterialPage(
           fullscreenDialog: true,
           child: JoinHouseScreen(houseBloc: sl<HouseBloc>()),
+        ),
+      ),
+      // Task Management Route
+      GoRoute(
+        path: manageTasks,
+        name: 'manageTasks',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: BlocProvider(
+            create: (_) => sl<ManageTasksBloc>(),
+            child: const ManageTasksScreen(),
+          ),
         ),
       ),
     ],

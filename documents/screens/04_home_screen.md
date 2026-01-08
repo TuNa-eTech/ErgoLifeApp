@@ -134,28 +134,53 @@ Từ `GET /activities/leaderboard`:
 ```dart
 Column(
   children: [
-    SectionHeader("Quick Tasks", "All Tasks" link),
-    GridView/ListView(
+    Row(
+      children: [
+        Text("Quick Tasks"),
+        Badge("X Active"),
+        Spacer(),
+        IconButton(⋮) → Navigate to Manage Tasks
+      ],
+    ),
+    GridView(
       children: tasks.map((t) => TaskCard(t)),
     ),
   ],
 )
 ```
 
-### 6.2 TaskCard Structure
+### 6.2 Quick Tasks Behavior
+
+**Display Logic:**
+- Shows **ALL non-hidden tasks** (no limit)
+- Sorted by `sortOrder` (user-controlled via drag & drop)
+- User has full control via "Manage Tasks" screen
+
+**Quick Tasks Management:**
+- Tap ⋮ icon → Opens "Manage Tasks" screen
+- User can:
+  - Drag & drop to reorder tasks
+  - Toggle visibility (hide/show tasks)
+  - Save changes via batch API update
+
+### 6.3 TaskCard Structure
 ```dart
 Container(
-  child: Row(
+  decoration: borderRadius + shadow,
+  child: Column(
     children: [
-      IconBox(icon, color),
-      Column(title, subtitle),
-      Column(duration, points),
+      Row(
+        IconBox(icon, color),
+        Badge(EP points),
+      ),
+      Text(title, subtitle),
+      DurationBadge(duration),
     ],
   ),
 )
 ```
 
-### 6.3 TaskData Model
+### 6.4 TaskData Model
 ```dart
 class TaskData {
   final IconData icon;
@@ -167,28 +192,13 @@ class TaskData {
 }
 ```
 
-### 6.4 Hardcoded Tasks (Current)
-```dart
-[
-  TaskData(
-    icon: Icons.cleaning_services,
-    iconColor: Colors.purple,
-    title: 'Legs & Glutes',
-    subtitle: 'Vacuuming the Living Room',
-    duration: '20 min',
-    ep: 150,
-  ),
-  TaskData(
-    icon: Icons.local_laundry_service,
-    iconColor: Colors.blue,
-    title: 'Upper Body Press',
-    subtitle: 'Laundry Loading',
-    duration: '15 min',
-    ep: 80,
-  ),
-  // ... more tasks
-]
-```
+### 6.5 Task Data Source
+
+**From API:** `GET /tasks`
+- Tasks fetched from backend
+- Filtered: `isHidden = false`
+- Sorted by: `sortOrder` (ascending)
+- Converted to `TaskModel` then `TaskData`
 
 ---
 
@@ -292,21 +302,26 @@ class HomeLoaded extends HomeState {
 
 ---
 
-## 11. Cải Tiến Đề Xuất
+## 11. Cải Tiến Đã Thực Hiện
 
-### 11.1 Issues Hiện Tại
-- ⚠️ Tất cả data hardcoded
-- ⚠️ No loading state
-- ⚠️ No error handling
-- ⚠️ Quick tasks không từ API
+### 11.1 Completed Features
+- ✅ Data from API (not hardcoded)
+- ✅ Loading states implemented
+- ✅ Error handling with retry
+- ✅ Quick tasks from backend with full user control
 
-### 11.2 Quick Tasks Source
-Options:
-1. **Predefined list** - Backend gửi list tasks suggested
-2. **User's recent tasks** - Lấy từ history
-3. **AI suggestions** - Dựa trên thời gian/context
+### 11.2 Quick Tasks Management (NEW)
+**Feature:** Desktop task customization screen
+- Access via ⋮ icon on Quick Tasks header
+- Drag & drop reordering (updates `sortOrder`)
+- Toggle hide/show (updates `isHidden`)
+- Batch save to API
+- User has full control over what displays on home
 
-Recommend: Combination - predefined + user's favorites
+**User Control:**
+- Choose which tasks to show/hide
+- Arrange tasks in preferred order
+- No arbitrary limits on task count
 
 ### 11.3 Pull to Refresh
 ```dart

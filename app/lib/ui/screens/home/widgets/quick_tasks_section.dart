@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 
 /// Model class for task data
@@ -180,12 +181,14 @@ class QuickTasksSection extends StatelessWidget {
     required this.isDark,
     required this.tasks,
     this.onTaskTap,
+    this.onTasksChanged,
     super.key,
   });
 
   final bool isDark;
   final List<TaskData> tasks;
   final void Function(TaskData task)? onTaskTap;
+  final VoidCallback? onTasksChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +197,7 @@ class QuickTasksSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: 16),
           _buildTaskGrid(),
         ],
@@ -202,7 +205,7 @@ class QuickTasksSection extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         Text(
@@ -227,6 +230,21 @@ class QuickTasksSection extends StatelessWidget {
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
+        ),
+        const Spacer(),
+        IconButton(
+          icon: Icon(
+            Icons.more_vert,
+            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          ),
+          onPressed: () async {
+            final result = await context.push('/manage-tasks');
+            // Reload home if changes were saved
+            if (result == true && onTasksChanged != null) {
+              onTasksChanged!();
+            }
+          },
+          tooltip: 'Manage tasks',
         ),
       ],
     );
