@@ -13,8 +13,11 @@ import 'package:ergo_life_app/ui/screens/home/widgets/personal_stats_section.dar
 import 'package:ergo_life_app/ui/screens/home/widgets/house_actions_row.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/join_house_bottom_sheet.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/invite_house_bottom_sheet.dart';
+import 'package:ergo_life_app/ui/widgets/streak_badge.dart';
+import 'package:ergo_life_app/ui/widgets/streak_freeze_shop_item.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/data/repositories/house_repository.dart';
+import 'package:ergo_life_app/data/repositories/user_repository.dart';
 
 /// Home screen displaying user dashboard with arena and quick tasks
 class HomeScreen extends StatelessWidget {
@@ -242,6 +245,22 @@ class HomeView extends StatelessWidget {
                   // TODO: Handle notification tap
                 },
               ),
+              // Streak Badge - Shows when user has streak > 0
+              StreakBadge(
+                currentStreak: state.user.currentStreak,
+                longestStreak: state.user.longestStreak,
+                streakFreezeCount: state.user.streakFreezeCount,
+                onTap: () {
+                  // TODO: Show detailed stats modal
+                },
+              ),
+              // Streak Freeze Shop - Shows when streak >= 3 and not maxed
+              StreakFreezeShopItem(
+                currentStreak: state.user.currentStreak,
+                streakFreezeCount: state.user.streakFreezeCount,
+                walletBalance: state.user.walletBalance,
+                onPurchase: () => _handlePurchaseStreakFreeze(context),
+              ),
               // Show ArenaSection only for arena mode (house with > 1 member)
               // Show PersonalStatsSection for solo mode (single member or no house)
               if (state.house != null && state.house!.memberCount > 1)
@@ -387,6 +406,39 @@ class HomeView extends StatelessWidget {
         // TODO: Implement house rename API
         // For now, just return true to skip renaming step
         return true;
+      },
+    );
+  }
+
+  Future<void> _handlePurchaseStreakFreeze(BuildContext context) async {
+    final userRepo = sl<UserRepository>();
+
+    final result = await userRepo.purchaseStreakFreeze();
+
+    result.fold(
+      (failure) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(failure.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      (data) {
+        if (context.mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Streak Freeze purchased! 🛡️'),
+              backgroundColor: Color(0xFF00C48C),
+            ),
+          );
+
+          // Refresh home data to update streak freeze count and balance
+          context.read<HomeBloc>().add(const RefreshHomeData());
+        }
       },
     );
   }

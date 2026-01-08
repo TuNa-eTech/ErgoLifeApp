@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -35,7 +28,8 @@ export class HousesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Create a new house',
-    description: 'Create a new household. User becomes the first member and owner.',
+    description:
+      'Create a new household. User becomes the first member and owner.',
   })
   @ApiResponse({
     status: 201,
@@ -55,7 +49,7 @@ export class HousesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current house',
-    description: 'Get information about the current user\'s house',
+    description: "Get information about the current user's house",
   })
   @ApiResponse({
     status: 200,
@@ -125,7 +119,8 @@ export class HousesController {
   @Get(':code/preview')
   @ApiOperation({
     summary: 'Preview house (public)',
-    description: 'Preview house information before joining. No authentication required.',
+    description:
+      'Preview house information before joining. No authentication required.',
   })
   @ApiResponse({
     status: 200,

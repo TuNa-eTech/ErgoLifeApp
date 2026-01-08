@@ -47,7 +47,9 @@ describe('RedemptionsService', () => {
           usedAt: null,
         },
       ];
-      jest.spyOn(prismaService.redemption, 'findMany').mockResolvedValue(redemptions as any);
+      jest
+        .spyOn(prismaService.redemption, 'findMany')
+        .mockResolvedValue(redemptions as any);
       jest.spyOn(prismaService.redemption, 'count').mockResolvedValue(1 as any);
 
       // Act
@@ -131,7 +133,9 @@ describe('RedemptionsService', () => {
 
     it('should throw NotFoundException when redemption not found', async () => {
       // Arrange
-      jest.spyOn(prismaService.redemption, 'findUnique').mockResolvedValue(null as any);
+      jest
+        .spyOn(prismaService.redemption, 'findUnique')
+        .mockResolvedValue(null as any);
 
       // Act & Assert
       await expect(

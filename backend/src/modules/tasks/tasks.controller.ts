@@ -173,10 +173,7 @@ export class TasksController {
     description: 'Create default tasks from templates (first login only)',
   })
   @ApiResponse({ status: 201, description: 'Tasks seeded successfully' })
-  async seedTasks(
-    @CurrentUser() user: JwtPayload,
-    @Body() dto: SeedTasksDto,
-  ) {
+  async seedTasks(@CurrentUser() user: JwtPayload, @Body() dto: SeedTasksDto) {
     return this.tasksService.seedDefaultTasks(user.sub, dto.tasks);
   }
 

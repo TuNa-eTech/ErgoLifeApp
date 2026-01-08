@@ -42,16 +42,22 @@ describe('RewardsService', () => {
             redemption: {
               create: jest.fn(),
             },
-            $transaction: jest.fn((fn) => fn({
-              user: { update: jest.fn().mockResolvedValue({ walletBalance: 1000 }) },
-              redemption: { create: jest.fn().mockResolvedValue({
-                id: 'redemption-uuid',
-                rewardTitle: 'Test Reward',
-                pointsSpent: 1000,
-                status: 'PENDING',
-                redeemedAt: new Date(),
-              }) },
-            })),
+            $transaction: jest.fn((fn) =>
+              fn({
+                user: {
+                  update: jest.fn().mockResolvedValue({ walletBalance: 1000 }),
+                },
+                redemption: {
+                  create: jest.fn().mockResolvedValue({
+                    id: 'redemption-uuid',
+                    rewardTitle: 'Test Reward',
+                    pointsSpent: 1000,
+                    status: 'PENDING',
+                    redeemedAt: new Date(),
+                  }),
+                },
+              }),
+            ),
           },
         },
       ],
@@ -68,7 +74,9 @@ describe('RewardsService', () => {
         houseId: 'house-uuid',
         walletBalance: 2000,
       } as any);
-      jest.spyOn(prismaService.reward, 'findMany').mockResolvedValue([mockReward] as any);
+      jest
+        .spyOn(prismaService.reward, 'findMany')
+        .mockResolvedValue([mockReward] as any);
 
       // Act
       const result = await service.findAll('user-uuid', { activeOnly: true });
@@ -80,7 +88,9 @@ describe('RewardsService', () => {
 
     it('should throw ForbiddenException when user not in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue({ houseId: null } as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue({ houseId: null } as any);
 
       // Act & Assert
       await expect(service.findAll('user-uuid', {})).rejects.toThrow(
@@ -92,8 +102,12 @@ describe('RewardsService', () => {
   describe('create', () => {
     it('should create reward when user in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue({ houseId: 'house-uuid' } as any);
-      jest.spyOn(prismaService.reward, 'create').mockResolvedValue(mockReward as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue({ houseId: 'house-uuid' } as any);
+      jest
+        .spyOn(prismaService.reward, 'create')
+        .mockResolvedValue(mockReward as any);
 
       // Act
       const result = await service.create('user-uuid', {
@@ -108,14 +122,18 @@ describe('RewardsService', () => {
 
     it('should throw ForbiddenException when user not in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue({ houseId: null } as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue({ houseId: null } as any);
 
       // Act & Assert
-      await expect(service.create('user-uuid', {
-        title: 'New Reward',
-        cost: 1000,
-        icon: 'gift',
-      })).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.create('user-uuid', {
+          title: 'New Reward',
+          cost: 1000,
+          icon: 'gift',
+        }),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -157,7 +175,9 @@ describe('RewardsService', () => {
 
     it('should throw NotFoundException when reward not found', async () => {
       // Arrange
-      jest.spyOn(prismaService.reward, 'findUnique').mockResolvedValue(null as any);
+      jest
+        .spyOn(prismaService.reward, 'findUnique')
+        .mockResolvedValue(null as any);
 
       // Act & Assert
       await expect(

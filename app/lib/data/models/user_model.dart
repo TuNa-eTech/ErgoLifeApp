@@ -13,6 +13,9 @@ class UserModel extends Equatable {
   final String? houseId;
   final DateTime? createdAt;
   final int walletBalance;
+  final int currentStreak;
+  final int longestStreak;
+  final int streakFreezeCount;
 
   const UserModel({
     required this.id,
@@ -25,6 +28,9 @@ class UserModel extends Equatable {
     this.houseId,
     this.createdAt,
     this.walletBalance = 0,
+    this.currentStreak = 0,
+    this.longestStreak = 0,
+    this.streakFreezeCount = 0,
   });
 
   /// Check if user needs onboarding (no house assigned yet)
@@ -46,6 +52,9 @@ class UserModel extends Equatable {
           ? DateTime.parse(json['createdAt'] as String)
           : null,
       walletBalance: json['walletBalance'] as int? ?? 0,
+      currentStreak: json['currentStreak'] as int? ?? 0,
+      longestStreak: json['longestStreak'] as int? ?? 0,
+      streakFreezeCount: json['streakFreezeCount'] as int? ?? 0,
     );
   }
 
@@ -61,6 +70,9 @@ class UserModel extends Equatable {
       'houseId': houseId,
       'createdAt': createdAt?.toIso8601String(),
       'walletBalance': walletBalance,
+      'currentStreak': currentStreak,
+      'longestStreak': longestStreak,
+      'streakFreezeCount': streakFreezeCount,
     };
   }
 
@@ -81,6 +93,9 @@ class UserModel extends Equatable {
     String? houseId,
     DateTime? createdAt,
     int? walletBalance,
+    int? currentStreak,
+    int? longestStreak,
+    int? streakFreezeCount,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -93,11 +108,27 @@ class UserModel extends Equatable {
       houseId: houseId ?? this.houseId,
       createdAt: createdAt ?? this.createdAt,
       walletBalance: walletBalance ?? this.walletBalance,
+      currentStreak: currentStreak ?? this.currentStreak,
+      longestStreak: longestStreak ?? this.longestStreak,
+      streakFreezeCount: streakFreezeCount ?? this.streakFreezeCount,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, firebaseUid, provider, email, name, avatarId, avatarUrl, houseId, createdAt, walletBalance];
+  List<Object?> get props => [
+        id,
+        firebaseUid,
+        provider,
+        email,
+        name,
+        avatarId,
+        avatarUrl,
+        houseId,
+        createdAt,
+        walletBalance,
+        currentStreak,
+        longestStreak,
+        streakFreezeCount,
+      ];
 }
 

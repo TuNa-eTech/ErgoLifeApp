@@ -4,7 +4,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { UpdateProfileDto, UserProfileDto, OtherUserDto, FcmTokenResponseDto } from './dto';
+import {
+  UpdateProfileDto,
+  UserProfileDto,
+  OtherUserDto,
+  FcmTokenResponseDto,
+} from './dto';
 
 @Injectable()
 export class UserService {
@@ -55,7 +60,9 @@ export class UserService {
     });
 
     if (!currentUser || !currentUser.houseId) {
-      throw new ForbiddenException('You must be in a house to view other users');
+      throw new ForbiddenException(
+        'You must be in a house to view other users',
+      );
     }
 
     // Get target user
@@ -84,6 +91,63 @@ export class UserService {
       displayName: targetUser.displayName,
       avatarId: targetUser.avatarId,
       walletBalance: targetUser.walletBalance,
+    };
+  }
+
+  async purchaseStreakFreeze(userId: string): Promise<{
+    message: string;
+    walletBalance: number;
+    streakFreezeCount: number;
+  }> {
+    const STREAK_FREEZE_COST = 500;
+    const MAX_STREAK_FREEZE = 2;
+
+    // Get user with current streak freeze count and wallet balance
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        streakFreezeCount: true,
+        walletBalance: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Validation: Check if already at max
+    if (user.streakFreezeCount >= MAX_STREAK_FREEZE) {
+      throw new ForbiddenException({
+        code: 'MAX_FREEZE_REACHED',
+        message: `You already have the maximum number of Streak Freezes (${MAX_STREAK_FREEZE})`,
+      });
+    }
+
+    // Validation: Check if sufficient balance
+    if (user.walletBalance < STREAK_FREEZE_COST) {
+      throw new ForbiddenException({
+        code: 'INSUFFICIENT_POINTS',
+        message: `You need ${STREAK_FREEZE_COST} EP to purchase a Streak Freeze. Current balance: ${user.walletBalance} EP`,
+      });
+    }
+
+    // Perform purchase: Deduct points and add freeze
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        walletBalance: { decrement: STREAK_FREEZE_COST },
+        streakFreezeCount: { increment: 1 },
+      },
+      select: {
+        walletBalance: true,
+        streakFreezeCount: true,
+      },
+    });
+
+    return {
+      message: 'Streak Freeze purchased successfully',
+      walletBalance: updatedUser.walletBalance,
+      streakFreezeCount: updatedUser.streakFreezeCount,
     };
   }
 }

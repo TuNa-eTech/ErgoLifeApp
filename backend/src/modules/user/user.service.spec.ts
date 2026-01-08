@@ -40,7 +40,9 @@ describe('UserService', () => {
     it('should update displayName only', async () => {
       // Arrange
       const updatedUser = { ...mockUser, displayName: 'New Name' };
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(updatedUser as any);
+      jest
+        .spyOn(prismaService.user, 'update')
+        .mockResolvedValue(updatedUser as any);
 
       // Act
       const result = await service.updateProfile('user-uuid-123', {
@@ -54,7 +56,9 @@ describe('UserService', () => {
     it('should update avatarId only', async () => {
       // Arrange
       const updatedUser = { ...mockUser, avatarId: 5 };
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(updatedUser as any);
+      jest
+        .spyOn(prismaService.user, 'update')
+        .mockResolvedValue(updatedUser as any);
 
       // Act
       const result = await service.updateProfile('user-uuid-123', {
@@ -67,8 +71,14 @@ describe('UserService', () => {
 
     it('should update both displayName and avatarId', async () => {
       // Arrange
-      const updatedUser = { ...mockUser, displayName: 'New Name', avatarId: 10 };
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(updatedUser as any);
+      const updatedUser = {
+        ...mockUser,
+        displayName: 'New Name',
+        avatarId: 10,
+      };
+      jest
+        .spyOn(prismaService.user, 'update')
+        .mockResolvedValue(updatedUser as any);
 
       // Act
       const result = await service.updateProfile('user-uuid-123', {
@@ -85,10 +95,15 @@ describe('UserService', () => {
   describe('updateFcmToken', () => {
     it('should update FCM token and return success message', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(prismaService.user, 'update')
+        .mockResolvedValue(mockUser as any);
 
       // Act
-      const result = await service.updateFcmToken('user-uuid-123', 'new-fcm-token');
+      const result = await service.updateFcmToken(
+        'user-uuid-123',
+        'new-fcm-token',
+      );
 
       // Assert
       expect(result.message).toBe('FCM token updated successfully');
@@ -119,7 +134,9 @@ describe('UserService', () => {
 
     it('should throw ForbiddenException when current user not in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValueOnce({ houseId: null } as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValueOnce({ houseId: null } as any);
 
       // Act & Assert
       await expect(

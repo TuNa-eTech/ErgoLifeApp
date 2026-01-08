@@ -38,7 +38,8 @@ export class ActivitiesService {
     }
 
     // Calculate points
-    const { durationSeconds, metsValue, magicWipePercentage, taskName } = createActivityDto;
+    const { durationSeconds, metsValue, magicWipePercentage, taskName } =
+      createActivityDto;
     const basePoints = (durationSeconds / 60) * metsValue * 10;
     const bonusMultiplier = magicWipePercentage >= 95 ? 1.1 : 1.0;
     const pointsEarned = Math.floor(basePoints * bonusMultiplier);
@@ -70,6 +71,9 @@ export class ActivitiesService {
       return { activity, newBalance: updatedUser.walletBalance };
     });
 
+    // Update streak AFTER successful activity creation
+    const streakUpdate = await this.updateStreakAfterActivity(userId);
+
     return {
       activity: {
         id: result.activity.id,
@@ -84,6 +88,14 @@ export class ActivitiesService {
         previousBalance: user.walletBalance,
         pointsEarned,
         newBalance: result.newBalance,
+      },
+      streak: {
+        previousStreak: streakUpdate.previousStreak,
+        currentStreak: streakUpdate.currentStreak,
+        longestStreak: streakUpdate.longestStreak,
+        streakFreezeCount: streakUpdate.streakFreezeCount,
+        message: streakUpdate.message,
+        ...(streakUpdate.info && { info: streakUpdate.info }),
       },
     };
   }
@@ -256,10 +268,13 @@ export class ActivitiesService {
     // Estimate calories: Duration(min) × METs × 3.5 × Weight(kg) / 200
     // Using average weight of 70kg and average METs of 3.0
     const totalMinutes = (agg._sum.durationSeconds || 0) / 60;
-    const estimatedCalories = Math.round(totalMinutes * 3.0 * 3.5 * 70 / 200);
+    const estimatedCalories = Math.round((totalMinutes * 3.0 * 3.5 * 70) / 200);
 
-    // Get streak (simplified: count consecutive days with activity)
-    const { current, longest } = await this.calculateStreak(userId);
+    // Get streak from user (now tracked in real-time)
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { currentStreak: true, longestStreak: true },
+    });
 
     return {
       period,
@@ -272,7 +287,10 @@ export class ActivitiesService {
         count: t._count,
         totalPoints: t._sum.pointsEarned || 0,
       })),
-      streak: { current, longest },
+      streak: {
+        current: user.currentStreak,
+        longest: user.longestStreak,
+      },
     };
   }
 
@@ -321,11 +339,13 @@ export class ActivitiesService {
   }
 
   private getISOWeekNumber(date: Date): number {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
   private getPeriodBounds(period: 'week' | 'month' | 'all'): {
@@ -350,58 +370,130 @@ export class ActivitiesService {
     return { startDate, endDate };
   }
 
-  private async calculateStreak(userId: string): Promise<{ current: number; longest: number }> {
-    // Get unique activity dates
-    const activities = await this.prisma.activity.findMany({
-      where: { userId },
-      select: { completedAt: true },
-      orderBy: { completedAt: 'desc' },
+  /**
+   * Update user's streak after completing an activity (Duolingo-style)
+   * @returns Streak update information including message for UI
+   */
+  private async updateStreakAfterActivity(userId: string): Promise<{
+    previousStreak: number;
+    currentStreak: number;
+    longestStreak: number;
+    streakFreezeCount: number;
+    message:
+      | 'STREAK_INCREASED'
+      | 'STREAK_STARTED'
+      | 'STREAK_MAINTAINED'
+      | 'STREAK_FREEZE_USED'
+      | 'STREAK_FREEZE_BONUS'
+      | 'STREAK_RESET';
+    info?: string;
+  }> {
+    const MAX_STREAK_FREEZE = 2;
+    const BONUS_FREEZE_AT = 100;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        currentStreak: true,
+        longestStreak: true,
+        lastActivityDate: true,
+        streakFreezeCount: true,
+      },
     });
 
-    if (activities.length === 0) {
-      return { current: 0, longest: 0 };
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0); // Start of day UTC
+
+    const lastActivityDay = user.lastActivityDate
+      ? new Date(user.lastActivityDate)
+      : null;
+
+    if (lastActivityDay) {
+      lastActivityDay.setUTCHours(0, 0, 0, 0);
     }
 
-    // Get unique dates (as YYYY-MM-DD strings)
-    const uniqueDates = [...new Set(
-      activities.map((a) => a.completedAt.toISOString().split('T')[0])
-    )].sort().reverse();
+    let newCurrentStreak = user.currentStreak;
+    let newFreezeCount = user.streakFreezeCount;
+    let message:
+      | 'STREAK_INCREASED'
+      | 'STREAK_STARTED'
+      | 'STREAK_MAINTAINED'
+      | 'STREAK_FREEZE_USED'
+      | 'STREAK_FREEZE_BONUS'
+      | 'STREAK_RESET';
+    let info: string | undefined;
+    const previousStreak = user.currentStreak;
 
-    // Calculate current streak
-    let current = 0;
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    
-    // Start counting from today or yesterday
-    let checkDate = uniqueDates[0] === today || uniqueDates[0] === yesterday ? uniqueDates[0] : null;
-    
-    if (checkDate) {
-      for (const date of uniqueDates) {
-        if (date === checkDate) {
-          current++;
-          const prevDate = new Date(checkDate);
-          prevDate.setDate(prevDate.getDate() - 1);
-          checkDate = prevDate.toISOString().split('T')[0];
-        } else {
-          break;
-        }
-      }
-    }
+    if (!lastActivityDay) {
+      // First activity ever
+      newCurrentStreak = 1;
+      message = 'STREAK_STARTED';
+    } else {
+      const daysDiff = Math.floor(
+        (today.getTime() - lastActivityDay.getTime()) / (1000 * 60 * 60 * 24),
+      );
 
-    // Calculate longest streak (simplified)
-    let longest = current;
-    let tempStreak = 1;
-    for (let i = 1; i < uniqueDates.length; i++) {
-      const prevDate = new Date(uniqueDates[i - 1]);
-      prevDate.setDate(prevDate.getDate() - 1);
-      if (uniqueDates[i] === prevDate.toISOString().split('T')[0]) {
-        tempStreak++;
-        longest = Math.max(longest, tempStreak);
+      if (daysDiff === 0) {
+        // Same day - no change
+        message = 'STREAK_MAINTAINED';
+
+        // Don't update database, return current state
+        return {
+          previousStreak,
+          currentStreak: user.currentStreak,
+          longestStreak: user.longestStreak,
+          streakFreezeCount: user.streakFreezeCount,
+          message,
+        };
+      } else if (daysDiff === 1) {
+        // Next day - increase streak
+        newCurrentStreak = user.currentStreak + 1;
+        message = 'STREAK_INCREASED';
+      } else if (daysDiff === 2 && user.streakFreezeCount > 0) {
+        // Missed 1 day BUT has Streak Freeze → Use it!
+        newFreezeCount = user.streakFreezeCount - 1;
+        newCurrentStreak = user.currentStreak; // Maintain streak
+        message = 'STREAK_FREEZE_USED';
+        info =
+          'You missed yesterday, but your Streak Freeze kept your streak safe! 🛡️';
       } else {
-        tempStreak = 1;
+        // Missed day(s) without Freeze → Reset
+        newCurrentStreak = 1;
+        message = 'STREAK_RESET';
+        info = `You missed ${daysDiff - 1}+ days. Streak reset, but you can rebuild it! 💪`;
       }
     }
 
-    return { current, longest };
+    // Bonus: Free Freeze at 100 days milestone
+    if (
+      newCurrentStreak === BONUS_FREEZE_AT &&
+      newFreezeCount < MAX_STREAK_FREEZE
+    ) {
+      newFreezeCount += 1;
+      message = 'STREAK_FREEZE_BONUS';
+      info = '🎉 100 day streak! Earned 1 FREE Streak Freeze!';
+    }
+
+    const newLongestStreak = Math.max(newCurrentStreak, user.longestStreak);
+
+    // Update user streak data
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentStreak: newCurrentStreak,
+        longestStreak: newLongestStreak,
+        lastActivityDate: today,
+        streakFreezeCount: newFreezeCount,
+      },
+    });
+
+    return {
+      previousStreak,
+      currentStreak: newCurrentStreak,
+      longestStreak: newLongestStreak,
+      streakFreezeCount: newFreezeCount,
+      message,
+      info,
+    };
   }
 }

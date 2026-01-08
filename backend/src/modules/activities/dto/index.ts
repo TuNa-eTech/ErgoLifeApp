@@ -78,12 +78,18 @@ export class GetActivitiesQueryDto {
   @Max(50)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ example: '2025-12-01', description: 'Filter from date (ISO8601)' })
+  @ApiPropertyOptional({
+    example: '2025-12-01',
+    description: 'Filter from date (ISO8601)',
+  })
   @IsOptional()
   @IsDateString()
   startDate?: string;
 
-  @ApiPropertyOptional({ example: '2025-12-31', description: 'Filter to date (ISO8601)' })
+  @ApiPropertyOptional({
+    example: '2025-12-31',
+    description: 'Filter to date (ISO8601)',
+  })
   @IsOptional()
   @IsDateString()
   endDate?: string;
@@ -146,12 +152,54 @@ export class WalletUpdateDto {
   newBalance: number;
 }
 
+export class StreakUpdateDto {
+  @ApiProperty({ example: 14 })
+  previousStreak: number;
+
+  @ApiProperty({ example: 15 })
+  currentStreak: number;
+
+  @ApiProperty({ example: 28 })
+  longestStreak: number;
+
+  @ApiProperty({ example: 1 })
+  streakFreezeCount: number;
+
+  @ApiProperty({
+    example: 'STREAK_INCREASED',
+    enum: [
+      'STREAK_INCREASED',
+      'STREAK_STARTED',
+      'STREAK_MAINTAINED',
+      'STREAK_FREEZE_USED',
+      'STREAK_FREEZE_BONUS',
+      'STREAK_RESET',
+    ],
+  })
+  message:
+    | 'STREAK_INCREASED'
+    | 'STREAK_STARTED'
+    | 'STREAK_MAINTAINED'
+    | 'STREAK_FREEZE_USED'
+    | 'STREAK_FREEZE_BONUS'
+    | 'STREAK_RESET';
+
+  @ApiPropertyOptional({
+    example:
+      'You missed yesterday, but your Streak Freeze kept your streak safe! 🛡️',
+  })
+  info?: string;
+}
+
 export class CreateActivityResponseDto {
   @ApiProperty({ type: ActivityDto })
   activity: ActivityDto;
 
   @ApiProperty({ type: WalletUpdateDto })
   wallet: WalletUpdateDto;
+
+  @ApiProperty({ type: StreakUpdateDto })
+  streak: StreakUpdateDto;
 }
 
 export class PaginationDto {

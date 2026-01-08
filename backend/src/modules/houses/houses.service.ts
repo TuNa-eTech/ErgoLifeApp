@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -34,7 +33,10 @@ function generateShortCode(length: number = INVITE_CODE_LENGTH): string {
 export class HousesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, createHouseDto: CreateHouseDto): Promise<HouseDto> {
+  async create(
+    userId: string,
+    createHouseDto: CreateHouseDto,
+  ): Promise<HouseDto> {
     // Check if user is already in a house
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -343,21 +345,19 @@ export class HousesService {
     };
   }
 
-  private mapToHouseDto(
-    house: {
+  private mapToHouseDto(house: {
+    id: string;
+    name: string;
+    inviteCode: string;
+    createdById: string;
+    createdAt: Date;
+    members: {
       id: string;
-      name: string;
-      inviteCode: string;
-      createdById: string;
-      createdAt: Date;
-      members: {
-        id: string;
-        displayName: string | null;
-        avatarId: number | null;
-        walletBalance?: number;
-      }[];
-    },
-  ): HouseDto {
+      displayName: string | null;
+      avatarId: number | null;
+      walletBalance?: number;
+    }[];
+  }): HouseDto {
     return {
       id: house.id,
       name: house.name,

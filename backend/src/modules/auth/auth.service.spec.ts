@@ -75,8 +75,12 @@ describe('AuthService', () => {
     it('should create new user and return JWT with isNewUser=true', async () => {
       // Arrange
       jest.spyOn(firebaseService, 'verifyIdToken').mockResolvedValue({} as any);
-      jest.spyOn(firebaseService, 'extractUserInfo').mockReturnValue(mockFirebaseUserInfo);
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null as any);
+      jest
+        .spyOn(firebaseService, 'extractUserInfo')
+        .mockReturnValue(mockFirebaseUserInfo);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue(null as any);
       jest.spyOn(prismaService.user, 'upsert').mockResolvedValue({
         ...mockUser,
         house: null,
@@ -95,8 +99,12 @@ describe('AuthService', () => {
     it('should return isNewUser=false for existing user', async () => {
       // Arrange
       jest.spyOn(firebaseService, 'verifyIdToken').mockResolvedValue({} as any);
-      jest.spyOn(firebaseService, 'extractUserInfo').mockReturnValue(mockFirebaseUserInfo);
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(firebaseService, 'extractUserInfo')
+        .mockReturnValue(mockFirebaseUserInfo);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue(mockUser as any);
       jest.spyOn(prismaService.user, 'upsert').mockResolvedValue({
         ...mockUser,
         house: null,
@@ -112,7 +120,9 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for invalid Firebase token', async () => {
       // Arrange
-      jest.spyOn(firebaseService, 'verifyIdToken').mockRejectedValue(new Error('Invalid token'));
+      jest
+        .spyOn(firebaseService, 'verifyIdToken')
+        .mockRejectedValue(new Error('Invalid token'));
 
       // Act & Assert
       await expect(service.socialLogin('invalid-token')).rejects.toThrow(
@@ -133,7 +143,9 @@ describe('AuthService', () => {
           members: [{ id: 'user-uuid-123' }, { id: 'user-uuid-456' }],
         },
       };
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(userWithHouse as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue(userWithHouse as any);
 
       // Act
       const result = await service.getMe('user-uuid-123');
@@ -146,7 +158,9 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException if user not found', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue(null as any);
 
       // Act & Assert
       await expect(service.getMe('non-existent-id')).rejects.toThrow(
@@ -158,7 +172,9 @@ describe('AuthService', () => {
   describe('logout', () => {
     it('should clear FCM token and return success message', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(prismaService.user, 'update')
+        .mockResolvedValue(mockUser as any);
 
       // Act
       const result = await service.logout('user-uuid-123');

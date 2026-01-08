@@ -36,10 +36,14 @@ describe('ActivitiesService', () => {
               aggregate: jest.fn(),
               groupBy: jest.fn(),
             },
-            $transaction: jest.fn((fn) => fn({
-              activity: { create: jest.fn().mockResolvedValue(mockActivity) },
-              user: { update: jest.fn().mockResolvedValue({ walletBalance: 1700 }) },
-            })),
+            $transaction: jest.fn((fn) =>
+              fn({
+                activity: { create: jest.fn().mockResolvedValue(mockActivity) },
+                user: {
+                  update: jest.fn().mockResolvedValue({ walletBalance: 1700 }),
+                },
+              }),
+            ),
           },
         },
       ],
@@ -52,7 +56,9 @@ describe('ActivitiesService', () => {
   describe('create', () => {
     it('should throw ForbiddenException when user not in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue({ houseId: null } as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue({ houseId: null } as any);
 
       // Act & Assert
       await expect(
@@ -91,9 +97,19 @@ describe('ActivitiesService', () => {
     it('should return paginated activities with summary', async () => {
       // Arrange
       const activities = [
-        { id: '1', taskName: 'Task 1', durationSeconds: 600, metsValue: 3.0, pointsEarned: 300, bonusMultiplier: 1.0, completedAt: new Date() },
+        {
+          id: '1',
+          taskName: 'Task 1',
+          durationSeconds: 600,
+          metsValue: 3.0,
+          pointsEarned: 300,
+          bonusMultiplier: 1.0,
+          completedAt: new Date(),
+        },
       ];
-      jest.spyOn(prismaService.activity, 'findMany').mockResolvedValue(activities as any);
+      jest
+        .spyOn(prismaService.activity, 'findMany')
+        .mockResolvedValue(activities as any);
       jest.spyOn(prismaService.activity, 'count').mockResolvedValue(1 as any);
       jest.spyOn(prismaService.activity, 'aggregate').mockResolvedValue({
         _sum: { pointsEarned: 300, durationSeconds: 600 },
@@ -113,12 +129,14 @@ describe('ActivitiesService', () => {
   describe('getLeaderboard', () => {
     it('should throw ForbiddenException when user not in house', async () => {
       // Arrange
-      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue({ houseId: null } as any);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockResolvedValue({ houseId: null } as any);
 
       // Act & Assert
-      await expect(
-        service.getLeaderboard('user-uuid', {}),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.getLeaderboard('user-uuid', {})).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

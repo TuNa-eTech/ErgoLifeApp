@@ -13,7 +13,10 @@ import {
 // ===========================================
 
 export class CreateTaskTemplateDto {
-  @ApiProperty({ example: 3.5, description: 'MET value for calorie calculation' })
+  @ApiProperty({
+    example: 3.5,
+    description: 'MET value for calorie calculation',
+  })
   @IsNumber()
   @Min(1)
   @Max(20)

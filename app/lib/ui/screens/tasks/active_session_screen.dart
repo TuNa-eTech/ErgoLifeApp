@@ -14,6 +14,7 @@ import 'package:ergo_life_app/ui/common/widgets/glass_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/swipe_to_end_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/session_stat_item.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/session_start_overlay.dart';
+import 'package:ergo_life_app/ui/widgets/streak_milestone_dialog.dart';
 
 /// Screen showing active exercise session with real timer and stats
 class ActiveSessionScreen extends StatelessWidget {
@@ -408,45 +409,86 @@ class ActiveSessionView extends StatelessWidget {
     );
   }
 
-  void _showCompletionDialog(BuildContext context, SessionCompleted state) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.celebration, color: Colors.amber, size: 32),
-            SizedBox(width: 12),
-            Text('Great Job!'),
-          ],
+  void _showCompletionDialog(BuildContext context, SessionCompleted state) async {
+    // Check if milestone dialog should be shown
+    final streakInfo = state.activityResponse?.streak;
+    if (streakInfo != null && streakInfo.isMilestone) {
+      // Show milestone celebration first
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => StreakMilestoneDialog(
+          streakDays: streakInfo.currentStreak,
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'You earned ${state.pointsEarned} points!',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('New balance: ${state.newWalletBalance} EP'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Refresh HomeBloc and LeaderboardBloc after activity completion
-              sl<HomeBloc>().add(const RefreshHomeData());
-              sl<LeaderboardBloc>().add(const RefreshLeaderboard());
+      );
+    }
 
-              Navigator.pop(ctx); // Close dialog
-              Navigator.pop(context); // Close screen
-            },
-            child: const Text('Done'),
+    // Then show completion summary
+    if (context.mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.celebration, color: Colors.amber, size: 32),
+              SizedBox(width: 12),
+              Text('Great Job!'),
+            ],
           ),
-        ],
-      ),
-    );
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'You earned ${state.pointsEarned} points!',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text('New balance: ${state.newWalletBalance} EP'),
+              if (streakInfo != null && streakInfo.info != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: streakInfo.usedFreeze 
+                        ? Colors.orange.shade50
+                        : streakInfo.wasReset
+                            ? Colors.grey.shade100
+                            : Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    streakInfo.info!,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: streakInfo.usedFreeze
+                          ? Colors.orange.shade900
+                          : streakInfo.wasReset
+                              ? Colors.grey.shade700
+                              : Colors.green.shade900,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Refresh HomeBloc and LeaderboardBloc after activity completion
+                sl<HomeBloc>().add(const RefreshHomeData());
+                sl<LeaderboardBloc>().add(const RefreshLeaderboard());
+
+                Navigator.pop(ctx); // Close dialog
+                Navigator.pop(context); // Close screen
+              },
+              child: const Text('Done'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void _showErrorSnackBar(BuildContext context, String message) {

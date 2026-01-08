@@ -50,6 +50,12 @@ model User {
   // Task seeding flag
   hasSeededTasks Boolean    @default(false) @map("has_seeded_tasks")
   
+  // Streak tracking (Duolingo-style)
+  currentStreak    Int       @default(0) @map("current_streak")
+  longestStreak    Int       @default(0) @map("longest_streak")
+  lastActivityDate DateTime? @map("last_activity_date")
+  streakFreezeCount Int      @default(0) @map("streak_freeze_count") // 0-2
+  
   // Timestamps
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")

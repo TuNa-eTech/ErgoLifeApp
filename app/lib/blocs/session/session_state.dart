@@ -122,15 +122,22 @@ class SessionCompleted extends SessionState {
   final ActivityModel activity;
   final int pointsEarned;
   final int newWalletBalance;
+  final CreateActivityResponse? activityResponse;
 
   const SessionCompleted({
     required this.activity,
     required this.pointsEarned,
     required this.newWalletBalance,
+    this.activityResponse,
   });
 
   @override
-  List<Object?> get props => [activity, pointsEarned, newWalletBalance];
+  List<Object?> get props => [
+        activity,
+        pointsEarned,
+        newWalletBalance,
+        activityResponse,
+      ];
 }
 
 /// Session failed to complete

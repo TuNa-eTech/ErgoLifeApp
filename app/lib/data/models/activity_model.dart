@@ -108,16 +108,19 @@ class CreateActivityRequest {
 class CreateActivityResponse {
   final ActivityModel activity;
   final WalletInfo wallet;
+  final StreakInfo streak;
 
   const CreateActivityResponse({
     required this.activity,
     required this.wallet,
+    required this.streak,
   });
 
   factory CreateActivityResponse.fromJson(Map<String, dynamic> json) {
     return CreateActivityResponse(
       activity: ActivityModel.fromJson(json['activity'] as Map<String, dynamic>),
       wallet: WalletInfo.fromJson(json['wallet'] as Map<String, dynamic>),
+      streak: StreakInfo.fromJson(json['streak'] as Map<String, dynamic>),
     );
   }
 }
@@ -174,3 +177,46 @@ class PaginatedActivities {
 
   bool get hasMore => page < totalPages;
 }
+
+/// Streak information from activity completion
+class StreakInfo {
+  final int previousStreak;
+  final int currentStreak;
+  final int longestStreak;
+  final int streakFreezeCount;
+  final String message; // STREAK_INCREASED, STREAK_STARTED, etc.
+  final String? info; // Optional additional info
+
+  const StreakInfo({
+    required this.previousStreak,
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.streakFreezeCount,
+    required this.message,
+    this.info,
+  });
+
+  factory StreakInfo.fromJson(Map<String, dynamic> json) {
+    return StreakInfo(
+      previousStreak: json['previousStreak'] as int? ?? 0,
+      currentStreak: json['currentStreak'] as int? ?? 0,
+      longestStreak: json['longestStreak'] as int? ?? 0,
+      streakFreezeCount: json['streakFreezeCount'] as int? ?? 0,
+      message: json['message'] as String? ?? 'STREAK_MAINTAINED',
+      info: json['info'] as String?,
+    );
+  }
+
+  /// Check if this is a milestone worth celebrating
+  bool get isMilestone {
+    const milestones = [7, 14, 30, 60, 100, 365];
+    return milestones.contains(currentStreak) && message == 'STREAK_INCREASED';
+  }
+
+  /// Check if streak freeze was used
+  bool get usedFreeze => message == 'STREAK_FREEZE_USED';
+
+  /// Check if streak was reset
+  bool get wasReset => message == 'STREAK_RESET';
+}
+

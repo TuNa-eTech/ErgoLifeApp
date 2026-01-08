@@ -11,7 +11,10 @@ export class AuthService {
   constructor(private jwtService: JwtService) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    if (username === this.ADMIN_USER.username && pass === this.ADMIN_USER.password) {
+    if (
+      username === this.ADMIN_USER.username &&
+      pass === this.ADMIN_USER.password
+    ) {
       const { password, ...result } = this.ADMIN_USER;
       return result;
     }

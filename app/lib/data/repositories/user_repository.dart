@@ -65,6 +65,28 @@ class UserRepository {
     }
   }
 
+  /// Purchase Streak Freeze
+  Future<Either<Failure, Map<String, dynamic>>> purchaseStreakFreeze() async {
+    try {
+      AppLogger.info('Purchasing Streak Freeze...', 'UserRepository');
+
+      final response = await _apiClient.put('/users/purchase-streak-freeze');
+      final data = response.data as Map<String, dynamic>;
+
+      AppLogger.success('Streak Freeze purchased', 'UserRepository');
+      return Right(data);
+    } on ServerException catch (e) {
+      AppLogger.error('Purchase failed', e.message, null, 'UserRepository');
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error', e.message, null, 'UserRepository');
+      return Left(NetworkFailure(message: 'Unable to connect'));
+    } catch (e) {
+      AppLogger.error('Purchase failed', e, null, 'UserRepository');
+      return Left(ServerFailure(message: 'Failed to purchase Streak Freeze'));
+    }
+  }
+
   // ===== Cache Methods =====
 
   /// Get user from cache

@@ -147,6 +147,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           activity: response.activity,
           pointsEarned: response.wallet.pointsEarned,
           newWalletBalance: response.wallet.newBalance,
+          activityResponse: response,
         ));
       },
     );

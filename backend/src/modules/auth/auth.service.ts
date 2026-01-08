@@ -8,7 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FirebaseService, FirebaseUserInfo } from '../../firebase';
 import { AuthProvider, User } from '@prisma/client';
-import { AuthResponseDto, UserDto, HouseSummaryDto, LogoutResponseDto } from './dto';
+import {
+  AuthResponseDto,
+  UserDto,
+  HouseSummaryDto,
+  LogoutResponseDto,
+} from './dto';
 
 export interface JwtPayload {
   sub: string; // User ID
@@ -161,6 +166,9 @@ export class AuthService {
       avatarId: user.avatarId,
       houseId: user.houseId,
       walletBalance: user.walletBalance,
+      currentStreak: user.currentStreak,
+      longestStreak: user.longestStreak,
+      streakFreezeCount: user.streakFreezeCount,
       house,
     };
   }

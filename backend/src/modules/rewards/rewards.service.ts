@@ -57,7 +57,10 @@ export class RewardsService {
     };
   }
 
-  async create(userId: string, createRewardDto: CreateRewardDto): Promise<RewardDto> {
+  async create(
+    userId: string,
+    createRewardDto: CreateRewardDto,
+  ): Promise<RewardDto> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { houseId: true },
@@ -129,7 +132,10 @@ export class RewardsService {
     return this.mapToRewardDto(updated);
   }
 
-  async remove(userId: string, rewardId: string): Promise<DeleteRewardResponseDto> {
+  async remove(
+    userId: string,
+    rewardId: string,
+  ): Promise<DeleteRewardResponseDto> {
     const reward = await this.prisma.reward.findUnique({
       where: { id: rewardId },
       include: {
@@ -161,7 +167,10 @@ export class RewardsService {
     return { message: 'Reward deleted successfully' };
   }
 
-  async redeem(userId: string, rewardId: string): Promise<RedeemRewardResponseDto> {
+  async redeem(
+    userId: string,
+    rewardId: string,
+  ): Promise<RedeemRewardResponseDto> {
     // Get user and reward
     const [user, reward] = await Promise.all([
       this.prisma.user.findUnique({
@@ -170,7 +179,13 @@ export class RewardsService {
       }),
       this.prisma.reward.findUnique({
         where: { id: rewardId },
-        select: { id: true, houseId: true, title: true, cost: true, isActive: true },
+        select: {
+          id: true,
+          houseId: true,
+          title: true,
+          cost: true,
+          isActive: true,
+        },
       }),
     ]);
 

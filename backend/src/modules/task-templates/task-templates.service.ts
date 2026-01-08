@@ -175,26 +175,24 @@ export class TaskTemplatesService {
   /**
    * Map database model to response DTO
    */
-  private mapToResponse(
-    template: {
-      id: string;
-      metsValue: number;
-      defaultDuration: number;
-      icon: string;
-      animation: string | null;
-      color: string;
-      category: string;
-      sortOrder: number;
-      isActive: boolean;
-      createdAt: Date;
-      updatedAt: Date;
-      translations: {
-        locale: string;
-        name: string;
-        description: string | null;
-      }[];
-    },
-  ): TaskTemplateResponseDto {
+  private mapToResponse(template: {
+    id: string;
+    metsValue: number;
+    defaultDuration: number;
+    icon: string;
+    animation: string | null;
+    color: string;
+    category: string;
+    sortOrder: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    translations: {
+      locale: string;
+      name: string;
+      description: string | null;
+    }[];
+  }): TaskTemplateResponseDto {
     return {
       id: template.id,
       metsValue: template.metsValue,

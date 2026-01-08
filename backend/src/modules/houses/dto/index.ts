@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 // ============= Request DTOs =============
 
@@ -78,7 +73,9 @@ export class InviteDto {
   @ApiProperty({ example: 'https://ergolife.app/join/clxyz123abc' })
   deepLink: string;
 
-  @ApiPropertyOptional({ example: 'https://api.ergolife.app/qr/clxyz123abc.png' })
+  @ApiPropertyOptional({
+    example: 'https://api.ergolife.app/qr/clxyz123abc.png',
+  })
   qrCodeUrl?: string;
 }
 

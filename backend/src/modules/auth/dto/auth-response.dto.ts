@@ -36,6 +36,15 @@ export class UserDto {
   @ApiProperty({ example: 2500, default: 0 })
   walletBalance: number;
 
+  @ApiProperty({ example: 15, default: 0 })
+  currentStreak: number;
+
+  @ApiProperty({ example: 28, default: 0 })
+  longestStreak: number;
+
+  @ApiProperty({ example: 1, default: 0 })
+  streakFreezeCount: number;
+
   @ApiPropertyOptional({ type: HouseSummaryDto })
   house?: HouseSummaryDto | null;
 }

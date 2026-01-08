@@ -1,6 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { TaskTemplateService } from './task-template.service';
 import { CreateTaskTemplateDto } from './dto/create-task-template.dto';
 import { UpdateTaskTemplateDto } from './dto/update-task-template.dto';
@@ -21,7 +36,8 @@ export class TaskTemplateController {
   @Get()
   @ApiOperation({ summary: 'List all task templates' })
   findAll(@Query('isActive') isActive?: string) {
-    const activeFilter = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+    const activeFilter =
+      isActive === 'true' ? true : isActive === 'false' ? false : undefined;
     return this.service.findAll({ isActive: activeFilter });
   }
 

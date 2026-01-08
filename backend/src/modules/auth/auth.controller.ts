@@ -6,7 +6,12 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { SocialLoginDto, AuthResponseDto, UserDto, LogoutResponseDto } from './dto';
+import {
+  SocialLoginDto,
+  AuthResponseDto,
+  UserDto,
+  LogoutResponseDto,
+} from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtPayload } from './auth.service';
@@ -39,7 +44,8 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current user',
-    description: 'Get authenticated user information with house details. Requires JWT token.',
+    description:
+      'Get authenticated user information with house details. Requires JWT token.',
   })
   @ApiResponse({
     status: 200,
@@ -56,7 +62,8 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Logout user',
-    description: 'Logout and invalidate FCM token. Client should delete local JWT.',
+    description:
+      'Logout and invalidate FCM token. Client should delete local JWT.',
   })
   @ApiResponse({
     status: 200,

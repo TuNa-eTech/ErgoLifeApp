@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NestMiddleware,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
@@ -25,12 +21,12 @@ export class LoggingMiddleware implements NestMiddleware {
       const duration = Date.now() - startTime;
       const statusCode = res.statusCode;
       const statusEmoji = statusCode >= 400 ? '❌' : '✅';
-      
+
       Logger.log(
         `${statusEmoji} ${method} ${originalUrl} - ${statusCode} (${duration}ms)`,
         'HTTP',
       );
-      
+
       return originalSend.call(this, data);
     };
 
