@@ -7,17 +7,9 @@ import 'package:ergo_life_app/blocs/home/home_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_event.dart';
 import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/arena_section.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart'; // [NEW]
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/personal_stats_section.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/house_actions_row.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/join_house_bottom_sheet.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/invite_house_bottom_sheet.dart';
-import 'package:ergo_life_app/ui/widgets/streak_badge.dart';
-import 'package:ergo_life_app/ui/widgets/streak_freeze_shop_item.dart';
-import 'package:ergo_life_app/core/di/service_locator.dart';
-import 'package:ergo_life_app/data/repositories/house_repository.dart';
-import 'package:ergo_life_app/data/repositories/user_repository.dart';
+// Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
 class HomeScreen extends StatelessWidget {
@@ -84,61 +76,59 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildLoadingState(bool isDark) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 100),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header skeleton
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSkeleton(120, 16, isDark),
-                      const SizedBox(height: 8),
-                      _buildSkeleton(180, 24, isDark),
-                    ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header skeleton
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSkeleton(120, 16, isDark),
+                    const SizedBox(height: 8),
+                    _buildSkeleton(180, 24, isDark),
+                  ],
+                ),
+                _buildSkeleton(48, 48, isDark, isCircle: true),
+              ],
+            ),
+          ),
+          // Arena skeleton
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: _buildSkeleton(
+              double.infinity,
+              200,
+              isDark,
+              borderRadius: 24,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Quick tasks skeleton
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSkeleton(150, 20, isDark),
+                const SizedBox(height: 16),
+                ...List.generate(
+                  3,
+                  (_) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildSkeleton(double.infinity, 80, isDark),
                   ),
-                  _buildSkeleton(48, 48, isDark, isCircle: true),
-                ],
-              ),
+                ),
+              ],
             ),
-            // Arena skeleton
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _buildSkeleton(
-                double.infinity,
-                200,
-                isDark,
-                borderRadius: 24,
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Quick tasks skeleton
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSkeleton(150, 20, isDark),
-                  const SizedBox(height: 16),
-                  ...List.generate(
-                    3,
-                    (_) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildSkeleton(double.infinity, 80, isDark),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -225,86 +215,74 @@ class HomeView extends StatelessWidget {
     HomeLoaded state,
     bool isDark,
   ) {
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: () async {
-          context.read<HomeBloc>().add(const RefreshHomeData());
-          // Wait for the refresh to complete
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeHeader(
-                isDark: isDark,
-                userName: state.firstName,
-                onNotificationTap: () {
-                  // TODO: Handle notification tap
-                },
-              ),
-              // Streak Badge - Shows when user has streak > 0
-              StreakBadge(
-                currentStreak: state.user.currentStreak,
-                longestStreak: state.user.longestStreak,
-                streakFreezeCount: state.user.streakFreezeCount,
-                onTap: () {
-                  // TODO: Show detailed stats modal
-                },
-              ),
-              // Streak Freeze Shop - Shows when streak >= 3 and not maxed
-              StreakFreezeShopItem(
-                currentStreak: state.user.currentStreak,
-                streakFreezeCount: state.user.streakFreezeCount,
-                walletBalance: state.user.walletBalance,
-                onPurchase: () => _handlePurchaseStreakFreeze(context),
-              ),
-              // Show ArenaSection only for arena mode (house with > 1 member)
-              // Show PersonalStatsSection for solo mode (single member or no house)
-              if (state.house != null && state.house!.memberCount > 1)
-                ArenaSection(
-                  isDark: isDark,
-                  userPoints: state.stats.totalPoints,
-                  rivalPoints: state.stats.totalPoints > 0
-                      ? (state.stats.totalPoints * 0.85).toInt()
-                      : 0,
-                  totalPoints: (state.stats.totalPoints * 1.3).toInt(),
-                  onLeaderboardTap: () {
-                    context.go('/rank');
-                  },
-                )
-              else ...[
-                PersonalStatsSection(isDark: isDark, stats: state.stats),
-                const SizedBox(height: 8),
-                // House actions: Join House + Invite Friends
-                HouseActionsRow(
-                  isDark: isDark,
-                  onJoinTap: () => _showJoinHouseSheet(context, state),
-                  onInviteTap: () => _showInviteSheet(context, state),
-                ),
-                const SizedBox(height: 8),
-              ],
-              QuickTasksSection(
-                isDark: isDark,
-                tasks: _convertToTaskData(state.quickTasks),
-                onTaskTap: (task) {
-                  // Find the TaskModel from quick tasks
-                  final taskModel = state.quickTasks.firstWhere(
-                    (t) => t.exerciseName == task.title,
-                    orElse: () => state.quickTasks.first,
-                  );
-                  _showErgoCoachAndNavigate(context, taskModel);
-                },
-                onTasksChanged: () {
-                  // Reload home data when tasks are modified
-                  context.read<HomeBloc>().add(const RefreshHomeData());
-                },
-              ),
-            ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<HomeBloc>().add(const RefreshHomeData());
+        // Wait for the refresh to complete
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // Sticky Header
+          SliverAppBar(
+            pinned: true,
+            floating: false,
+            backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+            surfaceTintColor: isDark ? AppColors.surfaceDark : Colors.white,
+            elevation: 0,
+            scrolledUnderElevation: 4, 
+            toolbarHeight: 70, 
+            automaticallyImplyLeading: false, 
+            titleSpacing: 0,
+            title: HomeHeader(
+              isDark: isDark,
+              userName: state.firstName,
+              onNotificationTap: () {
+                // TODO: Handle notification tap
+              },
+            ),
           ),
-        ),
+
+          // Scrollable Content
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                
+                // New Compact Stats Bar
+                CompactStatsBar(
+                  isDark: isDark,
+                  stats: state.stats,
+                  currentStreak: state.user.currentStreak,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Existing Quick Tasks Grid
+                QuickTasksSection(
+                  isDark: isDark,
+                  tasks: _convertToTaskData(state.quickTasks),
+                  onTaskTap: (task) {
+                    // Find the TaskModel from quick tasks
+                    final taskModel = state.quickTasks.firstWhere(
+                      (t) => t.exerciseName == task.title,
+                      orElse: () => state.quickTasks.first,
+                    );
+                    _showErgoCoachAndNavigate(context, taskModel);
+                  },
+                  onTasksChanged: () {
+                    // Reload home data when tasks are modified
+                    context.read<HomeBloc>().add(const RefreshHomeData());
+                  },
+                ),
+                
+                const SizedBox(height: 100), // Bottom padding
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -346,100 +324,5 @@ class HomeView extends StatelessWidget {
 
   void _showErgoCoachAndNavigate(BuildContext context, dynamic taskModel) {
     context.push(AppRouter.activeSession, extra: taskModel);
-  }
-
-  void _showJoinHouseSheet(BuildContext context, HomeLoaded state) {
-    final houseRepo = sl<HouseRepository>();
-    final currentInviteCode = state.house?.inviteCode;
-
-    JoinHouseBottomSheet.show(
-      context,
-      onPreview: (code) async {
-        // Check if trying to join own house
-        if (currentInviteCode != null &&
-            code.toUpperCase() == currentInviteCode.toUpperCase()) {
-          return null; // Will show "Invalid invite code" message
-        }
-        final result = await houseRepo.previewHouse(code);
-        return result.fold((_) => null, (preview) => preview);
-      },
-      onJoin: (code) async {
-        // Double-check: don't join own house
-        if (currentInviteCode != null &&
-            code.toUpperCase() == currentInviteCode.toUpperCase()) {
-          return false;
-        }
-
-        // First leave current house
-        final leaveResult = await houseRepo.leaveHouse();
-        if (leaveResult.isLeft()) return false;
-
-        // Then join new house
-        final joinResult = await houseRepo.joinHouse(code);
-        if (joinResult.isRight()) {
-          // Refresh home data
-          if (context.mounted) {
-            context.read<HomeBloc>().add(const RefreshHomeData());
-          }
-          return true;
-        }
-        return false;
-      },
-    );
-  }
-
-  void _showInviteSheet(BuildContext context, HomeLoaded state) {
-    final houseRepo = sl<HouseRepository>();
-    final houseName = state.house?.name ?? "My Space";
-    // Check if name is default (ends with "'s Space")
-    final isDefaultName = houseName.endsWith("'s Space");
-
-    InviteHouseBottomSheet.show(
-      context,
-      houseName: houseName,
-      isDefaultName: isDefaultName,
-      onGetInvite: () async {
-        final result = await houseRepo.getInviteDetails();
-        return result.fold((_) => null, (invite) => invite);
-      },
-      onRenameHouse: (newName) async {
-        // TODO: Implement house rename API
-        // For now, just return true to skip renaming step
-        return true;
-      },
-    );
-  }
-
-  Future<void> _handlePurchaseStreakFreeze(BuildContext context) async {
-    final userRepo = sl<UserRepository>();
-
-    final result = await userRepo.purchaseStreakFreeze();
-
-    result.fold(
-      (failure) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(failure.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
-      (data) {
-        if (context.mounted) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Streak Freeze purchased! 🛡️'),
-              backgroundColor: Color(0xFF00C48C),
-            ),
-          );
-
-          // Refresh home data to update streak freeze count and balance
-          context.read<HomeBloc>().add(const RefreshHomeData());
-        }
-      },
-    );
   }
 }

@@ -20,114 +20,79 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(bottom: 0, left: 24, right: 24), // Removed horizontal padding
+      child: Row(
         children: [
-          _buildTopRow(),
-          const SizedBox(height: 20),
-          _buildDateText(),
-          const SizedBox(height: 6),
-          _buildGreetingText(),
+          // Left: Avatar
+          _buildCompactAvatar(),
+          const SizedBox(width: 12),
+          
+          // Middle: Greeting & Date
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCompactGreeting(),
+                _buildCompactDate(),
+              ],
+            ),
+          ),
+
+          // Right: Notification Bell
+          _buildCompactNotificationButton(),
         ],
       ),
     );
   }
 
-  Widget _buildTopRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [_buildAvatar(), _buildNotificationButton()],
-    );
-  }
-
-  Widget _buildAvatar() {
+  Widget _buildCompactAvatar() {
     return Container(
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary, width: 2),
       ),
-      child: Stack(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundImage: avatarUrl != null
-                ? NetworkImage(avatarUrl!)
-                : const AssetImage("assets/images/default_avatar.png"),
-          ),
-          // Online indicator
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isDark
-                      ? AppColors.backgroundDark
-                      : AppColors.backgroundLight,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
-        ],
+      child: CircleAvatar(
+        radius: 18, // Smaller avatar
+        backgroundImage: avatarUrl != null
+            ? NetworkImage(avatarUrl!)
+            : const AssetImage("assets/images/default_avatar.png"),
       ),
     );
   }
 
-  Widget _buildNotificationButton() {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        onPressed: onNotificationTap,
-        icon: Icon(
-          Icons.notifications_outlined,
-          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-        ),
+  Widget _buildCompactGreeting() {
+    return Text(
+      'Hello, $userName!', // Minimal greeting
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
       ),
     );
   }
 
-  Widget _buildDateText() {
+  Widget _buildCompactDate() {
     return Text(
       _getCurrentDate(),
       style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 1,
+        fontSize: 12,
         color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
       ),
     );
   }
 
-  Widget _buildGreetingText() {
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontSize: 26,
-          fontWeight: FontWeight.bold,
-          height: 1.3,
-          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-        ),
-        children: [
-          const TextSpan(text: 'Chào buổi sáng,\n'),
-          TextSpan(text: 'vận động viên $userName! 🚀'),
-        ],
+  Widget _buildCompactNotificationButton() {
+    return IconButton(
+      onPressed: onNotificationTap,
+      icon: Icon(
+        Icons.notifications_none_rounded, // Cleaner icon
+        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+      ),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      style: IconButton.styleFrom(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }
@@ -135,35 +100,14 @@ class HomeHeader extends StatelessWidget {
   String _getCurrentDate() {
     final now = DateTime.now();
     final weekdays = [
-      'MONDAY',
-      'TUESDAY',
-      'WEDNESDAY',
-      'THURSDAY',
-      'FRIDAY',
-      'SATURDAY',
-      'SUNDAY',
+      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     ];
     final months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
 
-    final weekday =
-        weekdays[now.weekday - 1].substring(0, 1) +
-        weekdays[now.weekday - 1].substring(1).toLowerCase();
-    final month =
-        months[now.month - 1].substring(0, 1) +
-        months[now.month - 1].substring(1).toLowerCase();
+    final weekday = weekdays[now.weekday - 1];
+    final month = months[now.month - 1];
 
     return '$weekday, $month ${now.day}';
   }

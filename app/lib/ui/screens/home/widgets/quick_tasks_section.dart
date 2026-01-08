@@ -176,7 +176,7 @@ class TaskCard extends StatelessWidget {
 }
 
 /// Quick tasks section with grid of task cards
-class QuickTasksSection extends StatelessWidget {
+class QuickTasksSection extends StatefulWidget {
   const QuickTasksSection({
     required this.isDark,
     required this.tasks,
@@ -191,11 +191,17 @@ class QuickTasksSection extends StatelessWidget {
   final VoidCallback? onTasksChanged;
 
   @override
+  State<QuickTasksSection> createState() => _QuickTasksSectionState();
+}
+
+class _QuickTasksSectionState extends State<QuickTasksSection> {
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(context),
           const SizedBox(height: 16),
@@ -213,21 +219,21 @@ class QuickTasksSection extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            color: widget.isDark ? AppColors.textMainDark : AppColors.textMainLight,
           ),
         ),
         const SizedBox(width: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+            color: widget.isDark ? Colors.grey.shade800 : Colors.grey.shade200,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '${tasks.length} Active',
+            '${widget.tasks.length} Active',
             style: TextStyle(
               fontSize: 12,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              color: widget.isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
         ),
@@ -235,13 +241,13 @@ class QuickTasksSection extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.more_vert,
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            color: widget.isDark ? AppColors.textMainDark : AppColors.textMainLight,
           ),
           onPressed: () async {
             final result = await context.push('/manage-tasks');
             // Reload home if changes were saved
-            if (result == true && onTasksChanged != null) {
-              onTasksChanged!();
+            if (result == true && widget.onTasksChanged != null) {
+              widget.onTasksChanged!();
             }
           },
           tooltip: 'Manage tasks',
@@ -258,15 +264,16 @@ class QuickTasksSection extends StatelessWidget {
         crossAxisSpacing: 16,
         childAspectRatio: 0.85,
       ),
+      padding: EdgeInsets.zero, // Remove default top padding
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: tasks.length,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: widget.tasks.length,
       itemBuilder: (context, index) {
-        final task = tasks[index];
+        final task = widget.tasks[index];
         return TaskCard(
-          isDark: isDark,
+          isDark: widget.isDark,
           task: task,
-          onTap: () => onTaskTap?.call(task),
+          onTap: () => widget.onTaskTap?.call(task),
         );
       },
     );
