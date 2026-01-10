@@ -9,7 +9,8 @@ import 'package:ergo_life_app/blocs/rewards/rewards_event.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_state.dart';
 import 'package:ergo_life_app/data/models/reward_model.dart';
 
-class MockRewardsBloc extends MockBloc<RewardsEvent, RewardsState> implements RewardsBloc {}
+class MockRewardsBloc extends MockBloc<RewardsEvent, RewardsState>
+    implements RewardsBloc {}
 
 void main() {
   late MockRewardsBloc mockRewardsBloc;
@@ -27,35 +28,43 @@ void main() {
     );
   }
 
-  testWidgets('RewardsScreen displays loading indicator when state is RewardsLoading', (tester) async {
-    when(() => mockRewardsBloc.state).thenReturn(const RewardsLoading());
+  testWidgets(
+    'RewardsScreen displays loading indicator when state is RewardsLoading',
+    (tester) async {
+      when(() => mockRewardsBloc.state).thenReturn(const RewardsLoading());
 
-    await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    },
+  );
 
-  testWidgets('RewardsScreen displays rewards and balance when state is RewardsLoaded', (tester) async {
-    final rewards = [
-      RewardModel(
-        id: '1',
-        title: 'Gift Card',
-        cost: 100,
-        icon: '🎁',
-        description: 'Test Description',
-        isActive: true,
-        createdAt: DateTime.now(),
-      ),
-    ];
-    when(() => mockRewardsBloc.state).thenReturn(RewardsLoaded(rewards: rewards, userBalance: 500));
+  testWidgets(
+    'RewardsScreen displays rewards and balance when state is RewardsLoaded',
+    (tester) async {
+      final rewards = [
+        RewardModel(
+          id: '1',
+          title: 'Gift Card',
+          cost: 100,
+          icon: '🎁',
+          description: 'Test Description',
+          isActive: true,
+          createdAt: DateTime.now(),
+        ),
+      ];
+      when(
+        () => mockRewardsBloc.state,
+      ).thenReturn(RewardsLoaded(rewards: rewards, userBalance: 500));
 
-    await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.text('500 EP'), findsOneWidget);
-    expect(find.text('Gift Card'), findsOneWidget);
-    expect(find.text('Test Description'), findsOneWidget);
-    expect(find.text('Redeem'), findsOneWidget);
-  });
+      expect(find.text('500 EP'), findsOneWidget);
+      expect(find.text('Gift Card'), findsOneWidget);
+      expect(find.text('Test Description'), findsOneWidget);
+      expect(find.text('Redeem'), findsOneWidget);
+    },
+  );
 
   testWidgets('Redeem button triggers RedeemReward event', (tester) async {
     final rewards = [
@@ -68,7 +77,9 @@ void main() {
         createdAt: DateTime.now(),
       ),
     ];
-    when(() => mockRewardsBloc.state).thenReturn(RewardsLoaded(rewards: rewards, userBalance: 500));
+    when(
+      () => mockRewardsBloc.state,
+    ).thenReturn(RewardsLoaded(rewards: rewards, userBalance: 500));
 
     await tester.pumpWidget(createWidgetUnderTest());
 

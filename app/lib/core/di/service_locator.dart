@@ -126,7 +126,11 @@ Future<void> setupServiceLocator() async {
 
   // TasksBloc - factory for independent instances
   sl.registerFactory<TasksBloc>(
-    () => TasksBloc(activityRepository: sl(), taskRepository: sl()),
+    () => TasksBloc(
+      activityRepository: sl(),
+      taskRepository: sl(),
+      userRepository: sl(),
+    ),
   );
 
   // TaskBloc - factory for custom task management

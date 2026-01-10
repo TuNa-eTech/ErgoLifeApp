@@ -53,6 +53,9 @@ export class HouseDto {
   @ApiProperty({ example: 'clxyz123abc' })
   inviteCode: string;
 
+  @ApiPropertyOptional({ example: false })
+  isPersonal?: boolean;
+
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   createdBy: string;
 

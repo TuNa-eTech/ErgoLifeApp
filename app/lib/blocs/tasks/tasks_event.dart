@@ -10,7 +10,11 @@ abstract class TasksEvent extends Equatable {
 
 /// Load all tasks (activities history)
 class LoadTasks extends TasksEvent {
-  const LoadTasks();
+  final bool silent;
+  const LoadTasks({this.silent = false});
+
+  @override
+  List<Object> get props => [silent];
 }
 
 /// Refresh tasks (pull-to-refresh)
@@ -20,7 +24,7 @@ class RefreshTasks extends TasksEvent {
 
 /// Filter tasks by status
 class FilterTasks extends TasksEvent {
-  final String filter; // 'active', 'completed', 'saved'
+  final String filter; // 'active', 'completed'
 
   const FilterTasks({required this.filter});
 

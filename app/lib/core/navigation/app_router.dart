@@ -29,6 +29,8 @@ import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 // House screens
 import 'package:ergo_life_app/ui/screens/house/invite_members_screen.dart';
 import 'package:ergo_life_app/ui/screens/house/join_house_screen.dart';
+import 'package:ergo_life_app/ui/screens/house/house_detail_screen.dart';
+import 'package:ergo_life_app/ui/screens/house/create_house_screen.dart';
 
 // Task management
 import 'package:ergo_life_app/ui/screens/tasks/manage_tasks_screen.dart';
@@ -49,6 +51,8 @@ class AppRouter {
   // House routes
   static const String inviteMembers = '/house/invite';
   static const String joinHouse = '/house/join';
+  static const String houseDetail = '/house/detail';
+  static const String createHouse = '/house/create';
 
   // Task management
   static const String manageTasks = '/manage-tasks';
@@ -198,6 +202,20 @@ class AppRouter {
         pageBuilder: (context, state) => MaterialPage(
           fullscreenDialog: true,
           child: JoinHouseScreen(houseBloc: sl<HouseBloc>()),
+        ),
+      ),
+      GoRoute(
+        path: houseDetail,
+        name: 'houseDetail',
+        pageBuilder: (context, state) =>
+            MaterialPage(child: HouseDetailScreen(houseBloc: sl<HouseBloc>())),
+      ),
+      GoRoute(
+        path: createHouse,
+        name: 'createHouse',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: CreateHouseScreen(houseBloc: sl<HouseBloc>()),
         ),
       ),
       // Task Management Route

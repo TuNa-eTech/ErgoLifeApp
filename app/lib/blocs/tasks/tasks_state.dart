@@ -25,13 +25,35 @@ class TasksLoaded extends TasksState {
   final TaskModel? highPriorityTask;
   final List<TaskModel> availableTasks;
   final List<ActivityModel> recentActivities;
-  final String currentFilter; // 'active', 'completed', 'saved'
+  final String currentFilter; // 'active', 'completed'
+
+  // Stats for Active filter
+  final int completedToday;
+  final int totalTasks;
+  final int focusMinutesToday;
+  final int currentStreak;
+
+  // Stats for Completed filter
+  final int totalCompleted;
+  final int totalEPEarned;
+  final int totalMinutes;
+
+  // Pagination
+  final bool hasMoreActivities;
 
   const TasksLoaded({
     this.highPriorityTask,
     required this.availableTasks,
     required this.recentActivities,
     this.currentFilter = 'active',
+    this.completedToday = 0,
+    this.totalTasks = 0,
+    this.focusMinutesToday = 0,
+    this.currentStreak = 0,
+    this.totalCompleted = 0,
+    this.totalEPEarned = 0,
+    this.totalMinutes = 0,
+    this.hasMoreActivities = false,
   });
 
   /// Get filtered tasks based on current filter
@@ -39,8 +61,6 @@ class TasksLoaded extends TasksState {
     switch (currentFilter) {
       case 'completed':
         return recentActivities;
-      case 'saved':
-        return []; // Future: saved routines
       case 'active':
       default:
         return availableTasks;
@@ -55,12 +75,28 @@ class TasksLoaded extends TasksState {
     List<TaskModel>? availableTasks,
     List<ActivityModel>? recentActivities,
     String? currentFilter,
+    int? completedToday,
+    int? totalTasks,
+    int? focusMinutesToday,
+    int? currentStreak,
+    int? totalCompleted,
+    int? totalEPEarned,
+    int? totalMinutes,
+    bool? hasMoreActivities,
   }) {
     return TasksLoaded(
       highPriorityTask: highPriorityTask ?? this.highPriorityTask,
       availableTasks: availableTasks ?? this.availableTasks,
       recentActivities: recentActivities ?? this.recentActivities,
       currentFilter: currentFilter ?? this.currentFilter,
+      completedToday: completedToday ?? this.completedToday,
+      totalTasks: totalTasks ?? this.totalTasks,
+      focusMinutesToday: focusMinutesToday ?? this.focusMinutesToday,
+      currentStreak: currentStreak ?? this.currentStreak,
+      totalCompleted: totalCompleted ?? this.totalCompleted,
+      totalEPEarned: totalEPEarned ?? this.totalEPEarned,
+      totalMinutes: totalMinutes ?? this.totalMinutes,
+      hasMoreActivities: hasMoreActivities ?? this.hasMoreActivities,
     );
   }
 
@@ -70,6 +106,14 @@ class TasksLoaded extends TasksState {
     availableTasks,
     recentActivities,
     currentFilter,
+    completedToday,
+    totalTasks,
+    focusMinutesToday,
+    currentStreak,
+    totalCompleted,
+    totalEPEarned,
+    totalMinutes,
+    hasMoreActivities,
   ];
 }
 

@@ -13,7 +13,8 @@ import {
   LeaveHouseResponseDto,
 } from './dto';
 
-const MAX_HOUSE_MEMBERS = 4;
+const PERSONAL_HOUSE_NAME = 'My House';
+const MAX_HOUSE_MEMBERS = 20;
 const APP_DEEP_LINK_BASE = 'https://ergolife.app/join';
 const INVITE_CODE_LENGTH = 6;
 const INVITE_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1 to avoid confusion
@@ -44,10 +45,19 @@ export class HousesService {
     });
 
     if (user?.houseId) {
-      throw new ConflictException({
-        code: 'ALREADY_IN_HOUSE',
-        message: 'You are already a member of another house',
+      // Check if current house is personal
+      const currentHouse = await this.prisma.house.findUnique({
+        where: { id: user.houseId },
+        select: { isPersonal: true },
       });
+
+      if (!currentHouse?.isPersonal) {
+        throw new ConflictException({
+          code: 'ALREADY_IN_HOUSE',
+          message: 'You are already a member of another house',
+        });
+      }
+      // If passing validation, we continue to create new house
     }
 
     // Create house and update user in a transaction
@@ -71,12 +81,21 @@ export class HousesService {
         throw new Error('Failed to generate unique invite code');
       }
 
+      // If user was in a personal house, remove them from it (but keep the house)
+      if (user?.houseId) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { houseId: null },
+        });
+      }
+
       // Create the house with custom invite code
       const newHouse = await tx.house.create({
         data: {
           name: createHouseDto.name,
           createdById: userId,
           inviteCode: inviteCode!,
+          isPersonal: false,
         },
         include: {
           members: {
@@ -115,6 +134,49 @@ export class HousesService {
     if (!house) {
       throw new Error('Failed to create house');
     }
+
+    return this.mapToHouseDto(house);
+  }
+
+  async createPersonalHouse(userId: string): Promise<HouseDto> {
+    // Generate a unique short invite code
+    let inviteCode: string;
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 10) {
+      inviteCode = generateShortCode();
+      const existing = await this.prisma.house.findUnique({
+        where: { inviteCode },
+      });
+      isUnique = !existing;
+      attempts++;
+    }
+
+    if (!isUnique) {
+      throw new Error('Failed to generate invite code');
+    }
+
+    const house = await this.prisma.house.create({
+      data: {
+        name: PERSONAL_HOUSE_NAME,
+        createdById: userId,
+        inviteCode: inviteCode!,
+        isPersonal: true,
+        members: {
+          connect: { id: userId },
+        },
+      },
+      include: {
+        members: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarId: true,
+            walletBalance: true,
+          },
+        },
+      },
+    });
 
     return this.mapToHouseDto(house);
   }
@@ -198,10 +260,19 @@ export class HousesService {
           message: 'You are already a member of this house',
         });
       }
-      throw new ConflictException({
-        code: 'ALREADY_IN_HOUSE',
-        message: 'You are already a member of another house',
+
+      // Check if current house is personal
+      const currentHouse = await this.prisma.house.findUnique({
+        where: { id: user.houseId },
+        select: { isPersonal: true },
       });
+
+      if (!currentHouse?.isPersonal) {
+        throw new ConflictException({
+          code: 'ALREADY_IN_HOUSE',
+          message: 'You are already a member of another house. Leave currently to join new one.',
+        });
+      }
     }
 
     // Find house by invite code
@@ -280,11 +351,21 @@ export class HousesService {
       });
     }
 
+    if (user.house.isPersonal) {
+      // Cannot leave personal house, maybe throw error or just return success
+      // For now let's just say success but do nothing
+      return {
+        message: 'You are already in your personal house',
+        houseDeleted: false,
+      };
+    }
+
     const isLastMember = user.house.members.length === 1;
     const houseId = user.house.id;
 
     await this.prisma.$transaction(async (tx) => {
-      // Remove user from house and reset wallet
+      // Remove user from current house and reset wallet logic if needed
+      // (For now keeping wallet reset logic as per original requirement when leaving a house)
       await tx.user.update({
         where: { id: userId },
         data: {
@@ -313,6 +394,26 @@ export class HousesService {
         });
       }
     });
+
+    // Automatically join back to personal house
+    // 1. Check if user already has a personal house created by them
+    const personalHouse = await this.prisma.house.findFirst({
+      where: {
+        createdById: userId,
+        isPersonal: true,
+      },
+    });
+
+    if (personalHouse) {
+      // Add user back to their personal house
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { houseId: personalHouse.id },
+      });
+    } else {
+      // Create new personal house
+      await this.createPersonalHouse(userId);
+    }
 
     return {
       message: 'Successfully left the house',
@@ -349,6 +450,7 @@ export class HousesService {
     id: string;
     name: string;
     inviteCode: string;
+    isPersonal?: boolean;
     createdById: string;
     createdAt: Date;
     members: {
@@ -362,6 +464,7 @@ export class HousesService {
       id: house.id,
       name: house.name,
       inviteCode: house.inviteCode,
+      isPersonal: house.isPersonal || false,
       createdBy: house.createdById,
       members: house.members.map((m) => ({
         id: m.id,

@@ -16,7 +16,7 @@ class InviteMembersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HouseBloc>.value(
-      value: houseBloc..add(const GetInviteDetails()),
+      value: houseBloc..add(const LoadHouse()), // Load house first
       child: const InviteMembersView(),
     );
   }
@@ -51,27 +51,35 @@ class InviteMembersView extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<HouseBloc, HouseState>(
-        builder: (context, state) {
-          if (state is HouseLoading || state is HouseProcessing) {
-            return const Center(child: CircularProgressIndicator());
+      body: BlocListener<HouseBloc, HouseState>(
+        listener: (context, state) {
+          // When house is loaded, get invite details
+          if (state is HouseLoaded && state.inviteDetails == null) {
+            context.read<HouseBloc>().add(const GetInviteDetails());
           }
-
-          if (state is HouseError) {
-            return _buildErrorState(context, state.message, isDark);
-          }
-
-          if (state is HouseLoaded && state.inviteDetails != null) {
-            return _buildInviteContent(context, state, isDark);
-          }
-
-          // No invite details yet
-          return _buildErrorState(
-            context,
-            'Unable to load invite code. Please try again.',
-            isDark,
-          );
         },
+        child: BlocBuilder<HouseBloc, HouseState>(
+          builder: (context, state) {
+            if (state is HouseLoading || state is HouseProcessing) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is HouseError) {
+              return _buildErrorState(context, state.message, isDark);
+            }
+
+            if (state is HouseLoaded && state.inviteDetails != null) {
+              return _buildInviteContent(context, state, isDark);
+            }
+
+            // No invite details yet
+            return _buildErrorState(
+              context,
+              'Unable to load invite code. Please try again.',
+              isDark,
+            );
+          },
+        ),
       ),
     );
   }

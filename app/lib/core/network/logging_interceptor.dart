@@ -90,12 +90,10 @@ class LoggingInterceptor extends Interceptor {
       AppLogger.error('│ Data: ${_formatData(err.response?.data)}', _tag);
     }
 
-    if (err.stackTrace != null) {
-      AppLogger.error('│ StackTrace:', _tag);
-      final stackLines = err.stackTrace.toString().split('\n').take(5);
-      for (final line in stackLines) {
-        AppLogger.error('│   $line', _tag);
-      }
+    AppLogger.error('│ StackTrace:', _tag);
+    final stackLines = err.stackTrace.toString().split('\n').take(5);
+    for (final line in stackLines) {
+      AppLogger.error('│   $line', _tag);
     }
 
     AppLogger.info('└─────────────────────────────────────────────────', _tag);

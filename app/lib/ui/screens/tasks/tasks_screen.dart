@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
@@ -12,34 +12,65 @@ import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/task_card_widget.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/high_priority_task_card.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/activity_card_widget.dart';
-import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_filter_chip.dart';
-import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_empty_state.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_header.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/stats_summary_bar.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_loading_skeleton.dart';
 
-class TasksScreen extends StatelessWidget {
+class TasksScreen extends StatefulWidget {
   final TasksBloc tasksBloc;
 
   const TasksScreen({super.key, required this.tasksBloc});
 
   @override
+  State<TasksScreen> createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<TasksBloc>.value(
-      value: tasksBloc..add(const LoadTasks()),
+      value: widget.tasksBloc..add(const LoadTasks()),
       child: const TasksView(),
     );
   }
 }
 
-class TasksView extends StatelessWidget {
+class TasksView extends StatefulWidget {
   const TasksView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  State<TasksView> createState() => _TasksViewState();
+}
 
+class _TasksViewState extends State<TasksView>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabSelection);
+  }
+
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      final filter = _tabController.index == 0 ? 'active' : 'completed';
+      context.read<TasksBloc>().add(FilterTasks(filter: filter));
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabSelection);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      appBar: TasksAppBar(tabController: _tabController),
       body: BlocConsumer<TasksBloc, TasksState>(
         listener: (context, state) {
           if (state is TasksError) {
@@ -59,57 +90,61 @@ class TasksView extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is TasksLoading) {
-            return _buildLoadingState(isDark);
+            return _buildLoadingState();
           }
 
           if (state is TasksError) {
-            return _buildErrorState(context, state.message, isDark);
+            return _buildErrorState(context, state.message);
           }
 
           if (state is TasksLoaded) {
-            return _buildLoadedState(context, state, isDark);
+            return _buildLoadedState(context, state);
           }
 
-          return _buildLoadingState(isDark);
+          return _buildLoadingState();
         },
+      ),
+      floatingActionButton: SafeArea(
+        child: Padding(
+          // ViralBottomNavBar height (76) + margin (16) + gap (30) = 122
+          padding: const EdgeInsets.only(bottom: 100),
+          child: FloatingActionButton(
+            onPressed: () => context.push(AppRouter.createTask),
+            backgroundColor: AppColors.secondary,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildLoadingState(bool isDark) {
-    return const Center(child: CircularProgressIndicator());
+  Widget _buildLoadingState() {
+    return TasksLoadingSkeleton();
   }
 
-  Widget _buildErrorState(BuildContext context, String message, bool isDark) {
+  Widget _buildErrorState(BuildContext context, String message) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: isDark ? Colors.red.shade300 : Colors.red,
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               'Failed to load tasks',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color: AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
+              style: TextStyle(color: AppColors.textSubLight),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -127,174 +162,136 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadedState(
-    BuildContext context,
-    TasksLoaded state,
-    bool isDark,
-  ) {
+  Widget _buildLoadedState(BuildContext context, TasksLoaded state) {
+    // Sync TabController with Bloc state if needed
+    // Note: We use addPostFrameCallback to avoid "setState during build" if we need to animate
+    if (_tabController.index == 0 && state.currentFilter == 'completed') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_tabController.index != 1) _tabController.animateTo(1);
+      });
+    } else if (_tabController.index == 1 && state.currentFilter == 'active') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_tabController.index != 0) _tabController.animateTo(0);
+      });
+    }
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildActiveTab(context, state),
+        _buildCompletedTab(context, state),
+      ],
+    );
+  }
+
+  Widget _buildActiveTab(BuildContext context, TasksLoaded state) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<TasksBloc>().add(const RefreshTasks());
-        await Future.delayed(const Duration(seconds: 1));
       },
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context, isDark, state),
-                if (state.highPriorityTask != null)
-                  HighPriorityTaskCard(
-                    task: state.highPriorityTask!,
-                    onStart: () =>
-                        _navigateToSession(context, state.highPriorityTask!),
-                  ),
-                _buildTasksList(context, isDark, state),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 24,
-            right: 24,
-            child: _buildFloatingButton(context),
-          ),
-        ],
-      ),
-    );
-  }
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StatsSummaryBar(state: state),
 
-  Widget _buildHeader(BuildContext context, bool isDark, TasksLoaded state) {
-    return Container(
-      color: (isDark ? AppColors.backgroundDark : AppColors.backgroundLight)
-          .withValues(alpha: 0.95),
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Daily Missions',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                TasksFilterChip(
-                  label: 'Active',
-                  isActive: state.currentFilter == 'active',
-                  isDark: isDark,
-                  onTap: () => context.read<TasksBloc>().add(
-                    const FilterTasks(filter: 'active'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TasksFilterChip(
-                  label: 'Completed',
-                  isActive: state.currentFilter == 'completed',
-                  isDark: isDark,
-                  onTap: () => context.read<TasksBloc>().add(
-                    const FilterTasks(filter: 'completed'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TasksFilterChip(
-                  label: 'Saved',
-                  isActive: state.currentFilter == 'saved',
-                  isDark: isDark,
-                  onTap: () => context.read<TasksBloc>().add(
-                    const FilterTasks(filter: 'saved'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTasksList(BuildContext context, bool isDark, TasksLoaded state) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            state.currentFilter == 'completed'
-                ? 'Recent Activities'
-                : 'Available Tasks',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (state.currentFilter == 'active')
-            ...state.availableTasks.map(
-              (task) => TaskCardWidget(
-                task: task,
-                isDark: isDark,
-                onPlay: () => _navigateToSession(context, task),
-                onEdit: () => _editTask(context, task),
-                onDelete: () => _deleteTask(context, task),
+            if (state.highPriorityTask != null)
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.elasticOut,
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Opacity(
+                      opacity: value,
+                      child: HighPriorityTaskCard(
+                        task: state.highPriorityTask!,
+                        onStart: () => _navigateToSession(
+                          context,
+                          state.highPriorityTask!,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          if (state.currentFilter == 'completed')
-            ...state.recentActivities.map(
-              (activity) =>
-                  ActivityCardWidget(activity: activity, isDark: isDark),
-            ),
-          if (state.currentFilter == 'saved')
-            TasksEmptyState(message: 'No saved routines yet', isDark: isDark),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildFloatingButton(BuildContext context) {
-    return Semantics(
-      label: 'Create new custom task',
-      button: true,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: AppColors.secondary,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.secondary.withValues(alpha: 0.4),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: AnimationLimiter(
+                child: Column(
+                  children: AnimationConfiguration.toStaggeredList(
+                    duration: const Duration(milliseconds: 375),
+                    childAnimationBuilder: (widget) => SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(child: widget),
+                    ),
+                    children: state.availableTasks
+                        .map(
+                          (task) => TaskCardWidget(
+                            task: task,
+                            onPlay: () => _navigateToSession(context, task),
+                            onEdit: () => _editTask(context, task),
+                            onDelete: () => _deleteTask(context, task),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-        child: IconButton(
-          icon: const Icon(Icons.add, size: 32, color: Colors.white),
-          tooltip: 'Create custom task',
-          onPressed: () => context.push(AppRouter.createTask),
+      ),
+    );
+  }
+
+  Widget _buildCompletedTab(BuildContext context, TasksLoaded state) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<TasksBloc>().add(const RefreshTasks());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          children: [
+            StatsSummaryBar(state: state),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: AnimationLimiter(
+                child: Column(
+                  children: AnimationConfiguration.toStaggeredList(
+                    duration: const Duration(milliseconds: 375),
+                    childAnimationBuilder: (widget) => SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(child: widget),
+                    ),
+                    children: state.recentActivities
+                        .map(
+                          (activity) => ActivityCardWidget(activity: activity),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   /// Navigate directly to active session screen
-  /// The session screen now shows a beautiful start overlay in pending state
   void _navigateToSession(BuildContext context, TaskModel task) {
     context.push(AppRouter.activeSession, extra: task);
   }
 
   void _editTask(BuildContext context, TaskModel task) {
-    // Navigate to CreateTaskScreen with task data to edit
     context.push(AppRouter.createTask, extra: task);
   }
 

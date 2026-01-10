@@ -102,7 +102,7 @@ class ManageTaskItem extends StatelessWidget {
               Switch(
                 value: !isHidden,
                 onChanged: (_) => onToggleVisibility(),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
             ],
           ),

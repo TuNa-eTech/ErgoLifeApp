@@ -6,6 +6,7 @@ class HouseModel extends Equatable {
   final String id;
   final String name;
   final String inviteCode;
+  final bool isPersonal;
   final String ownerId;
   final DateTime createdAt;
   final List<HouseMember>? members;
@@ -14,6 +15,7 @@ class HouseModel extends Equatable {
     required this.id,
     required this.name,
     required this.inviteCode,
+    this.isPersonal = false,
     required this.ownerId,
     required this.createdAt,
     this.members,
@@ -24,6 +26,7 @@ class HouseModel extends Equatable {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? 'Unnamed House',
       inviteCode: json['inviteCode'] as String? ?? '',
+      isPersonal: json['isPersonal'] as bool? ?? false,
       // API returns 'createdBy' instead of 'ownerId'
       ownerId: (json['ownerId'] ?? json['createdBy']) as String? ?? '',
       createdAt: json['createdAt'] != null

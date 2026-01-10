@@ -50,7 +50,7 @@ class HomeView extends StatelessWidget {
                   label: 'Retry',
                   textColor: Colors.white,
                   onPressed: () {
-                    context.read<HomeBloc>().add(const LoadHomeData());
+                    context.push(AppRouter.createTask);
                   },
                 ),
               ),
@@ -73,7 +73,18 @@ class HomeView extends StatelessWidget {
           return _buildLoadingState(isDark);
         },
       ),
-      floatingActionButton: _buildCreateTaskButton(context),
+      floatingActionButton: SafeArea(
+        child: Padding(
+          // ViralBottomNavBar height (76) + margin (16) + gap (30) = 122
+          padding: const EdgeInsets.only(bottom: 100),
+          child: FloatingActionButton(
+            onPressed: () => context.push(AppRouter.createTask),
+            backgroundColor: AppColors.secondary,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
 
@@ -310,28 +321,6 @@ class HomeView extends StatelessWidget {
         ep: task.estimatedPoints,
       );
     }).toList();
-  }
-
-  Widget _buildCreateTaskButton(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.secondary.withOpacity(0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.add, size: 32, color: Colors.white),
-        onPressed: () => context.push(AppRouter.createTask),
-      ),
-    );
   }
 
   void _showErgoCoachAndNavigate(BuildContext context, dynamic taskModel) {

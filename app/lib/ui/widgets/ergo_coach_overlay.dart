@@ -306,7 +306,7 @@ class _ErgoCoachOverlayState extends State<ErgoCoachOverlay>
                 Text(
                   _viewCount >= 3
                       ? 'You\'ve mastered this! Auto-skipping next time.'
-                      : 'View ${_viewCount}/3 - Skip available after 3 views',
+                      : 'View $_viewCount/3 - Skip available after 3 views',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 12,

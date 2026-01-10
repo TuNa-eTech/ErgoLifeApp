@@ -7,84 +7,163 @@ import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 import 'package:ergo_life_app/data/repositories/task_repository.dart';
 
+import 'package:ergo_life_app/data/models/user_model.dart';
+import 'package:ergo_life_app/data/repositories/user_repository.dart';
+
 /// BLoC for managing tasks screen state
 class TasksBloc extends Bloc<TasksEvent, TasksState> {
   final ActivityRepository _activityRepository;
   final TaskRepository _taskRepository;
+  final UserRepository _userRepository;
 
   TasksBloc({
     required ActivityRepository activityRepository,
     required TaskRepository taskRepository,
+    required UserRepository userRepository,
   }) : _activityRepository = activityRepository,
        _taskRepository = taskRepository,
+       _userRepository = userRepository,
        super(const TasksInitial()) {
     on<LoadTasks>(_onLoadTasks);
     on<RefreshTasks>(_onRefreshTasks);
     on<FilterTasks>(_onFilterTasks);
   }
 
+  Future<UserModel?> _safeFetchUser() async {
+    try {
+      return await _userRepository.fetchUser();
+    } catch (e) {
+      // Try cache
+      return _userRepository.getCachedUser();
+    }
+  }
+
   /// Load all tasks and activities from API
   Future<void> _onLoadTasks(LoadTasks event, Emitter<TasksState> emit) async {
-    AppLogger.info('Loading tasks from API...', 'TasksBloc');
-    emit(const TasksLoading());
+    AppLogger.info('Loading tasks data...', 'TasksBloc');
+    if (!event.silent) {
+      emit(const TasksLoading());
+    }
 
     try {
-      // Check if user needs task seeding (first time user)
+      // 1. Check if user needs task seeding
       final needsSeedingResult = await _taskRepository.needsTaskSeeding();
-      final needsSeeding = needsSeedingResult.fold(
-        (_) => false,
-        (value) => value,
-      );
-
-      if (needsSeeding) {
-        AppLogger.info(
-          'User needs task seeding, fetching templates...',
-          'TasksBloc',
-        );
+      if (needsSeedingResult.fold((_) => false, (v) => v)) {
+        AppLogger.info('Seeding default tasks...', 'TasksBloc');
         await _seedTasksFromTemplates();
       }
 
-      // Fetch tasks from API
-      final tasksResult = await _taskRepository.getTasks();
-      final tasks = tasksResult.fold(
-        (failure) {
-          AppLogger.error(
-            'Failed to load tasks from API',
-            failure.message,
-            null,
-            'TasksBloc',
-          );
-          return <TaskModel>[];
-        },
-        (taskMaps) => taskMaps.map((json) => TaskModel.fromJson(json)).toList(),
-      );
+      // 2. Fetch all required data in parallel
+      final results = await Future.wait<dynamic>([
+        _taskRepository.getTasks(), // [0] Tasks
+        _activityRepository.getActivities(page: 1, limit: 10), // [1] Activities
+        _safeFetchUser(), // [2] User Profile (Nullable)
+        _activityRepository.getStats(period: 'day'), // [3] Daily Stats
+        _activityRepository.getStats(period: 'all'), // [4] Lifetime Stats
+      ]);
 
-      // Separate high priority and normal tasks
+      // 3. Process Tasks
+      final tasksResult = results[0] as dynamic; // Either<Failure, List<Map>>
+      final tasks =
+          tasksResult.fold(
+                (failure) {
+                  AppLogger.error(
+                    'Failed to load tasks',
+                    failure.toString(),
+                    null,
+                    'TasksBloc',
+                  );
+                  return <TaskModel>[];
+                },
+                (taskMaps) => (taskMaps as List)
+                    .map((json) => TaskModel.fromJson(json))
+                    .toList(),
+              )
+              as List<TaskModel>;
+
       final highPriority = tasks.where((t) => t.isFavorite).toList();
       final availableTasks = tasks.where((t) => !t.isHidden).toList();
 
-      // Get recent activities
-      final activitiesResult = await _activityRepository.getActivities(
-        page: 1,
-        limit: 10,
+      // 4. Process Activities
+      final activitiesResult =
+          results[1] as dynamic; // Either<Failure, PaginatedActivities>
+      final recentActivities =
+          activitiesResult.fold(
+                (_) => <ActivityModel>[],
+                (paginated) =>
+                    (paginated.activities as List).cast<ActivityModel>(),
+              )
+              as List<ActivityModel>;
+
+      // 5. Process User & Stats
+      final user = results[2] as UserModel?;
+      final dailyStatsResult = results[3] as dynamic;
+      final lifetimeStatsResult = results[4] as dynamic;
+
+      int currentStreak = user?.currentStreak ?? 0;
+      int walletBalance = user?.walletBalance ?? 0;
+
+      // Active Tab Stats (Daily)
+      int completedToday = 0;
+      int focusMinutesToday = 0;
+
+      dailyStatsResult.fold(
+        (failure) {
+          // Fallback to client-side calc
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          completedToday = recentActivities.where((a) {
+            final d = DateTime.parse(a.completedAt.toString());
+            return DateTime(d.year, d.month, d.day) == today;
+          }).length;
+        },
+        (stats) {
+          completedToday = stats.activityCount;
+          focusMinutesToday = stats.totalDurationMinutes;
+        },
       );
 
-      final recentActivities = activitiesResult.fold(
-        (_) => <ActivityModel>[],
-        (paginated) => paginated.activities.cast<ActivityModel>(),
+      // Completed Tab Stats (Lifetime)
+      int totalCompleted = 0;
+      int totalMinutes = 0;
+
+      lifetimeStatsResult.fold(
+        (failure) {
+          // Fallback
+          totalCompleted = recentActivities.length;
+          totalMinutes = recentActivities.fold(
+            0,
+            (sum, a) => sum + a.durationMinutes,
+          );
+        },
+        (stats) {
+          totalCompleted = stats.activityCount;
+          totalMinutes = stats.totalDurationMinutes;
+        },
       );
 
-      AppLogger.success('Loaded ${tasks.length} tasks from API', 'TasksBloc');
+      // Use walletBalance for Total EP
+      final totalEPEarned = walletBalance;
+
+      AppLogger.success('Tasks data loaded', 'TasksBloc');
       emit(
         TasksLoaded(
           highPriorityTask: highPriority.isNotEmpty ? highPriority.first : null,
           availableTasks: availableTasks,
           recentActivities: recentActivities,
+          completedToday: completedToday,
+          totalTasks: availableTasks.length,
+          focusMinutesToday: focusMinutesToday, // From Daily Stats API
+          currentStreak: currentStreak, // From User API
+          totalCompleted: totalCompleted, // From Lifetime Stats API
+          totalEPEarned: totalEPEarned, // From User Wallet
+          totalMinutes: totalMinutes, // From Lifetime Stats API
+          hasMoreActivities: false, // TODO: Implement pagination check
         ),
       );
     } catch (e) {
-      AppLogger.error('Failed to load tasks', e, null, 'TasksBloc');
-      emit(const TasksError(message: 'Failed to load tasks'));
+      AppLogger.error('Failed to load tasks data', e, null, 'TasksBloc');
+      emit(const TasksError(message: 'Failed to load data'));
     }
   }
 
@@ -141,7 +220,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     Emitter<TasksState> emit,
   ) async {
     AppLogger.info('Refreshing tasks...', 'TasksBloc');
-    add(const LoadTasks());
+    add(const LoadTasks(silent: true));
   }
 
   /// Filter tasks by category

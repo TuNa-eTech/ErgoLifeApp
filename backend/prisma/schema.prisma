@@ -154,6 +154,7 @@ model House {
   id          String   @id @default(uuid())
   name        String
   inviteCode  String   @unique @default(cuid()) @map("invite_code")
+  isPersonal  Boolean  @default(false) @map("is_personal")
   
   // Owner
   createdById String   @map("created_by")

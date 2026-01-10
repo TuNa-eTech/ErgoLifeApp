@@ -247,7 +247,7 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
           ),
           _buildStatItem(
             icon: Icons.local_fire_department,
-            value: '${widget.task.metsValue.toStringAsFixed(1)}',
+            value: widget.task.metsValue.toStringAsFixed(1),
             label: 'METs',
             color: AppColors.secondary,
             isDark: isDark,

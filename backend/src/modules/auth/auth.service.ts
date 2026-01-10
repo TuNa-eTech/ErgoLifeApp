@@ -14,6 +14,7 @@ import {
   HouseSummaryDto,
   LogoutResponseDto,
 } from './dto';
+import { HousesService } from '../../modules/houses/houses.service';
 
 export interface JwtPayload {
   sub: string; // User ID
@@ -37,6 +38,7 @@ export class AuthService {
     private readonly firebaseService: FirebaseService,
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly housesService: HousesService,
   ) {}
 
   async socialLogin(idToken: string): Promise<AuthResponseDto> {
@@ -87,6 +89,32 @@ export class AuthService {
     } catch (error) {
       this.logger.error('Failed to upsert user', error);
       throw new InternalServerErrorException('Failed to create or update user');
+    }
+
+    // 4.5 Ensure user has a house (Personal House)
+    if (!user.houseId) {
+      try {
+        await this.housesService.createPersonalHouse(user.id);
+        // Refresh user data with house
+        const updatedUser = await this.prismaService.user.findUnique({
+          where: { id: user.id },
+          include: {
+            house: {
+              include: {
+                members: {
+                  select: { id: true },
+                },
+              },
+            },
+          },
+        });
+        if (updatedUser) {
+          user = updatedUser;
+        }
+      } catch (error) {
+        this.logger.error('Failed to create personal house', error);
+        // Don't fail login if house creation fails, but log it
+      }
     }
 
     // 5. Generate JWT token
