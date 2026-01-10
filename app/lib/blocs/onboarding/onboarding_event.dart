@@ -11,10 +11,7 @@ class SubmitProfileStep extends OnboardingEvent {
   final String displayName;
   final int avatarId;
 
-  const SubmitProfileStep({
-    required this.displayName,
-    required this.avatarId,
-  });
+  const SubmitProfileStep({required this.displayName, required this.avatarId});
 
   @override
   List<Object> get props => [displayName, avatarId];

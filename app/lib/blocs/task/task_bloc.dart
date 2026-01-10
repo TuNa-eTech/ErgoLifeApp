@@ -20,13 +20,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskCreating());
     final result = await _taskRepository.createCustomTask(event.request);
-    result.fold(
-      (failure) {
-        AppLogger.error('TaskBloc: Create task failed', failure.message, null, 'TaskBloc');
-        emit(TaskError('Failed to create task: ${failure.message}'));
-      },
-      (task) => emit(TaskCreated(task)),
-    );
+    result.fold((failure) {
+      AppLogger.error(
+        'TaskBloc: Create task failed',
+        failure.message,
+        null,
+        'TaskBloc',
+      );
+      emit(TaskError('Failed to create task: ${failure.message}'));
+    }, (task) => emit(TaskCreated(task)));
   }
 
   Future<void> _onLoadCustomTasks(
@@ -35,13 +37,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskLoading());
     final result = await _taskRepository.getCustomTasks();
-    result.fold(
-      (failure) {
-        AppLogger.error('TaskBloc: Load tasks failed', failure.message, null, 'TaskBloc');
-        emit(TaskError('Failed to load tasks: ${failure.message}'));
-      },
-      (tasks) => emit(TasksLoaded(tasks)),
-    );
+    result.fold((failure) {
+      AppLogger.error(
+        'TaskBloc: Load tasks failed',
+        failure.message,
+        null,
+        'TaskBloc',
+      );
+      emit(TaskError('Failed to load tasks: ${failure.message}'));
+    }, (tasks) => emit(TasksLoaded(tasks)));
   }
 
   Future<void> _onDeleteCustomTask(
@@ -52,7 +56,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     final result = await _taskRepository.deleteCustomTask(event.taskId);
     result.fold(
       (failure) {
-        AppLogger.error('TaskBloc: Delete task failed', failure.message, null, 'TaskBloc');
+        AppLogger.error(
+          'TaskBloc: Delete task failed',
+          failure.message,
+          null,
+          'TaskBloc',
+        );
         emit(TaskError('Failed to delete task: ${failure.message}'));
       },
       (_) {
@@ -70,7 +79,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     final result = await _taskRepository.toggleCustomTaskFavorite(event.taskId);
     result.fold(
       (failure) {
-        AppLogger.error('TaskBloc: Toggle favorite failed', failure.message, null, 'TaskBloc');
+        AppLogger.error(
+          'TaskBloc: Toggle favorite failed',
+          failure.message,
+          null,
+          'TaskBloc',
+        );
         emit(TaskError('Failed to toggle favorite: ${failure.message}'));
       },
       (_) {

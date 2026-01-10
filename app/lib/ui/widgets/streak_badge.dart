@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Streak Badge widget displaying current streak and freeze count
-/// 
+///
 /// Automatically hidden when currentStreak is 0
 class StreakBadge extends StatelessWidget {
   final int currentStreak;
@@ -48,10 +48,7 @@ class StreakBadge extends StatelessWidget {
         child: Row(
           children: [
             // Fire emoji
-            const Text(
-              '🔥',
-              style: TextStyle(fontSize: 32),
-            ),
+            const Text('🔥', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
             // Streak info
             Expanded(
@@ -93,10 +90,7 @@ class StreakBadge extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      '🛡️',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const Text('🛡️', style: TextStyle(fontSize: 16)),
                     const SizedBox(width: 4),
                     Text(
                       'x$streakFreezeCount',

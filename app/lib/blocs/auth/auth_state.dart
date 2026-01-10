@@ -24,10 +24,7 @@ class AuthAuthenticated extends AuthState {
   final UserModel user;
   final String token;
 
-  const AuthAuthenticated({
-    required this.user,
-    required this.token,
-  });
+  const AuthAuthenticated({required this.user, required this.token});
 
   @override
   List<Object?> get props => [user, token];

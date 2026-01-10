@@ -25,10 +25,7 @@ class ProfileLoaded extends ProfileState {
   final UserModel user;
   final LifetimeStats stats;
 
-  const ProfileLoaded({
-    required this.user,
-    required this.stats,
-  });
+  const ProfileLoaded({required this.user, required this.stats});
 
   /// Get membership duration
   String get membershipDuration {
@@ -49,14 +46,8 @@ class ProfileLoaded extends ProfileState {
     }
   }
 
-  ProfileLoaded copyWith({
-    UserModel? user,
-    LifetimeStats? stats,
-  }) {
-    return ProfileLoaded(
-      user: user ?? this.user,
-      stats: stats ?? this.stats,
-    );
+  ProfileLoaded copyWith({UserModel? user, LifetimeStats? stats}) {
+    return ProfileLoaded(user: user ?? this.user, stats: stats ?? this.stats);
   }
 
   @override
@@ -68,10 +59,7 @@ class ProfileUpdating extends ProfileState {
   final UserModel user;
   final LifetimeStats stats;
 
-  const ProfileUpdating({
-    required this.user,
-    required this.stats,
-  });
+  const ProfileUpdating({required this.user, required this.stats});
 
   @override
   List<Object?> get props => [user, stats];

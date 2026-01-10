@@ -11,9 +11,9 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState> {
   RewardsBloc({
     required RewardRepository rewardRepository,
     required UserRepository userRepository,
-  })  : _rewardRepository = rewardRepository,
-        _userRepository = userRepository,
-        super(const RewardsInitial()) {
+  }) : _rewardRepository = rewardRepository,
+       _userRepository = userRepository,
+       super(const RewardsInitial()) {
     on<LoadRewards>(_onLoadRewards);
     on<RedeemReward>(_onRedeemReward);
   }
@@ -28,15 +28,14 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState> {
     try {
       // Fetch user first (or parallel if safe, but user fetch throws on error)
       final user = await _userRepository.fetchUser();
-      
+
       final result = await _rewardRepository.getRewards();
-      
+
       result.fold(
         (failure) => emit(RewardsError(failure.message)),
-        (rewards) => emit(RewardsLoaded(
-          rewards: rewards,
-          userBalance: user.walletBalance,
-        )),
+        (rewards) => emit(
+          RewardsLoaded(rewards: rewards, userBalance: user.walletBalance),
+        ),
       );
     } catch (e) {
       emit(RewardsError('Failed to load user profile: $e'));
@@ -50,16 +49,13 @@ class RewardsBloc extends Bloc<RewardsEvent, RewardsState> {
     // Optimistic or waiting? Let's wait.
     // We don't want to clear the list, so we might need a processing state or just use a dialog.
     // Simplifying: Just call API and then reload.
-    
+
     final result = await _rewardRepository.redeemReward(event.rewardId);
 
-    result.fold(
-      (failure) => emit(RewardsError(failure.message)),
-      (_) {
-        // Reload to update balance and list if needed
-        add(const LoadRewards());
-        emit(const RewardRedeemSuccess('Redeemed successfully!'));
-      },
-    );
+    result.fold((failure) => emit(RewardsError(failure.message)), (_) {
+      // Reload to update balance and list if needed
+      add(const LoadRewards());
+      emit(const RewardRedeemSuccess('Redeemed successfully!'));
+    });
   }
 }

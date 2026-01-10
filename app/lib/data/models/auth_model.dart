@@ -21,10 +21,7 @@ class AuthResponse extends Equatable {
   final String accessToken;
   final UserModel user;
 
-  const AuthResponse({
-    required this.accessToken,
-    required this.user,
-  });
+  const AuthResponse({required this.accessToken, required this.user});
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
@@ -34,10 +31,7 @@ class AuthResponse extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'accessToken': accessToken,
-      'user': user.toJson(),
-    };
+    return {'accessToken': accessToken, 'user': user.toJson()};
   }
 
   @override

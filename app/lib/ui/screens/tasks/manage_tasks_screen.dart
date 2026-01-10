@@ -27,8 +27,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: _buildAppBar(context, isDark),
       body: BlocConsumer<ManageTasksBloc, ManageTasksState>(
         listener: (context, state) {
@@ -44,7 +45,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
             // Navigate back after a short delay
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
-                Navigator.of(context).pop(true); // Return true to indicate changes were saved
+                Navigator.of(
+                  context,
+                ).pop(true); // Return true to indicate changes were saved
               }
             });
           } else if (state is ManageTasksError) {
@@ -84,8 +87,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, bool isDark) {
     return AppBar(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       elevation: 0,
       leading: IconButton(
         icon: Icon(
@@ -105,8 +109,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
       actions: [
         BlocBuilder<ManageTasksBloc, ManageTasksState>(
           builder: (context, state) {
-            final hasChanges =
-                state is ManageTasksLoaded ? state.hasChanges : false;
+            final hasChanges = state is ManageTasksLoaded
+                ? state.hasChanges
+                : false;
             final isSaving = state is ManageTasksSaving;
 
             if (!hasChanges || isSaving) {
@@ -151,7 +156,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
                 'Drag to reorder, toggle to show/hide',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color: isDark
+                      ? AppColors.textSubDark
+                      : AppColors.textSubLight,
                 ),
               ),
             ),
@@ -169,8 +176,8 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
                     newIndex -= 1;
                   }
                   context.read<ManageTasksBloc>().add(
-                        ReorderTask(oldIndex: oldIndex, newIndex: newIndex),
-                      );
+                    ReorderTask(oldIndex: oldIndex, newIndex: newIndex),
+                  );
                 },
                 itemBuilder: (context, index) {
                   final task = tasks[index];
@@ -180,8 +187,8 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
                     isDark: isDark,
                     onToggleVisibility: () {
                       context.read<ManageTasksBloc>().add(
-                            ToggleTaskVisibility(taskId: task.id!),
-                          );
+                        ToggleTaskVisibility(taskId: task.id!),
+                      );
                     },
                   );
                 },
@@ -215,9 +222,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
   Widget _buildError(String message) {

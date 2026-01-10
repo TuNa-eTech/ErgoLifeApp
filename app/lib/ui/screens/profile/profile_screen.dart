@@ -212,7 +212,9 @@ class ProfileView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.memberSince(state.membershipDuration),
+                      AppLocalizations.of(
+                        context,
+                      )!.memberSince(state.membershipDuration),
                       style: const TextStyle(
                         color: AppColors.secondary,
                         fontWeight: FontWeight.bold,
@@ -284,19 +286,29 @@ class ProfileView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  _buildActionTile(AppLocalizations.of(context)!.editProfile, Icons.edit, () {
-                    // TODO: Navigate to edit profile
-                  }, isDark),
-                  _buildActionTile(AppLocalizations.of(context)!.settings, Icons.settings, () {
-                    // TODO: Navigate to settings
-                  }, isDark),
+                  _buildActionTile(
+                    AppLocalizations.of(context)!.editProfile,
+                    Icons.edit,
+                    () {
+                      // TODO: Navigate to edit profile
+                    },
+                    isDark,
+                  ),
+                  _buildActionTile(
+                    AppLocalizations.of(context)!.settings,
+                    Icons.settings,
+                    () {
+                      // TODO: Navigate to settings
+                    },
+                    isDark,
+                  ),
                   // Language Switcher
                   BlocBuilder<LocaleCubit, Locale>(
                     builder: (context, locale) {
                       final currentLanguage = locale.languageCode == 'vi'
                           ? AppLocalizations.of(context)!.vietnamese
                           : AppLocalizations.of(context)!.english;
-                      
+
                       return _buildLanguageTile(
                         AppLocalizations.of(context)!.language,
                         currentLanguage,
@@ -421,10 +433,7 @@ class ProfileView extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        leading: const Icon(
-          Icons.language,
-          color: AppColors.secondary,
-        ),
+        leading: const Icon(Icons.language, color: AppColors.secondary),
         title: Text(
           title,
           style: TextStyle(
@@ -497,9 +506,7 @@ void _showLogoutDialog(BuildContext context) {
           Text(AppLocalizations.of(context)!.logout),
         ],
       ),
-      content: Text(
-        AppLocalizations.of(context)!.logoutConfirmation,
-      ),
+      content: Text(AppLocalizations.of(context)!.logoutConfirmation),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
@@ -522,7 +529,7 @@ void _showLogoutDialog(BuildContext context) {
 
 void _showLanguageDialog(BuildContext context, Locale currentLocale) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  
+
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -601,10 +608,7 @@ Widget _buildLanguageOption({
           ),
           const Spacer(),
           if (isSelected)
-            const Icon(
-              Icons.check_circle,
-              color: AppColors.secondary,
-            ),
+            const Icon(Icons.check_circle, color: AppColors.secondary),
         ],
       ),
     ),

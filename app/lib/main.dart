@@ -9,11 +9,6 @@ import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-
-
-
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,20 +20,14 @@ void main() async {
   // Initialize service locator (GetIt)
   AppLogger.info('Initializing service locator...', 'Main');
   await setupServiceLocator();
-  
+
   // Wait for all async dependencies (AuthService, AuthRepository, AuthBloc) to be ready
   AppLogger.info('Waiting for async dependencies...', 'Main');
   await sl.allReady();
   AppLogger.success('Service locator initialized successfully', 'Main');
 
-  runApp(
-    BlocProvider(
-      create: (_) => LocaleCubit(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(BlocProvider(create: (_) => LocaleCubit(), child: const MyApp()));
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

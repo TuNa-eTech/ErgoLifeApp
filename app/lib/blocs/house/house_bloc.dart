@@ -8,10 +8,9 @@ import 'package:ergo_life_app/data/repositories/house_repository.dart';
 class HouseBloc extends Bloc<HouseEvent, HouseState> {
   final HouseRepository _houseRepository;
 
-  HouseBloc({
-    required HouseRepository houseRepository,
-  })  : _houseRepository = houseRepository,
-        super(const HouseInitial()) {
+  HouseBloc({required HouseRepository houseRepository})
+    : _houseRepository = houseRepository,
+      super(const HouseInitial()) {
     on<LoadHouse>(_onLoadHouse);
     on<CreateHouse>(_onCreateHouse);
     on<JoinHouse>(_onJoinHouse);
@@ -20,10 +19,7 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
   }
 
   /// Load house data
-  Future<void> _onLoadHouse(
-    LoadHouse event,
-    Emitter<HouseState> emit,
-  ) async {
+  Future<void> _onLoadHouse(LoadHouse event, Emitter<HouseState> emit) async {
     AppLogger.info('Loading house...', 'HouseBloc');
     emit(const HouseLoading());
 
@@ -31,7 +27,12 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to load house', failure.message, null, 'HouseBloc');
+        AppLogger.error(
+          'Failed to load house',
+          failure.message,
+          null,
+          'HouseBloc',
+        );
         emit(HouseError(message: failure.message));
       },
       (house) {
@@ -58,7 +59,12 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to create house', failure.message, null, 'HouseBloc');
+        AppLogger.error(
+          'Failed to create house',
+          failure.message,
+          null,
+          'HouseBloc',
+        );
         emit(HouseError(message: failure.message));
       },
       (house) {
@@ -69,10 +75,7 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
   }
 
   /// Join house with code
-  Future<void> _onJoinHouse(
-    JoinHouse event,
-    Emitter<HouseState> emit,
-  ) async {
+  Future<void> _onJoinHouse(JoinHouse event, Emitter<HouseState> emit) async {
     AppLogger.info('Joining house with code: ${event.inviteCode}', 'HouseBloc');
     emit(const HouseProcessing(operation: 'joining'));
 
@@ -80,7 +83,12 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to join house', failure.message, null, 'HouseBloc');
+        AppLogger.error(
+          'Failed to join house',
+          failure.message,
+          null,
+          'HouseBloc',
+        );
         emit(HouseError(message: failure.message));
       },
       (house) {
@@ -91,10 +99,7 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
   }
 
   /// Leave current house
-  Future<void> _onLeaveHouse(
-    LeaveHouse event,
-    Emitter<HouseState> emit,
-  ) async {
+  Future<void> _onLeaveHouse(LeaveHouse event, Emitter<HouseState> emit) async {
     AppLogger.info('Leaving house...', 'HouseBloc');
     emit(const HouseProcessing(operation: 'leaving'));
 
@@ -102,7 +107,12 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to leave house', failure.message, null, 'HouseBloc');
+        AppLogger.error(
+          'Failed to leave house',
+          failure.message,
+          null,
+          'HouseBloc',
+        );
         emit(HouseError(message: failure.message));
       },
       (_) {
@@ -129,7 +139,12 @@ class HouseBloc extends Bloc<HouseEvent, HouseState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to get invite', failure.message, null, 'HouseBloc');
+        AppLogger.error(
+          'Failed to get invite',
+          failure.message,
+          null,
+          'HouseBloc',
+        );
         // Don't emit error, just keep current state
       },
       (invite) {

@@ -21,10 +21,7 @@ class ManageTasksLoading extends ManageTasksState {
 
 /// Tasks loaded successfully
 class ManageTasksLoaded extends ManageTasksState {
-  const ManageTasksLoaded({
-    required this.tasks,
-    required this.hasChanges,
-  });
+  const ManageTasksLoaded({required this.tasks, required this.hasChanges});
 
   final List<TaskModel> tasks;
   final bool hasChanges;
@@ -32,10 +29,7 @@ class ManageTasksLoaded extends ManageTasksState {
   @override
   List<Object?> get props => [tasks, hasChanges];
 
-  ManageTasksLoaded copyWith({
-    List<TaskModel>? tasks,
-    bool? hasChanges,
-  }) {
+  ManageTasksLoaded copyWith({List<TaskModel>? tasks, bool? hasChanges}) {
     return ManageTasksLoaded(
       tasks: tasks ?? this.tasks,
       hasChanges: hasChanges ?? this.hasChanges,

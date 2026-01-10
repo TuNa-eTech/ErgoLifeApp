@@ -12,9 +12,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   OnboardingBloc({
     required UserRepository userRepository,
     required HouseRepository houseRepository,
-  })  : _userRepository = userRepository,
-        _houseRepository = houseRepository,
-        super(const OnboardingInitial()) {
+  }) : _userRepository = userRepository,
+       _houseRepository = houseRepository,
+       super(const OnboardingInitial()) {
     on<CreateSoloHouse>(_onCreateSoloHouse);
     on<CreateArenaHouse>(_onCreateArenaHouse);
     on<JoinHouse>(_onJoinHouse);
@@ -40,17 +40,15 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       // 2. Create solo house
       final houseResult = await _houseRepository.createHouse(event.houseName);
 
-      houseResult.fold(
-        (failure) {
-          // 409 means user already has a house, treat as success
-          if (failure.message.contains('409') || failure.message.contains('already')) {
-            emit(const OnboardingSuccess('Personal Space Ready! 🏡'));
-          } else {
-            emit(OnboardingError(failure.message));
-          }
-        },
-        (_) => emit(const OnboardingSuccess('Personal Space Created! 🏡')),
-      );
+      houseResult.fold((failure) {
+        // 409 means user already has a house, treat as success
+        if (failure.message.contains('409') ||
+            failure.message.contains('already')) {
+          emit(const OnboardingSuccess('Personal Space Ready! 🏡'));
+        } else {
+          emit(OnboardingError(failure.message));
+        }
+      }, (_) => emit(const OnboardingSuccess('Personal Space Created! 🏡')));
     } catch (e) {
       AppLogger.error('Create Solo House Failed', e, null, 'OnboardingBloc');
       emit(OnboardingError(e.toString()));
@@ -77,16 +75,14 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       // 2. Create shared house
       final houseResult = await _houseRepository.createHouse(event.houseName);
 
-      houseResult.fold(
-        (failure) {
-          if (failure.message.contains('409') || failure.message.contains('already')) {
-            emit(const OnboardingSuccess('Arena Ready! 🎉'));
-          } else {
-            emit(OnboardingError(failure.message));
-          }
-        },
-        (_) => emit(const OnboardingSuccess('Arena Created! 🎉')),
-      );
+      houseResult.fold((failure) {
+        if (failure.message.contains('409') ||
+            failure.message.contains('already')) {
+          emit(const OnboardingSuccess('Arena Ready! 🎉'));
+        } else {
+          emit(OnboardingError(failure.message));
+        }
+      }, (_) => emit(const OnboardingSuccess('Arena Created! 🎉')));
     } catch (e) {
       AppLogger.error('Create Arena House Failed', e, null, 'OnboardingBloc');
       emit(OnboardingError(e.toString()));

@@ -17,10 +17,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required AuthRepository authRepository,
     required ActivityRepository activityRepository,
     required UserRepository userRepository,
-  })  : _authRepository = authRepository,
-        _activityRepository = activityRepository,
-        _userRepository = userRepository,
-        super(const ProfileInitial()) {
+  }) : _authRepository = authRepository,
+       _activityRepository = activityRepository,
+       _userRepository = userRepository,
+       super(const ProfileInitial()) {
     on<LoadProfile>(_onLoadProfile);
     on<RefreshProfile>(_onRefreshProfile);
     on<UpdateProfile>(_onUpdateProfile);
@@ -40,7 +40,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       await userResult.fold(
         (failure) async {
-          AppLogger.error('Failed to load user', failure.message, null, 'ProfileBloc');
+          AppLogger.error(
+            'Failed to load user',
+            failure.message,
+            null,
+            'ProfileBloc',
+          );
           emit(ProfileError(message: failure.message));
         },
         (user) async {
@@ -64,7 +69,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      AppLogger.error('Unexpected error loading profile', e, null, 'ProfileBloc');
+      AppLogger.error(
+        'Unexpected error loading profile',
+        e,
+        null,
+        'ProfileBloc',
+      );
       emit(const ProfileError(message: 'Failed to load profile'));
     }
   }
@@ -99,7 +109,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to update profile', failure.message, null, 'ProfileBloc');
+        AppLogger.error(
+          'Failed to update profile',
+          failure.message,
+          null,
+          'ProfileBloc',
+        );
         emit(const ProfileError(message: 'Failed to update profile'));
         // Restore previous state
         emit(ProfileLoaded(user: currentState.user, stats: currentState.stats));

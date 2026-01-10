@@ -42,7 +42,7 @@ class AppConfig {
     if (_googleClientId.isNotEmpty) {
       return _googleClientId;
     }
-    
+
     // Fallback for development (when dart-define not loaded or during hot restart)
     // For production, this should be set via environment configuration
     return '939742430352-ep9v6be12ablo30tgdn2oc8e7kd2qaoa.apps.googleusercontent.com';

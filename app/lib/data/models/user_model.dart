@@ -40,11 +40,13 @@ class UserModel extends Equatable {
     return UserModel(
       id: json['id'] as String? ?? '',
       firebaseUid: json['firebaseUid'] as String? ?? '',
-      provider: json['provider'] != null 
+      provider: json['provider'] != null
           ? AuthProvider.fromJson(json['provider'] as String)
           : AuthProvider.google,
       email: json['email'] as String?,
-      name: json['displayName'] as String?, // Backend uses 'displayName' not 'name'
+      name:
+          json['displayName']
+              as String?, // Backend uses 'displayName' not 'name'
       avatarId: json['avatarId'] as int?,
       avatarUrl: json['avatarUrl'] as String?,
       houseId: json['houseId'] as String?,
@@ -116,19 +118,18 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        firebaseUid,
-        provider,
-        email,
-        name,
-        avatarId,
-        avatarUrl,
-        houseId,
-        createdAt,
-        walletBalance,
-        currentStreak,
-        longestStreak,
-        streakFreezeCount,
-      ];
+    id,
+    firebaseUid,
+    provider,
+    email,
+    name,
+    avatarId,
+    avatarUrl,
+    houseId,
+    createdAt,
+    walletBalance,
+    currentStreak,
+    longestStreak,
+    streakFreezeCount,
+  ];
 }
-

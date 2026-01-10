@@ -68,16 +68,16 @@ class ActivityModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        taskName,
-        durationSeconds,
-        metsValue,
-        magicWipePercentage,
-        pointsEarned,
-        bonusMultiplier,
-        completedAt,
-      ];
+    id,
+    userId,
+    taskName,
+    durationSeconds,
+    metsValue,
+    magicWipePercentage,
+    pointsEarned,
+    bonusMultiplier,
+    completedAt,
+  ];
 }
 
 /// Request model for creating a new activity
@@ -118,7 +118,9 @@ class CreateActivityResponse {
 
   factory CreateActivityResponse.fromJson(Map<String, dynamic> json) {
     return CreateActivityResponse(
-      activity: ActivityModel.fromJson(json['activity'] as Map<String, dynamic>),
+      activity: ActivityModel.fromJson(
+        json['activity'] as Map<String, dynamic>,
+      ),
       wallet: WalletInfo.fromJson(json['wallet'] as Map<String, dynamic>),
       streak: StreakInfo.fromJson(json['streak'] as Map<String, dynamic>),
     );
@@ -164,7 +166,8 @@ class PaginatedActivities {
 
   factory PaginatedActivities.fromJson(Map<String, dynamic> json) {
     return PaginatedActivities(
-      activities: (json['activities'] as List?)
+      activities:
+          (json['activities'] as List?)
               ?.map((e) => ActivityModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -219,4 +222,3 @@ class StreakInfo {
   /// Check if streak was reset
   bool get wasReset => message == 'STREAK_RESET';
 }
-

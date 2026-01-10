@@ -123,7 +123,8 @@ class LeaderboardResponse extends Equatable {
           ? DateTime.parse(json['weekEnd'] as String)
           : DateTime.now(),
       houseName: json['houseName'] as String?,
-      rankings: (json['rankings'] as List?)
+      rankings:
+          (json['rankings'] as List?)
               ?.map((e) => LeaderboardEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -157,13 +158,13 @@ class LeaderboardResponse extends Equatable {
 
   @override
   List<Object?> get props => [
-        scope,
-        week,
-        weekStart,
-        weekEnd,
-        houseName,
-        rankings,
-        myRanking,
-        totalParticipants,
-      ];
+    scope,
+    week,
+    weekStart,
+    weekEnd,
+    houseName,
+    rankings,
+    myRanking,
+    totalParticipants,
+  ];
 }

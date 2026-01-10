@@ -62,13 +62,13 @@ class StatsModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        period,
-        totalPoints,
-        activityCount,
-        totalDurationMinutes,
-        streakDays,
-        averagePointsPerActivity,
-      ];
+    period,
+    totalPoints,
+    activityCount,
+    totalDurationMinutes,
+    streakDays,
+    averagePointsPerActivity,
+  ];
 }
 
 /// Weekly stats specifically for home screen
@@ -121,13 +121,13 @@ class WeeklyStats extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalPoints,
-        activityCount,
-        totalDurationMinutes,
-        streakDays,
-        rankPosition,
-        houseMemberCount,
-      ];
+    totalPoints,
+    activityCount,
+    totalDurationMinutes,
+    streakDays,
+    rankPosition,
+    houseMemberCount,
+  ];
 }
 
 /// Lifetime stats for profile
@@ -184,11 +184,11 @@ class LifetimeStats extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalPoints,
-        totalActivities,
-        totalMinutes,
-        currentStreak,
-        longestStreak,
-        estimatedCalories,
-      ];
+    totalPoints,
+    totalActivities,
+    totalMinutes,
+    currentStreak,
+    longestStreak,
+    estimatedCalories,
+  ];
 }

@@ -20,10 +20,7 @@ class RewardsLoaded extends RewardsState {
   final List<RewardModel> rewards;
   final int userBalance;
 
-  const RewardsLoaded({
-    required this.rewards,
-    required this.userBalance,
-  });
+  const RewardsLoaded({required this.rewards, required this.userBalance});
 
   @override
   List<Object?> get props => [rewards, userBalance];

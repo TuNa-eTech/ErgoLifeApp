@@ -15,9 +15,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   LeaderboardBloc({
     required ActivityRepository activityRepository,
     required StorageService storageService,
-  })  : _activityRepository = activityRepository,
-        _storageService = storageService,
-        super(const LeaderboardInitial()) {
+  }) : _activityRepository = activityRepository,
+       _storageService = storageService,
+       super(const LeaderboardInitial()) {
     on<LoadLeaderboard>(_onLoadLeaderboard);
     on<RefreshLeaderboard>(_onRefreshLeaderboard);
   }
@@ -36,24 +36,33 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to load leaderboard', failure.message, null, 'LeaderboardBloc');
-        
+        AppLogger.error(
+          'Failed to load leaderboard',
+          failure.message,
+          null,
+          'LeaderboardBloc',
+        );
+
         // Try loading mock data for demo
         final mockData = _activityRepository.getMockLeaderboard();
-        emit(LeaderboardLoaded(
-          leaderboard: mockData,
-          currentUserId: _getCurrentUserId(),
-        ));
+        emit(
+          LeaderboardLoaded(
+            leaderboard: mockData,
+            currentUserId: _getCurrentUserId(),
+          ),
+        );
       },
       (leaderboard) {
         AppLogger.success(
           'Leaderboard loaded: ${leaderboard.rankings.length} entries',
           'LeaderboardBloc',
         );
-        emit(LeaderboardLoaded(
-          leaderboard: leaderboard,
-          currentUserId: _getCurrentUserId(),
-        ));
+        emit(
+          LeaderboardLoaded(
+            leaderboard: leaderboard,
+            currentUserId: _getCurrentUserId(),
+          ),
+        );
       },
     );
   }

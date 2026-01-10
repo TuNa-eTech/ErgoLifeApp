@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 
-
 /// Compact stats bar displaying Streak, Points, and Time in a single row
 class CompactStatsBar extends StatelessWidget {
   const CompactStatsBar({
@@ -18,7 +17,6 @@ class CompactStatsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -85,7 +83,7 @@ class CompactStatsBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Pills Row
                   Row(
                     children: [
@@ -134,16 +132,21 @@ class CompactStatsBar extends StatelessWidget {
   }) {
     return Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8), // Reduced horizontal padding as it is expanded
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 8,
+      ), // Reduced horizontal padding as it is expanded
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white, // White bg for pills to pop against container
+        color: isDark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.white, // White bg for pills to pop against container
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.transparent : Colors.grey.shade100,
           width: 1,
         ),
         boxShadow: [
-           if (!isDark)
+          if (!isDark)
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
               blurRadius: 4,

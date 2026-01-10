@@ -15,19 +15,16 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   TasksBloc({
     required ActivityRepository activityRepository,
     required TaskRepository taskRepository,
-  })  : _activityRepository = activityRepository,
-        _taskRepository = taskRepository,
-        super(const TasksInitial()) {
+  }) : _activityRepository = activityRepository,
+       _taskRepository = taskRepository,
+       super(const TasksInitial()) {
     on<LoadTasks>(_onLoadTasks);
     on<RefreshTasks>(_onRefreshTasks);
     on<FilterTasks>(_onFilterTasks);
   }
 
   /// Load all tasks and activities from API
-  Future<void> _onLoadTasks(
-    LoadTasks event,
-    Emitter<TasksState> emit,
-  ) async {
+  Future<void> _onLoadTasks(LoadTasks event, Emitter<TasksState> emit) async {
     AppLogger.info('Loading tasks from API...', 'TasksBloc');
     emit(const TasksLoading());
 
@@ -40,7 +37,10 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       );
 
       if (needsSeeding) {
-        AppLogger.info('User needs task seeding, fetching templates...', 'TasksBloc');
+        AppLogger.info(
+          'User needs task seeding, fetching templates...',
+          'TasksBloc',
+        );
         await _seedTasksFromTemplates();
       }
 
@@ -48,7 +48,12 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       final tasksResult = await _taskRepository.getTasks();
       final tasks = tasksResult.fold(
         (failure) {
-          AppLogger.error('Failed to load tasks from API', failure.message, null, 'TasksBloc');
+          AppLogger.error(
+            'Failed to load tasks from API',
+            failure.message,
+            null,
+            'TasksBloc',
+          );
           return <TaskModel>[];
         },
         (taskMaps) => taskMaps.map((json) => TaskModel.fromJson(json)).toList(),
@@ -70,11 +75,13 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       );
 
       AppLogger.success('Loaded ${tasks.length} tasks from API', 'TasksBloc');
-      emit(TasksLoaded(
-        highPriorityTask: highPriority.isNotEmpty ? highPriority.first : null,
-        availableTasks: availableTasks,
-        recentActivities: recentActivities,
-      ));
+      emit(
+        TasksLoaded(
+          highPriorityTask: highPriority.isNotEmpty ? highPriority.first : null,
+          availableTasks: availableTasks,
+          recentActivities: recentActivities,
+        ),
+      );
     } catch (e) {
       AppLogger.error('Failed to load tasks', e, null, 'TasksBloc');
       emit(const TasksError(message: 'Failed to load tasks'));
@@ -100,8 +107,10 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       final tasksToSeed = templates.map((template) {
         return {
           'exerciseName': template['name'] ?? template['exerciseName'],
-          'taskDescription': template['description'] ?? template['taskDescription'],
-          'durationMinutes': template['defaultDuration'] ?? template['durationMinutes'] ?? 15,
+          'taskDescription':
+              template['description'] ?? template['taskDescription'],
+          'durationMinutes':
+              template['defaultDuration'] ?? template['durationMinutes'] ?? 15,
           'metsValue': template['metsValue'] ?? 3.5,
           'icon': template['icon'] ?? 'fitness_center',
           'animation': template['animation'],
@@ -113,7 +122,12 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       // Seed tasks
       final seedResult = await _taskRepository.seedTasks(tasksToSeed);
       seedResult.fold(
-        (failure) => AppLogger.error('Failed to seed tasks', failure.message, null, 'TasksBloc'),
+        (failure) => AppLogger.error(
+          'Failed to seed tasks',
+          failure.message,
+          null,
+          'TasksBloc',
+        ),
         (_) => AppLogger.success('Tasks seeded successfully', 'TasksBloc'),
       );
     } catch (e) {
@@ -131,10 +145,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   }
 
   /// Filter tasks by category
-  void _onFilterTasks(
-    FilterTasks event,
-    Emitter<TasksState> emit,
-  ) {
+  void _onFilterTasks(FilterTasks event, Emitter<TasksState> emit) {
     final currentState = state;
     if (currentState is TasksLoaded) {
       AppLogger.info('Filtering tasks: ${event.filter}', 'TasksBloc');

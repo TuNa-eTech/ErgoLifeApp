@@ -149,10 +149,8 @@ class TasksView extends StatelessWidget {
                 if (state.highPriorityTask != null)
                   HighPriorityTaskCard(
                     task: state.highPriorityTask!,
-                    onStart: () => _navigateToSession(
-                      context,
-                      state.highPriorityTask!,
-                    ),
+                    onStart: () =>
+                        _navigateToSession(context, state.highPriorityTask!),
                   ),
                 _buildTasksList(context, isDark, state),
               ],

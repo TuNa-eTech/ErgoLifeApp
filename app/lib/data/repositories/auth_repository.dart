@@ -18,11 +18,7 @@ class AuthRepository {
   final ApiClient _apiClient;
   final StorageService _storageService;
 
-  AuthRepository(
-    this._authService,
-    this._apiClient,
-    this._storageService,
-  );
+  AuthRepository(this._authService, this._apiClient, this._storageService);
 
   /// Social login with Firebase ID token
   Future<AuthResponse> _socialLogin(String idToken) async {
@@ -47,8 +43,8 @@ class AuthRepository {
       AppLogger.info('Starting Google sign-in flow', 'AuthRepository');
 
       // 1. Sign in with Firebase
-      final UserCredential userCredential =
-          await _authService.signInWithGoogle();
+      final UserCredential userCredential = await _authService
+          .signInWithGoogle();
 
       // 2. Get Firebase ID token
       final idToken = await userCredential.user?.getIdToken();
@@ -59,10 +55,15 @@ class AuthRepository {
           null,
           'AuthRepository',
         );
-        return Left(ServerFailure(message: 'Failed to get authentication token'));
+        return Left(
+          ServerFailure(message: 'Failed to get authentication token'),
+        );
       }
 
-      AppLogger.info('Got Firebase ID token, calling backend', 'AuthRepository');
+      AppLogger.info(
+        'Got Firebase ID token, calling backend',
+        'AuthRepository',
+      );
 
       // 3. Send ID token to backend
       final authResponse = await _socialLogin(idToken);
@@ -88,10 +89,17 @@ class AuthRepository {
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'AuthRepository');
       return Left(
-        NetworkFailure(message: 'Unable to connect. Please check your internet connection.'),
+        NetworkFailure(
+          message: 'Unable to connect. Please check your internet connection.',
+        ),
       );
     } catch (e) {
-      AppLogger.error('Unexpected error during sign-in', e, null, 'AuthRepository');
+      AppLogger.error(
+        'Unexpected error during sign-in',
+        e,
+        null,
+        'AuthRepository',
+      );
       return Left(ServerFailure(message: 'An unexpected error occurred'));
     }
   }
@@ -102,8 +110,8 @@ class AuthRepository {
       AppLogger.info('Starting Apple sign-in flow', 'AuthRepository');
 
       // 1. Sign in with Firebase
-      final UserCredential userCredential =
-          await _authService.signInWithApple();
+      final UserCredential userCredential = await _authService
+          .signInWithApple();
 
       // 2. Get Firebase ID token
       final idToken = await userCredential.user?.getIdToken();
@@ -114,10 +122,15 @@ class AuthRepository {
           null,
           'AuthRepository',
         );
-        return Left(ServerFailure(message: 'Failed to get authentication token'));
+        return Left(
+          ServerFailure(message: 'Failed to get authentication token'),
+        );
       }
 
-      AppLogger.info('Got Firebase ID token, calling backend', 'AuthRepository');
+      AppLogger.info(
+        'Got Firebase ID token, calling backend',
+        'AuthRepository',
+      );
 
       // 3. Send ID token to backend
       final authResponse = await _socialLogin(idToken);
@@ -143,10 +156,17 @@ class AuthRepository {
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'AuthRepository');
       return Left(
-        NetworkFailure(message: 'Unable to connect. Please check your internet connection.'),
+        NetworkFailure(
+          message: 'Unable to connect. Please check your internet connection.',
+        ),
       );
     } catch (e) {
-      AppLogger.error('Unexpected error during sign-in', e, null, 'AuthRepository');
+      AppLogger.error(
+        'Unexpected error during sign-in',
+        e,
+        null,
+        'AuthRepository',
+      );
       return Left(ServerFailure(message: 'An unexpected error occurred'));
     }
   }
@@ -217,7 +237,10 @@ class AuthRepository {
         return Left(AuthFailure(message: 'No authentication token found'));
       }
 
-      AppLogger.info('Attempting auto sign-in with stored token', 'AuthRepository');
+      AppLogger.info(
+        'Attempting auto sign-in with stored token',
+        'AuthRepository',
+      );
 
       // Set token in API client
       _apiClient.setAuthToken(token);

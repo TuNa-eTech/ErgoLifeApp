@@ -12,10 +12,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   Timer? _timer;
   int _elapsedSeconds = 0;
 
-  SessionBloc({
-    required ActivityRepository activityRepository,
-  })  : _activityRepository = activityRepository,
-        super(const SessionInactive()) {
+  SessionBloc({required ActivityRepository activityRepository})
+    : _activityRepository = activityRepository,
+      super(const SessionInactive()) {
     on<PrepareSession>(_onPrepareSession);
     on<StartSession>(_onStartSession);
     on<TimerTicked>(_onTimerTicked);
@@ -35,10 +34,12 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
       'SessionBloc',
     );
 
-    emit(SessionPending(
-      task: event.task,
-      targetSeconds: event.task.durationSeconds,
-    ));
+    emit(
+      SessionPending(
+        task: event.task,
+        targetSeconds: event.task.durationSeconds,
+      ),
+    );
   }
 
   /// Start a new session
@@ -46,24 +47,26 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     StartSession event,
     Emitter<SessionState> emit,
   ) async {
-    AppLogger.info('Starting session: ${event.task.exerciseName}', 'SessionBloc');
+    AppLogger.info(
+      'Starting session: ${event.task.exerciseName}',
+      'SessionBloc',
+    );
 
     _elapsedSeconds = 0;
     _startTimer();
 
-    emit(SessionActive(
-      task: event.task,
-      elapsedSeconds: 0,
-      targetSeconds: event.task.durationSeconds,
-      isPaused: false,
-    ));
+    emit(
+      SessionActive(
+        task: event.task,
+        elapsedSeconds: 0,
+        targetSeconds: event.task.durationSeconds,
+        isPaused: false,
+      ),
+    );
   }
 
   /// Timer tick handler
-  void _onTimerTicked(
-    TimerTicked event,
-    Emitter<SessionState> emit,
-  ) {
+  void _onTimerTicked(TimerTicked event, Emitter<SessionState> emit) {
     final currentState = state;
     if (currentState is SessionActive && !currentState.isPaused) {
       emit(currentState.copyWith(elapsedSeconds: event.elapsedSeconds));
@@ -71,10 +74,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   }
 
   /// Pause the session
-  void _onPauseSession(
-    PauseSession event,
-    Emitter<SessionState> emit,
-  ) {
+  void _onPauseSession(PauseSession event, Emitter<SessionState> emit) {
     AppLogger.info('Pausing session', 'SessionBloc');
 
     _timer?.cancel();
@@ -87,10 +87,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   }
 
   /// Resume paused session
-  void _onResumeSession(
-    ResumeSession event,
-    Emitter<SessionState> emit,
-  ) {
+  void _onResumeSession(ResumeSession event, Emitter<SessionState> emit) {
     AppLogger.info('Resuming session', 'SessionBloc');
 
     _startTimer();
@@ -117,10 +114,12 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     _timer?.cancel();
     _timer = null;
 
-    emit(SessionCompleting(
-      task: currentState.task,
-      totalSeconds: currentState.elapsedSeconds,
-    ));
+    emit(
+      SessionCompleting(
+        task: currentState.task,
+        totalSeconds: currentState.elapsedSeconds,
+      ),
+    );
 
     final result = await _activityRepository.createActivity(
       taskName: currentState.task.exerciseName,
@@ -131,33 +130,39 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
 
     result.fold(
       (failure) {
-        AppLogger.error('Failed to save activity', failure.message, null, 'SessionBloc');
-        emit(SessionError(
-          message: failure.message,
-          task: currentState.task,
-          elapsedSeconds: currentState.elapsedSeconds,
-        ));
+        AppLogger.error(
+          'Failed to save activity',
+          failure.message,
+          null,
+          'SessionBloc',
+        );
+        emit(
+          SessionError(
+            message: failure.message,
+            task: currentState.task,
+            elapsedSeconds: currentState.elapsedSeconds,
+          ),
+        );
       },
       (response) {
         AppLogger.success(
           'Session completed! Earned ${response.wallet.pointsEarned} points',
           'SessionBloc',
         );
-        emit(SessionCompleted(
-          activity: response.activity,
-          pointsEarned: response.wallet.pointsEarned,
-          newWalletBalance: response.wallet.newBalance,
-          activityResponse: response,
-        ));
+        emit(
+          SessionCompleted(
+            activity: response.activity,
+            pointsEarned: response.wallet.pointsEarned,
+            newWalletBalance: response.wallet.newBalance,
+            activityResponse: response,
+          ),
+        );
       },
     );
   }
 
   /// Cancel session without saving
-  void _onCancelSession(
-    CancelSession event,
-    Emitter<SessionState> emit,
-  ) {
+  void _onCancelSession(CancelSession event, Emitter<SessionState> emit) {
     AppLogger.info('Cancelling session', 'SessionBloc');
 
     _timer?.cancel();
@@ -170,13 +175,10 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   /// Start the internal timer
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        _elapsedSeconds++;
-        add(TimerTicked(elapsedSeconds: _elapsedSeconds));
-      },
-    );
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _elapsedSeconds++;
+      add(TimerTicked(elapsedSeconds: _elapsedSeconds));
+    });
   }
 
   @override

@@ -57,11 +57,7 @@ class ManageTaskItem extends StatelessWidget {
                   color: task.color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  task.icon,
-                  color: task.color,
-                  size: 22,
-                ),
+                child: Icon(task.icon, color: task.color, size: 22),
               ),
               const SizedBox(width: 12),
 

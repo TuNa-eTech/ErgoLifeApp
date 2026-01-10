@@ -10,11 +10,8 @@ import 'package:ergo_life_app/blocs/onboarding/onboarding_state.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final OnboardingBloc onboardingBloc;
-  
-  const OnboardingScreen({
-    super.key,
-    required this.onboardingBloc,
-  });
+
+  const OnboardingScreen({super.key, required this.onboardingBloc});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -248,17 +245,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 final isActive = index == _currentPage;
                                 return AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
                                   height: 6,
                                   width: isActive ? 24 : 6,
                                   decoration: BoxDecoration(
                                     color: isActive
                                         ? AppColors.secondary
                                         : (isDark
-                                            ? Colors.white
-                                                .withValues(alpha: 0.2)
-                                            : Colors.grey[300]),
+                                              ? Colors.white.withValues(
+                                                  alpha: 0.2,
+                                                )
+                                              : Colors.grey[300]),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 );
@@ -302,8 +301,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           },
                           children: [
                             _buildAvatarPage(isDark, textColor),
-                            _buildCreateSpacePage(isDark, textColor,
-                                isLoading: isLoading),
+                            _buildCreateSpacePage(
+                              isDark,
+                              textColor,
+                              isLoading: isLoading,
+                            ),
                           ],
                         ),
                       ),
@@ -343,8 +345,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               elevation: 8,
-                              shadowColor: AppColors.secondary
-                                  .withValues(alpha: 0.3),
+                              shadowColor: AppColors.secondary.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -369,17 +372,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                     ),
-                  
+
                   // Loading Overlay
                   if (isLoading)
-                     Positioned.fill(
-                        child: Container(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                     ),
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -626,7 +627,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // PAGE 2: CREATE SPACE
   // ═══════════════════════════════════════
 
-  Widget _buildCreateSpacePage(bool isDark, Color textColor, {required bool isLoading}) {
+  Widget _buildCreateSpacePage(
+    bool isDark,
+    Color textColor, {
+    required bool isLoading,
+  }) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -676,7 +681,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildFamilyArenaCard(isDark),
 
           const SizedBox(height: 24),
-          
+
           // Join Code Button
           Center(
             child: TextButton.icon(
@@ -692,7 +697,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 32),
         ],
       ),
@@ -1075,12 +1080,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _showJoinCodeDialog(BuildContext context, bool isDark) {
     final codeController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        title: Text('Join House', style: TextStyle(color: isDark ? AppColors.textMainDark : AppColors.textMainLight)),
+        title: Text(
+          'Join House',
+          style: TextStyle(
+            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1103,14 +1113,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-               Navigator.pop(ctx);
-               _onboardingBloc.add(
-                 JoinHouse(
-                   code: codeController.text.trim(),
-                   displayName: _nameController.text.trim(),
-                   avatarId: _currentAvatarIndex + 1,
-                 ),
-               );
+              Navigator.pop(ctx);
+              _onboardingBloc.add(
+                JoinHouse(
+                  code: codeController.text.trim(),
+                  displayName: _nameController.text.trim(),
+                  avatarId: _currentAvatarIndex + 1,
+                ),
+              );
             },
             child: const Text('Join'),
           ),
@@ -1119,4 +1129,3 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-

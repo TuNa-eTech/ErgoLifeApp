@@ -12,10 +12,9 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
   // Store original tasks to detect changes
   List<TaskModel> _originalTasks = [];
 
-  ManageTasksBloc({
-    required TaskRepository taskRepository,
-  })  : _taskRepository = taskRepository,
-        super(const ManageTasksInitial()) {
+  ManageTasksBloc({required TaskRepository taskRepository})
+    : _taskRepository = taskRepository,
+      super(const ManageTasksInitial()) {
     on<LoadManageTasks>(_onLoadManageTasks);
     on<ReorderTask>(_onReorderTask);
     on<ToggleTaskVisibility>(_onToggleTaskVisibility);
@@ -63,16 +62,18 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
         },
       );
     } catch (e) {
-      AppLogger.error('Unexpected error loading tasks', e, null, 'ManageTasksBloc');
+      AppLogger.error(
+        'Unexpected error loading tasks',
+        e,
+        null,
+        'ManageTasksBloc',
+      );
       emit(const ManageTasksError(message: 'Failed to load tasks'));
     }
   }
 
   /// Reorder task after drag & drop
-  void _onReorderTask(
-    ReorderTask event,
-    Emitter<ManageTasksState> emit,
-  ) {
+  void _onReorderTask(ReorderTask event, Emitter<ManageTasksState> emit) {
     if (state is! ManageTasksLoaded) return;
 
     final currentState = state as ManageTasksLoaded;
@@ -94,10 +95,7 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
       'ManageTasksBloc',
     );
 
-    emit(ManageTasksLoaded(
-      tasks: updatedTasks,
-      hasChanges: hasChanges,
-    ));
+    emit(ManageTasksLoaded(tasks: updatedTasks, hasChanges: hasChanges));
   }
 
   /// Toggle task visibility (hide/show)
@@ -122,10 +120,7 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
       'ManageTasksBloc',
     );
 
-    emit(ManageTasksLoaded(
-      tasks: tasks,
-      hasChanges: hasChanges,
-    ));
+    emit(ManageTasksLoaded(tasks: tasks, hasChanges: hasChanges));
   }
 
   /// Save all changes to backend
@@ -146,8 +141,10 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
       final visibilityChanges = <String>[];
       for (int i = 0; i < tasks.length; i++) {
         final current = tasks[i];
-        final original =
-            _originalTasks.firstWhere((t) => t.id == current.id, orElse: () => current);
+        final original = _originalTasks.firstWhere(
+          (t) => t.id == current.id,
+          orElse: () => current,
+        );
 
         if (current.isHidden != original.isHidden) {
           visibilityChanges.add(current.id!);
@@ -176,10 +173,7 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
       final reorderData = tasks
           .asMap()
           .entries
-          .map((entry) => {
-                'id': entry.value.id!,
-                'sortOrder': entry.key,
-              })
+          .map((entry) => {'id': entry.value.id!, 'sortOrder': entry.key})
           .toList();
 
       AppLogger.info('Reordering ${tasks.length} tasks', 'ManageTasksBloc');
@@ -196,7 +190,10 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
           emit(ManageTasksError(message: failure.message));
         },
         (_) async {
-          AppLogger.success('All changes saved successfully', 'ManageTasksBloc');
+          AppLogger.success(
+            'All changes saved successfully',
+            'ManageTasksBloc',
+          );
           emit(const ManageTasksSaved());
         },
       );
@@ -212,10 +209,12 @@ class ManageTasksBloc extends Bloc<ManageTasksEvent, ManageTasksState> {
     Emitter<ManageTasksState> emit,
   ) {
     AppLogger.info('Resetting task changes', 'ManageTasksBloc');
-    emit(ManageTasksLoaded(
-      tasks: _originalTasks.map((t) => t).toList(),
-      hasChanges: false,
-    ));
+    emit(
+      ManageTasksLoaded(
+        tasks: _originalTasks.map((t) => t).toList(),
+        hasChanges: false,
+      ),
+    );
   }
 
   /// Check if there are any changes compared to original

@@ -30,7 +30,12 @@ class HouseRepository {
 
       return Right(house);
     } on ServerException catch (e) {
-      AppLogger.error('Create house failed', e.message, null, 'HouseRepository');
+      AppLogger.error(
+        'Create house failed',
+        e.message,
+        null,
+        'HouseRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'HouseRepository');
@@ -137,7 +142,10 @@ class HouseRepository {
       final inviteData = _apiClient.unwrapResponse(response.data);
       final invite = HouseInvite.fromJson(inviteData as Map<String, dynamic>);
 
-      AppLogger.success('Got invite code: ${invite.inviteCode}', 'HouseRepository');
+      AppLogger.success(
+        'Got invite code: ${invite.inviteCode}',
+        'HouseRepository',
+      );
 
       return Right(invite);
     } on ServerException catch (e) {
@@ -157,15 +165,24 @@ class HouseRepository {
     try {
       AppLogger.info('Previewing house: $code', 'HouseRepository');
 
-      final response = await _apiClient.get('${ApiConstants.housesPreview}/$code/preview');
+      final response = await _apiClient.get(
+        '${ApiConstants.housesPreview}/$code/preview',
+      );
       final previewData = _apiClient.unwrapResponse(response.data);
-      final preview = HousePreview.fromJson(previewData as Map<String, dynamic>);
+      final preview = HousePreview.fromJson(
+        previewData as Map<String, dynamic>,
+      );
 
       AppLogger.success('Preview loaded: ${preview.name}', 'HouseRepository');
 
       return Right(preview);
     } on ServerException catch (e) {
-      AppLogger.error('Preview house failed', e.message, null, 'HouseRepository');
+      AppLogger.error(
+        'Preview house failed',
+        e.message,
+        null,
+        'HouseRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'HouseRepository');

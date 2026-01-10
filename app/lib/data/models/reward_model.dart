@@ -45,12 +45,12 @@ class RewardModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        cost,
-        icon,
-        description,
-        isActive,
-        createdAt,
-      ];
+    id,
+    title,
+    cost,
+    icon,
+    description,
+    isActive,
+    createdAt,
+  ];
 }

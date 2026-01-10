@@ -20,7 +20,10 @@ class TaskRepository {
     String locale = 'en',
   }) async {
     try {
-      AppLogger.info('Fetching task templates for locale: $locale', 'TaskRepository');
+      AppLogger.info(
+        'Fetching task templates for locale: $locale',
+        'TaskRepository',
+      );
 
       final response = await _apiClient.get(
         ApiConstants.taskTemplates,
@@ -31,10 +34,18 @@ class TaskRepository {
       final templates = (data['templates'] as List<dynamic>? ?? [])
           .cast<Map<String, dynamic>>();
 
-      AppLogger.success('Loaded ${templates.length} templates', 'TaskRepository');
+      AppLogger.success(
+        'Loaded ${templates.length} templates',
+        'TaskRepository',
+      );
       return Right(templates);
     } on ServerException catch (e) {
-      AppLogger.error('Get templates failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Get templates failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'TaskRepository');
@@ -53,16 +64,21 @@ class TaskRepository {
       AppLogger.info('Calling needsTaskSeeding API...', 'TaskRepository');
       final response = await _apiClient.get(ApiConstants.tasksNeedsSeeding);
       AppLogger.info('Raw response: ${response.data}', 'TaskRepository');
-      
+
       final data = _apiClient.unwrapResponse(response.data);
       AppLogger.info('Unwrapped data: $data', 'TaskRepository');
-      
+
       final needsSeeding = data['needsSeeding'] as bool? ?? false;
       AppLogger.info('Parsed needsSeeding: $needsSeeding', 'TaskRepository');
-      
+
       return Right(needsSeeding);
     } on ServerException catch (e) {
-      AppLogger.error('Check seeding status failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Check seeding status failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Check seeding status failed', e, null, 'TaskRepository');
@@ -127,7 +143,10 @@ class TaskRepository {
     Map<String, dynamic> taskData,
   ) async {
     try {
-      final response = await _apiClient.post(ApiConstants.tasks, data: taskData);
+      final response = await _apiClient.post(
+        ApiConstants.tasks,
+        data: taskData,
+      );
       final data = _apiClient.unwrapResponse(response.data);
       return Right(data as Map<String, dynamic>? ?? {});
     } on ServerException catch (e) {
@@ -185,7 +204,12 @@ class TaskRepository {
       final data = _apiClient.unwrapResponse(response.data);
       return Right(data as Map<String, dynamic>? ?? {});
     } on ServerException catch (e) {
-      AppLogger.error('Toggle visibility failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Toggle visibility failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Toggle visibility failed', e, null, 'TaskRepository');
@@ -204,7 +228,12 @@ class TaskRepository {
       final data = _apiClient.unwrapResponse(response.data);
       return Right(data as Map<String, dynamic>? ?? {});
     } on ServerException catch (e) {
-      AppLogger.error('Toggle favorite failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Toggle favorite failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Toggle favorite failed', e, null, 'TaskRepository');
@@ -223,7 +252,12 @@ class TaskRepository {
       );
       return const Right(null);
     } on ServerException catch (e) {
-      AppLogger.error('Reorder tasks failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Reorder tasks failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Reorder tasks failed', e, null, 'TaskRepository');
@@ -245,7 +279,12 @@ class TaskRepository {
       final data = _apiClient.unwrapResponse(response.data);
       return Right(CustomTaskModel.fromJson(data as Map<String, dynamic>));
     } on ServerException catch (e) {
-      AppLogger.error('Create custom task failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Create custom task failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Create custom task failed', e, null, 'TaskRepository');
@@ -264,7 +303,12 @@ class TaskRepository {
           .toList();
       return Right(tasks);
     } on ServerException catch (e) {
-      AppLogger.error('Get custom tasks failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Get custom tasks failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Get custom tasks failed', e, null, 'TaskRepository');
@@ -278,7 +322,12 @@ class TaskRepository {
       await _apiClient.delete('${ApiConstants.tasksCustom}/$taskId');
       return const Right(null);
     } on ServerException catch (e) {
-      AppLogger.error('Delete custom task failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Delete custom task failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Delete custom task failed', e, null, 'TaskRepository');
@@ -297,7 +346,12 @@ class TaskRepository {
       final data = _apiClient.unwrapResponse(response.data);
       return Right(CustomTaskModel.fromJson(data as Map<String, dynamic>));
     } on ServerException catch (e) {
-      AppLogger.error('Toggle favorite failed', e.message, null, 'TaskRepository');
+      AppLogger.error(
+        'Toggle favorite failed',
+        e.message,
+        null,
+        'TaskRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Toggle favorite failed', e, null, 'TaskRepository');

@@ -16,9 +16,11 @@ class RewardRepository {
       final rewards = data.map((json) => RewardModel.fromJson(json)).toList();
       return Right(rewards);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        message: e.response?.data['message'] ?? 'Failed to fetch rewards',
-      ));
+      return Left(
+        ServerFailure(
+          message: e.response?.data['message'] ?? 'Failed to fetch rewards',
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
@@ -29,9 +31,11 @@ class RewardRepository {
       await _apiClient.post('/rewards/$rewardId/redeem', data: {});
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(
-        message: e.response?.data['message'] ?? 'Failed to redeem reward',
-      ));
+      return Left(
+        ServerFailure(
+          message: e.response?.data['message'] ?? 'Failed to redeem reward',
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

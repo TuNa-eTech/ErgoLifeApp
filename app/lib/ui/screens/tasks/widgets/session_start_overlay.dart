@@ -103,10 +103,7 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildGlassButton(
-            icon: Icons.close,
-            onTap: widget.onCancel,
-          ),
+          _buildGlassButton(icon: Icons.close, onTap: widget.onCancel),
           Text(
             'Ready to Start',
             style: TextStyle(
@@ -137,15 +134,9 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
-            child: Icon(
-              icon,
-              color: Colors.grey[700],
-              size: 22,
-            ),
+            child: Icon(icon, color: Colors.grey[700], size: 22),
           ),
         ),
       ),
@@ -202,10 +193,7 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.secondary,
-          ],
+          colors: [AppColors.primary, AppColors.secondary],
         ),
         boxShadow: [
           BoxShadow(
@@ -221,11 +209,7 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
         ],
       ),
       child: Center(
-        child: Icon(
-          widget.task.icon,
-          size: 56,
-          color: Colors.white,
-        ),
+        child: Icon(widget.task.icon, size: 56, color: Colors.white),
       ),
     );
   }
@@ -339,10 +323,7 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.secondary,
-                      Color(0xFFFF8C00),
-                    ],
+                    colors: [AppColors.secondary, Color(0xFFFF8C00)],
                   ),
                   boxShadow: [
                     BoxShadow(

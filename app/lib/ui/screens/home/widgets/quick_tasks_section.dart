@@ -219,7 +219,9 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: widget.isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            color: widget.isDark
+                ? AppColors.textMainDark
+                : AppColors.textMainLight,
           ),
         ),
         const SizedBox(width: 10),
@@ -233,7 +235,9 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
             '${widget.tasks.length} Active',
             style: TextStyle(
               fontSize: 12,
-              color: widget.isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              color: widget.isDark
+                  ? AppColors.textSubDark
+                  : AppColors.textSubLight,
             ),
           ),
         ),
@@ -241,7 +245,9 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
         IconButton(
           icon: Icon(
             Icons.more_vert,
-            color: widget.isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            color: widget.isDark
+                ? AppColors.textMainDark
+                : AppColors.textMainLight,
           ),
           onPressed: () async {
             final result = await context.push('/manage-tasks');

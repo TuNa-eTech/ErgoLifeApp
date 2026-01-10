@@ -29,18 +29,12 @@ class HouseLoaded extends HouseState {
   final HouseModel house;
   final HouseInvite? inviteDetails;
 
-  const HouseLoaded({
-    required this.house,
-    this.inviteDetails,
-  });
+  const HouseLoaded({required this.house, this.inviteDetails});
 
   /// Check if current user is owner
   bool isOwner(String userId) => house.isOwner(userId);
 
-  HouseLoaded copyWith({
-    HouseModel? house,
-    HouseInvite? inviteDetails,
-  }) {
+  HouseLoaded copyWith({HouseModel? house, HouseInvite? inviteDetails}) {
     return HouseLoaded(
       house: house ?? this.house,
       inviteDetails: inviteDetails ?? this.inviteDetails,

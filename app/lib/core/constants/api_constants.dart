@@ -49,4 +49,3 @@ class ApiConstants {
   static const String contentTypeJson = 'application/json';
   static const String bearerPrefix = 'Bearer ';
 }
-

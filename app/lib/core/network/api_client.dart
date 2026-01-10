@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/constants/api_constants.dart';
 import 'package:ergo_life_app/core/errors/exceptions.dart';
-import 'package:ergo_life_app/core/network/logging_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
+import 'package:ergo_life_app/core/utils/talker_config.dart';
 
 class ApiClient {
   late final Dio _dio;
@@ -25,9 +26,18 @@ class ApiClient {
   }
 
   void _setupInterceptors() {
-    // Add logging interceptor if enabled
+    // Add Talker Dio logger if logging is enabled
     if (AppConfig.enableLogging) {
-      _dio.interceptors.add(LoggingInterceptor());
+      _dio.interceptors.add(
+        TalkerDioLogger(
+          talker: TalkerConfig.talker,
+          settings: const TalkerDioLoggerSettings(
+            printRequestHeaders: false,
+            printResponseHeaders: false,
+            printResponseMessage: true,
+          ),
+        ),
+      );
     }
 
     // Add auth token interceptor
@@ -58,7 +68,8 @@ class ApiClient {
   /// Unwrap backend response to get actual data
   /// Backend wraps responses in {success: bool, data: {...}} format
   dynamic unwrapResponse(dynamic responseData) {
-    if (responseData is Map<String, dynamic> && responseData.containsKey('data')) {
+    if (responseData is Map<String, dynamic> &&
+        responseData.containsKey('data')) {
       return responseData['data'];
     }
     return responseData;

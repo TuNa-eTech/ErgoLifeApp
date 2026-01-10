@@ -33,7 +33,10 @@ class ThemeConfig {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -92,7 +95,10 @@ class ThemeConfig {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF2C1F18),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

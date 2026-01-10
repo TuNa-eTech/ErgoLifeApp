@@ -409,7 +409,10 @@ class ActiveSessionView extends StatelessWidget {
     );
   }
 
-  void _showCompletionDialog(BuildContext context, SessionCompleted state) async {
+  void _showCompletionDialog(
+    BuildContext context,
+    SessionCompleted state,
+  ) async {
     // Check if milestone dialog should be shown
     final streakInfo = state.activityResponse?.streak;
     if (streakInfo != null && streakInfo.isMilestone) {
@@ -417,9 +420,8 @@ class ActiveSessionView extends StatelessWidget {
       await showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (ctx) => StreakMilestoneDialog(
-          streakDays: streakInfo.currentStreak,
-        ),
+        builder: (ctx) =>
+            StreakMilestoneDialog(streakDays: streakInfo.currentStreak),
       );
     }
 
@@ -442,7 +444,10 @@ class ActiveSessionView extends StatelessWidget {
             children: [
               Text(
                 'You earned ${state.pointsEarned} points!',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text('New balance: ${state.newWalletBalance} EP'),
@@ -451,11 +456,11 @@ class ActiveSessionView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: streakInfo.usedFreeze 
+                    color: streakInfo.usedFreeze
                         ? Colors.orange.shade50
                         : streakInfo.wasReset
-                            ? Colors.grey.shade100
-                            : Colors.green.shade50,
+                        ? Colors.grey.shade100
+                        : Colors.green.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -465,8 +470,8 @@ class ActiveSessionView extends StatelessWidget {
                       color: streakInfo.usedFreeze
                           ? Colors.orange.shade900
                           : streakInfo.wasReset
-                              ? Colors.grey.shade700
-                              : Colors.green.shade900,
+                          ? Colors.grey.shade700
+                          : Colors.green.shade900,
                     ),
                   ),
                 ),

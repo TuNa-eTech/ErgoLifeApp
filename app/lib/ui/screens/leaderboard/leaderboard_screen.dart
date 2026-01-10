@@ -9,10 +9,7 @@ import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 class LeaderboardScreen extends StatelessWidget {
   final LeaderboardBloc leaderboardBloc;
 
-  const LeaderboardScreen({
-    super.key,
-    required this.leaderboardBloc,
-  });
+  const LeaderboardScreen({super.key, required this.leaderboardBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +28,9 @@ class LeaderboardView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         title: const Text('Leaderboard'),
         centerTitle: true,
@@ -74,18 +72,15 @@ class LeaderboardView extends StatelessWidget {
                     ),
                   ),
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final entry = state.runnersUp[index];
-                        return _buildRankingItem(
-                          context,
-                          entry,
-                          state.isMe(entry),
-                          isDark,
-                        );
-                      },
-                      childCount: state.runnersUp.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final entry = state.runnersUp[index];
+                      return _buildRankingItem(
+                        context,
+                        entry,
+                        state.isMe(entry),
+                        isDark,
+                      );
+                    }, childCount: state.runnersUp.length),
                   ),
                   const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
                 ],
@@ -110,9 +105,9 @@ class LeaderboardView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context
-                        .read<LeaderboardBloc>()
-                        .add(const RefreshLeaderboard()),
+                    onPressed: () => context.read<LeaderboardBloc>().add(
+                      const RefreshLeaderboard(),
+                    ),
                     child: const Text('Try Again'),
                   ),
                 ],
@@ -255,8 +250,8 @@ class LeaderboardView extends StatelessWidget {
       decoration: BoxDecoration(
         color: isMe
             ? (isDark
-                ? AppColors.primary.withValues(alpha: 0.2)
-                : AppColors.primary.withValues(alpha: 0.1))
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primary.withValues(alpha: 0.1))
             : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
         borderRadius: BorderRadius.circular(12),
         border: isMe
@@ -271,8 +266,7 @@ class LeaderboardView extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color:
-                  isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(

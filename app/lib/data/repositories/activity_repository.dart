@@ -48,7 +48,12 @@ class ActivityRepository {
 
       return Right(activityResponse);
     } on ServerException catch (e) {
-      AppLogger.error('Create activity failed', e.message, null, 'ActivityRepository');
+      AppLogger.error(
+        'Create activity failed',
+        e.message,
+        null,
+        'ActivityRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'ActivityRepository');
@@ -73,7 +78,12 @@ class ActivityRepository {
         }
       }
 
-      AppLogger.error('Create activity failed', errorMessage, null, 'ActivityRepository');
+      AppLogger.error(
+        'Create activity failed',
+        errorMessage,
+        null,
+        'ActivityRepository',
+      );
       return Left(ServerFailure(message: errorMessage));
     } catch (e) {
       AppLogger.error('Unexpected error', e, null, 'ActivityRepository');
@@ -91,10 +101,7 @@ class ActivityRepository {
     try {
       AppLogger.info('Fetching activities page $page', 'ActivityRepository');
 
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'limit': limit,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
       if (fromDate != null) {
         queryParams['fromDate'] = fromDate.toIso8601String();
       }
@@ -118,7 +125,12 @@ class ActivityRepository {
 
       return Right(paginatedActivities);
     } on ServerException catch (e) {
-      AppLogger.error('Get activities failed', e.message, null, 'ActivityRepository');
+      AppLogger.error(
+        'Get activities failed',
+        e.message,
+        null,
+        'ActivityRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'ActivityRepository');
@@ -157,7 +169,12 @@ class ActivityRepository {
 
       return Right(leaderboard);
     } on ServerException catch (e) {
-      AppLogger.error('Get leaderboard failed', e.message, null, 'ActivityRepository');
+      AppLogger.error(
+        'Get leaderboard failed',
+        e.message,
+        null,
+        'ActivityRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'ActivityRepository');
@@ -169,11 +186,12 @@ class ActivityRepository {
   }
 
   /// Get activity stats for a period
-  Future<Either<Failure, StatsModel>> getStats({
-    String period = 'week',
-  }) async {
+  Future<Either<Failure, StatsModel>> getStats({String period = 'week'}) async {
     try {
-      AppLogger.info('Fetching stats for period: $period', 'ActivityRepository');
+      AppLogger.info(
+        'Fetching stats for period: $period',
+        'ActivityRepository',
+      );
 
       final response = await _apiClient.get(
         ApiConstants.activitiesStats,
@@ -188,7 +206,12 @@ class ActivityRepository {
 
       return Right(stats);
     } on ServerException catch (e) {
-      AppLogger.error('Get stats failed', e.message, null, 'ActivityRepository');
+      AppLogger.error(
+        'Get stats failed',
+        e.message,
+        null,
+        'ActivityRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'ActivityRepository');

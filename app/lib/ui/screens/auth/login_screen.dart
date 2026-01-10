@@ -10,11 +10,6 @@ import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 
-
-
-
-
-
 class LoginScreen extends StatefulWidget {
   final AuthBloc authBloc;
 
@@ -41,10 +36,8 @@ class _LoginScreenContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = AppColors.secondary;
-    final secondaryColor =
-        isDark ? Colors.white : AppColors.textMainLight;
-    final bgColor =
-        isDark ? AppColors.backgroundDark : const Color(0xFFF2F4F7);
+    final secondaryColor = isDark ? Colors.white : AppColors.textMainLight;
+    final bgColor = isDark ? AppColors.backgroundDark : const Color(0xFFF2F4F7);
     final surfaceColor = isDark ? AppColors.surfaceDark : Colors.white;
 
     return BlocListener<AuthBloc, AuthState>(
@@ -90,9 +83,7 @@ class _LoginScreenContent extends StatelessWidget {
                           onTap: isLoading
                               ? null
                               : () {
-                                  context
-                                      .read<LocaleCubit>()
-                                      .toggleLocale();
+                                  context.read<LocaleCubit>().toggleLocale();
                                 },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -121,8 +112,9 @@ class _LoginScreenContent extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  Localizations.localeOf(context)
-                                              .languageCode ==
+                                  Localizations.localeOf(
+                                            context,
+                                          ).languageCode ==
                                           'vi'
                                       ? 'VI'
                                       : 'EN',
@@ -221,8 +213,8 @@ class _LoginScreenContent extends StatelessWidget {
                               text: 'Continue with Google',
                               onPressed: () {
                                 context.read<AuthBloc>().add(
-                                      const AuthGoogleSignInRequested(),
-                                    );
+                                  const AuthGoogleSignInRequested(),
+                                );
                               },
                             ),
                             const SizedBox(height: 16),
@@ -238,8 +230,8 @@ class _LoginScreenContent extends StatelessWidget {
                               text: 'Continue with Apple',
                               onPressed: () {
                                 context.read<AuthBloc>().add(
-                                      const AuthAppleSignInRequested(),
-                                    );
+                                  const AuthAppleSignInRequested(),
+                                );
                               },
                             ),
                           ],
@@ -312,10 +304,7 @@ class _LoginScreenContent extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.arrow_forward,
-                  color: Colors.grey[300],
-                ),
+                Icon(Icons.arrow_forward, color: Colors.grey[300]),
               ],
             ),
           ),

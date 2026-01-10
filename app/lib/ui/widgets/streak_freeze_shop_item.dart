@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Shop card for purchasing Streak Freeze
-/// 
+///
 /// Visibility: Shows when currentStreak >= 3 AND streakFreezeCount < 2
 class StreakFreezeShopItem extends StatefulWidget {
   final int currentStreak;
@@ -107,10 +107,7 @@ class _StreakFreezeShopItemState extends State<StreakFreezeShopItem> {
         children: [
           Row(
             children: [
-              const Text(
-                '🛡️',
-                style: TextStyle(fontSize: 32),
-              ),
+              const Text('🛡️', style: TextStyle(fontSize: 32)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -126,10 +123,7 @@ class _StreakFreezeShopItemState extends State<StreakFreezeShopItem> {
                     const SizedBox(height: 2),
                     Text(
                       'Protect your streak for 1 day',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -147,8 +141,9 @@ class _StreakFreezeShopItemState extends State<StreakFreezeShopItem> {
             child: ElevatedButton(
               onPressed: _canBuy ? _handlePurchase : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    _canBuy ? const Color(0xFFFF6B00) : Colors.grey[300],
+                backgroundColor: _canBuy
+                    ? const Color(0xFFFF6B00)
+                    : Colors.grey[300],
                 foregroundColor: _canBuy ? Colors.white : Colors.grey[600],
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

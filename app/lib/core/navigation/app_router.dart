@@ -81,7 +81,9 @@ class AppRouter {
                 path: leaderboard,
                 name: 'leaderboard',
                 pageBuilder: (context, state) => NoTransitionPage(
-                  child: LeaderboardScreen(leaderboardBloc: sl<LeaderboardBloc>()),
+                  child: LeaderboardScreen(
+                    leaderboardBloc: sl<LeaderboardBloc>(),
+                  ),
                 ),
               ),
             ],

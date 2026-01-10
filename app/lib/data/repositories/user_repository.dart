@@ -37,7 +37,12 @@ class UserRepository {
       AppLogger.success('Profile updated', 'UserRepository');
       return Right(user);
     } on ServerException catch (e) {
-      AppLogger.error('Update profile failed', e.message, null, 'UserRepository');
+      AppLogger.error(
+        'Update profile failed',
+        e.message,
+        null,
+        'UserRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {
       AppLogger.error('Network error', e.message, null, 'UserRepository');
@@ -57,7 +62,12 @@ class UserRepository {
       );
       return const Right(null);
     } on ServerException catch (e) {
-      AppLogger.error('Update FCM token failed', e.message, null, 'UserRepository');
+      AppLogger.error(
+        'Update FCM token failed',
+        e.message,
+        null,
+        'UserRepository',
+      );
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       AppLogger.error('Update FCM token failed', e, null, 'UserRepository');

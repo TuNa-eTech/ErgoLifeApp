@@ -55,7 +55,8 @@ class TaskModel extends Equatable {
     // Calculate estimated points: (MET * duration * 3.5 * 70kg) / 200
     final mets = (json['metsValue'] as num?)?.toDouble() ?? 3.5;
     final duration = (json['durationMinutes'] as num?)?.toInt() ?? 15;
-    final estimatedPts = json['estimatedPoints'] as int? ??
+    final estimatedPts =
+        json['estimatedPoints'] as int? ??
         ((mets * duration * 3.5 * 70) / 200).round();
 
     return TaskModel(
@@ -67,7 +68,8 @@ class TaskModel extends Equatable {
       durationMinutes: duration,
       estimatedPoints: estimatedPts,
       metsValue: mets,
-      iconName: json['icon'] as String? ??
+      iconName:
+          json['icon'] as String? ??
           json['iconName'] as String? ??
           'fitness_center',
       animation: json['animation'] as String?,
@@ -228,23 +230,23 @@ class TaskModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        templateId,
-        exerciseName,
-        taskDescription,
-        durationMinutes,
-        estimatedPoints,
-        metsValue,
-        iconName,
-        animation,
-        colorValue,
-        isCustom,
-        category,
-        priority,
-        sortOrder,
-        isHidden,
-        isFavorite,
-      ];
+    id,
+    templateId,
+    exerciseName,
+    taskDescription,
+    durationMinutes,
+    estimatedPoints,
+    metsValue,
+    iconName,
+    animation,
+    colorValue,
+    isCustom,
+    category,
+    priority,
+    sortOrder,
+    isHidden,
+    isFavorite,
+  ];
 }
 
 // PredefinedTasks class has been removed.

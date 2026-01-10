@@ -22,11 +22,9 @@ class AuthService {
   /// Completer for the current Google sign-in attempt
   Completer<UserCredential>? _googleSignInCompleter;
 
-  AuthService({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
+  AuthService({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
+    : _auth = firebaseAuth ?? FirebaseAuth.instance,
+      _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
 
   /// Stream of authentication state changes.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -83,9 +81,7 @@ class AuthService {
           }
 
           // Create Firebase credential (GoogleSignIn v7 only provides idToken)
-          final credential = GoogleAuthProvider.credential(
-            idToken: idToken,
-          );
+          final credential = GoogleAuthProvider.credential(idToken: idToken);
 
           // Sign in to Firebase
           final userCredential = await _auth.signInWithCredential(credential);
@@ -156,10 +152,9 @@ class AuthService {
     );
 
     // Create an OAuthCredential for Firebase
-    final oauthCredential = OAuthProvider('apple.com').credential(
-      idToken: appleCredential.identityToken,
-      rawNonce: rawNonce,
-    );
+    final oauthCredential = OAuthProvider(
+      'apple.com',
+    ).credential(idToken: appleCredential.identityToken, rawNonce: rawNonce);
 
     // Sign in to Firebase with the credential
     final userCredential = await _auth.signInWithCredential(oauthCredential);
@@ -224,10 +219,7 @@ class FirebaseAuthException implements Exception {
   final String code;
   final String message;
 
-  FirebaseAuthException._({
-    required this.code,
-    required this.message,
-  });
+  FirebaseAuthException._({required this.code, required this.message});
 
   @override
   String toString() => 'FirebaseAuthException($code): $message';

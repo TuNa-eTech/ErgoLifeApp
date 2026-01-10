@@ -20,10 +20,7 @@ class SessionPending extends SessionState {
   final TaskModel task;
   final int targetSeconds;
 
-  const SessionPending({
-    required this.task,
-    required this.targetSeconds,
-  });
+  const SessionPending({required this.task, required this.targetSeconds});
 
   /// Get formatted target time as MM:SS
   String get formattedTarget {
@@ -108,10 +105,7 @@ class SessionCompleting extends SessionState {
   final TaskModel task;
   final int totalSeconds;
 
-  const SessionCompleting({
-    required this.task,
-    required this.totalSeconds,
-  });
+  const SessionCompleting({required this.task, required this.totalSeconds});
 
   @override
   List<Object?> get props => [task, totalSeconds];
@@ -133,11 +127,11 @@ class SessionCompleted extends SessionState {
 
   @override
   List<Object?> get props => [
-        activity,
-        pointsEarned,
-        newWalletBalance,
-        activityResponse,
-      ];
+    activity,
+    pointsEarned,
+    newWalletBalance,
+    activityResponse,
+  ];
 }
 
 /// Session failed to complete
@@ -146,11 +140,7 @@ class SessionError extends SessionState {
   final TaskModel? task;
   final int? elapsedSeconds;
 
-  const SessionError({
-    required this.message,
-    this.task,
-    this.elapsedSeconds,
-  });
+  const SessionError({required this.message, this.task, this.elapsedSeconds});
 
   /// Whether we can retry
   bool get canRetry => task != null && elapsedSeconds != null;

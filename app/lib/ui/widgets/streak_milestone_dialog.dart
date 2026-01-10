@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// Celebration dialog shown when reaching streak milestones
-/// 
+///
 /// Milestones: 7, 14, 30, 60, 100 days
 class StreakMilestoneDialog extends StatelessWidget {
   final int streakDays;
 
-  const StreakMilestoneDialog({
-    super.key,
-    required this.streakDays,
-  });
+  const StreakMilestoneDialog({super.key, required this.streakDays});
 
   static const List<int> milestones = [7, 14, 30, 60, 100, 365];
 
@@ -17,10 +14,7 @@ class StreakMilestoneDialog extends StatelessWidget {
   static bool isMilestone(int streak) => milestones.contains(streak);
 
   /// Show milestone dialog if appropriate
-  static Future<void> showIfMilestone(
-    BuildContext context,
-    int streak,
-  ) async {
+  static Future<void> showIfMilestone(BuildContext context, int streak) async {
     if (isMilestone(streak)) {
       await showDialog(
         context: context,
@@ -51,9 +45,7 @@ class StreakMilestoneDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
         width: 300,
         padding: const EdgeInsets.all(32),
@@ -75,20 +67,14 @@ class StreakMilestoneDialog extends StatelessWidget {
             // Milestone text
             Text(
               '$streakDays Day Streak!',
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             // Message
             Text(
               _message,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -107,10 +93,7 @@ class StreakMilestoneDialog extends StatelessWidget {
                 ),
                 child: const Text(
                   'Keep it up!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

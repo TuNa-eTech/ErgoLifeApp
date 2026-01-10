@@ -66,11 +66,11 @@ class TasksLoaded extends TasksState {
 
   @override
   List<Object?> get props => [
-        highPriorityTask,
-        availableTasks,
-        recentActivities,
-        currentFilter,
-      ];
+    highPriorityTask,
+    availableTasks,
+    recentActivities,
+    currentFilter,
+  ];
 }
 
 /// Error state

@@ -9,10 +9,7 @@ import 'package:ergo_life_app/data/models/reward_model.dart';
 class RewardsScreen extends StatelessWidget {
   final RewardsBloc rewardsBloc;
 
-  const RewardsScreen({
-    super.key,
-    required this.rewardsBloc,
-  });
+  const RewardsScreen({super.key, required this.rewardsBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +28,9 @@ class RewardsView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         title: const Text('Rewards Shop'),
         centerTitle: true,
@@ -41,43 +40,54 @@ class RewardsView extends StatelessWidget {
       body: BlocConsumer<RewardsBloc, RewardsState>(
         listener: (context, state) {
           if (state is RewardsError) {
-             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           } else if (state is RewardRedeemSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
             );
           }
         },
         builder: (context, state) {
-           if (state is RewardsLoading) {
-             return const Center(child: CircularProgressIndicator());
-           }
-           
-           if (state is RewardsLoaded) {
-             return Column(
-               children: [
-                 _buildBalanceCard(context, state.userBalance, isDark),
-                 Expanded(
-                   child: RefreshIndicator(
-                     onRefresh: () async {
-                       context.read<RewardsBloc>().add(const LoadRewards());
-                     },
-                     child: ListView.builder(
-                       padding: const EdgeInsets.all(16),
-                       itemCount: state.rewards.length,
-                       itemBuilder: (context, index) {
-                         return _buildRewardItem(context, state.rewards[index], state.userBalance, isDark);
-                       },
-                     ),
-                   ),
-                 ),
-               ],
-             );
-           }
-           
-           return const Center(child: Text("No rewards available"));
+          if (state is RewardsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is RewardsLoaded) {
+            return Column(
+              children: [
+                _buildBalanceCard(context, state.userBalance, isDark),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<RewardsBloc>().add(const LoadRewards());
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.rewards.length,
+                      itemBuilder: (context, index) {
+                        return _buildRewardItem(
+                          context,
+                          state.rewards[index],
+                          state.userBalance,
+                          isDark,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return const Center(child: Text("No rewards available"));
         },
       ),
     );
@@ -128,13 +138,22 @@ class RewardsView extends StatelessWidget {
               ),
             ],
           ),
-          const Icon(Icons.account_balance_wallet, color: Colors.white, size: 48),
+          const Icon(
+            Icons.account_balance_wallet,
+            color: Colors.white,
+            size: 48,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildRewardItem(BuildContext context, RewardModel reward, int userBalance, bool isDark) {
+  Widget _buildRewardItem(
+    BuildContext context,
+    RewardModel reward,
+    int userBalance,
+    bool isDark,
+  ) {
     final canAfford = userBalance >= reward.cost;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -142,7 +161,9 @@ class RewardsView extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
       ),
       child: Row(
         children: [
@@ -167,21 +188,25 @@ class RewardsView extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 if (reward.description != null)
-                Text(
-                  reward.description!,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  Text(
+                    reward.description!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
                   ),
-                ),
                 const SizedBox(height: 4),
                 Text(
                   '${reward.cost} EP',
-                   style: const TextStyle(
+                  style: const TextStyle(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.bold,
                   ),
@@ -190,12 +215,14 @@ class RewardsView extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: canAfford 
-              ? () => context.read<RewardsBloc>().add(RedeemReward(reward.id))
-              : null,
+            onPressed: canAfford
+                ? () => context.read<RewardsBloc>().add(RedeemReward(reward.id))
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: canAfford ? AppColors.secondary : Colors.grey,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
             child: const Text('Redeem', style: TextStyle(color: Colors.white)),
           ),

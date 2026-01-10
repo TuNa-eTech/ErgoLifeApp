@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '939742430352',
     projectId: 'ergolife-941d7',
     storageBucket: 'ergolife-941d7.firebasestorage.app',
-    iosClientId: '939742430352-2c39h01inivn8ol7anusdlok2uqa015e.apps.googleusercontent.com',
+    iosClientId:
+        '939742430352-2c39h01inivn8ol7anusdlok2uqa015e.apps.googleusercontent.com',
     iosBundleId: 'com.anhtu.ergolife',
   );
 }

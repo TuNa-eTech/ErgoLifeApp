@@ -31,8 +31,8 @@ class HouseModel extends Equatable {
           : DateTime.now(),
       members: json['members'] != null
           ? (json['members'] as List)
-              .map((e) => HouseMember.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map((e) => HouseMember.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }
@@ -55,7 +55,14 @@ class HouseModel extends Equatable {
   bool isOwner(String userId) => ownerId == userId;
 
   @override
-  List<Object?> get props => [id, name, inviteCode, ownerId, createdAt, members];
+  List<Object?> get props => [
+    id,
+    name,
+    inviteCode,
+    ownerId,
+    createdAt,
+    members,
+  ];
 }
 
 /// Model representing a house member
@@ -77,7 +84,7 @@ class HouseMember extends Equatable {
   factory HouseMember.fromJson(Map<String, dynamic> json) {
     // API may return flat member object or nested 'user' object
     final userData = json['user'] as Map<String, dynamic>? ?? json;
-    
+
     return HouseMember(
       user: UserModel.fromJson(userData),
       weeklyPoints: json['weeklyPoints'] as int? ?? 0,
@@ -151,7 +158,8 @@ class HousePreview {
       memberCount: json['memberCount'] as int? ?? 0,
       ownerName: json['ownerName'] as String?,
       isFull: json['isFull'] as bool? ?? false,
-      memberAvatars: (json['memberAvatars'] as List<dynamic>?)
+      memberAvatars:
+          (json['memberAvatars'] as List<dynamic>?)
               ?.map((e) => e as int?)
               .toList() ??
           [],

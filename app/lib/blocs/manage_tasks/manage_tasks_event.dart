@@ -15,10 +15,7 @@ class LoadManageTasks extends ManageTasksEvent {
 
 /// Reorder tasks after drag & drop
 class ReorderTask extends ManageTasksEvent {
-  const ReorderTask({
-    required this.oldIndex,
-    required this.newIndex,
-  });
+  const ReorderTask({required this.oldIndex, required this.newIndex});
 
   final int oldIndex;
   final int newIndex;

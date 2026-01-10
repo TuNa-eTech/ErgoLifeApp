@@ -9,6 +9,8 @@ import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart'; // [NEW]
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+import 'package:ergo_life_app/core/utils/talker_config.dart';
 // Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
@@ -228,18 +230,28 @@ class HomeView extends StatelessWidget {
           SliverAppBar(
             pinned: true,
             floating: false,
-            backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+            backgroundColor: isDark
+                ? AppColors.backgroundDark
+                : AppColors.backgroundLight,
             surfaceTintColor: isDark ? AppColors.surfaceDark : Colors.white,
             elevation: 0,
-            scrolledUnderElevation: 4, 
-            toolbarHeight: 70, 
-            automaticallyImplyLeading: false, 
+            scrolledUnderElevation: 4,
+            toolbarHeight: 70,
+            automaticallyImplyLeading: false,
             titleSpacing: 0,
             title: HomeHeader(
               isDark: isDark,
               userName: state.firstName,
               onNotificationTap: () {
                 // TODO: Handle notification tap
+              },
+              onAvatarLongPress: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        TalkerScreen(talker: TalkerConfig.talker),
+                  ),
+                );
               },
             ),
           ),
@@ -250,7 +262,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 12),
-                
+
                 // New Compact Stats Bar
                 CompactStatsBar(
                   isDark: isDark,
@@ -277,7 +289,7 @@ class HomeView extends StatelessWidget {
                     context.read<HomeBloc>().add(const RefreshHomeData());
                   },
                 ),
-                
+
                 const SizedBox(height: 100), // Bottom padding
               ],
             ),

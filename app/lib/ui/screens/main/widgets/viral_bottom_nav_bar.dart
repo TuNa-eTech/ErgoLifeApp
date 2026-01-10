@@ -34,15 +34,17 @@ class _ViralBottomNavBarState extends State<ViralBottomNavBar>
     );
 
     _scaleAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 1.0, end: 1.2).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeOutBack),
-      );
+      return Tween<double>(
+        begin: 1.0,
+        end: 1.2,
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOutBack));
     }).toList();
 
     _rotateAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 0.0, end: 0.1).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
-      );
+      return Tween<double>(
+        begin: 0.0,
+        end: 0.1,
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     }).toList();
   }
 
@@ -214,8 +216,8 @@ class _ViralBottomNavBarState extends State<ViralBottomNavBar>
                     color: isSelected
                         ? Colors.white
                         : (isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight),
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight),
                     size: 26,
                   ),
                 ),
@@ -226,13 +228,12 @@ class _ViralBottomNavBarState extends State<ViralBottomNavBar>
                 curve: Curves.easeInOut,
                 style: TextStyle(
                   fontSize: isSelected ? 11 : 10,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected
                       ? AppColors.primary
                       : (isDark
-                          ? AppColors.textSubDark
-                          : AppColors.textSubLight),
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight),
                   letterSpacing: 0.5,
                 ),
                 child: Text(label),
