@@ -109,6 +109,7 @@ class _TasksViewState extends State<TasksView>
           // ViralBottomNavBar height (76) + margin (16) + gap (30) = 122
           padding: const EdgeInsets.only(bottom: 100),
           child: FloatingActionButton(
+            heroTag: 'tasks_fab',
             onPressed: () => context.push(AppRouter.createTask),
             backgroundColor: AppColors.secondary,
             shape: const CircleBorder(),

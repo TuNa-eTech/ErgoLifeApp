@@ -5,12 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "app",
+            "name": "app-debug-dev",
             "cwd": "app",
             "request": "launch",
             "type": "dart",
             "args": [
                 "--dart-define-from-file=dart_define/dev.env"
+            ]
+        },
+        {
+            "name": "app-debug-prod",
+            "cwd": "app",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=dart_define/prod.env"
             ]
         },
         {

@@ -16,7 +16,6 @@ import 'package:ergo_life_app/blocs/house/house_state.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/ui/screens/profile/widgets/house_card.dart';
-import 'package:ergo_life_app/ui/screens/profile/widgets/activity_heatmap.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -38,9 +37,14 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class ProfileView extends StatelessWidget {
+class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
 
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -183,9 +187,6 @@ class ProfileView extends StatelessWidget {
                       return const HouseCard();
                     },
                   ),
-
-                    const SizedBox(height: 20),
-                    ActivityHeatmap(isDark: isDark, days: 14),
 
                     const SizedBox(height: 20),
                     _buildSettingsGroup(context, isDark),
