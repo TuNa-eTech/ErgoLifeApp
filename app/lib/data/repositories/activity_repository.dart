@@ -144,11 +144,14 @@ class ActivityRepository {
   /// Get leaderboard for a specific week
   Future<Either<Failure, LeaderboardResponse>> getLeaderboard({
     String? week,
+    LeaderboardScope scope = LeaderboardScope.house,
   }) async {
     try {
-      AppLogger.info('Fetching leaderboard', 'ActivityRepository');
+      AppLogger.info('Fetching leaderboard (scope: ${scope.name})', 'ActivityRepository');
 
-      final queryParams = <String, dynamic>{};
+      final queryParams = <String, dynamic>{
+        'scope': scope.name,
+      };
       if (week != null) queryParams['week'] = week;
 
       final response = await _apiClient.get(

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 
 /// LeaderboardBloc events
 abstract class LeaderboardEvent extends Equatable {
@@ -11,11 +12,12 @@ abstract class LeaderboardEvent extends Equatable {
 /// Load leaderboard for current or specific week
 class LoadLeaderboard extends LeaderboardEvent {
   final String? week;
+  final LeaderboardScope? scope;
 
-  const LoadLeaderboard({this.week});
+  const LoadLeaderboard({this.week, this.scope});
 
   @override
-  List<Object?> get props => [week];
+  List<Object?> get props => [week, scope];
 }
 
 /// Refresh leaderboard (pull-to-refresh)

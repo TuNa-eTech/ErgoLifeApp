@@ -1,22 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_state.dart';
+import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
-import 'package:ergo_life_app/data/services/storage_service.dart';
 
 /// BLoC for managing leaderboard state
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   final ActivityRepository _activityRepository;
-  final StorageService _storageService;
-
+  
   String? _currentWeek;
+  LeaderboardScope? _currentScope;
 
   LeaderboardBloc({
     required ActivityRepository activityRepository,
-    required StorageService storageService,
   }) : _activityRepository = activityRepository,
-       _storageService = storageService,
        super(const LeaderboardInitial()) {
     on<LoadLeaderboard>(_onLoadLeaderboard);
     on<RefreshLeaderboard>(_onRefreshLeaderboard);
@@ -31,8 +29,17 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     emit(const LeaderboardLoading());
 
     _currentWeek = event.week;
+    if (event.scope != null) {
+      _currentScope = event.scope;
+    }
 
-    final result = await _activityRepository.getLeaderboard(week: event.week);
+    // Default to house if not set
+    final scope = _currentScope ?? LeaderboardScope.house;
+
+    final result = await _activityRepository.getLeaderboard(
+      week: event.week,
+      scope: scope,
+    );
 
     result.fold(
       (failure) {
@@ -44,7 +51,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         );
 
         // Try loading mock data for demo
-        final mockData = _activityRepository.getMockLeaderboard();
+        final mockData = _activityRepository.getMockLeaderboard(scope: scope);
         emit(
           LeaderboardLoaded(
             leaderboard: mockData,
@@ -73,7 +80,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     Emitter<LeaderboardState> emit,
   ) async {
     AppLogger.info('Refreshing leaderboard...', 'LeaderboardBloc');
-    add(LoadLeaderboard(week: _currentWeek));
+    add(LoadLeaderboard(week: _currentWeek, scope: _currentScope));
   }
 
   /// Get current user ID from storage

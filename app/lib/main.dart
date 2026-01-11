@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
+import 'package:ergo_life_app/blocs/house/house_bloc.dart';
+import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
@@ -26,7 +28,17 @@ void main() async {
   await sl.allReady();
   AppLogger.success('Service locator initialized successfully', 'Main');
 
-  runApp(BlocProvider(create: (_) => LocaleCubit(), child: const MyApp()));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => LocaleCubit()),
+        BlocProvider(
+          create: (_) => sl<HouseBloc>()..add(const LoadHouse()),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

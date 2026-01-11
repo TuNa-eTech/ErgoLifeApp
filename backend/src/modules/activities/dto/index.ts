@@ -103,6 +103,16 @@ export class GetLeaderboardQueryDto {
   @IsOptional()
   @IsString()
   week?: string;
+
+  @ApiPropertyOptional({
+    example: 'house',
+    enum: ['house', 'global'],
+    default: 'house',
+    description: 'Leaderboard scope: house (members) or global (all users)',
+  })
+  @IsOptional()
+  @IsString()
+  scope?: 'house' | 'global' = 'house';
 }
 
 export class GetStatsQueryDto {
@@ -264,6 +274,9 @@ export class LeaderboardEntryDto {
 }
 
 export class LeaderboardResponseDto {
+  @ApiProperty({ example: 'house', enum: ['house', 'global'] })
+  scope: 'house' | 'global';
+
   @ApiProperty({ example: '2025-W51' })
   week: string;
 

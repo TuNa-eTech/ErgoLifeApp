@@ -166,29 +166,61 @@ export class ActivitiesService {
     userId: string,
     query: GetLeaderboardQueryDto,
   ): Promise<LeaderboardResponseDto> {
-    // Get user's house
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { houseId: true },
-    });
-
-    if (!user?.houseId) {
-      throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'You must be in a house to view leaderboard',
-      });
-    }
+    const { scope = 'house' } = query;
 
     // Parse week or use current
     const { weekStart, weekEnd, weekString } = this.getWeekBounds(query.week);
 
-    // Get all members of the house
-    const members = await this.prisma.user.findMany({
-      where: { houseId: user.houseId },
-      select: { id: true, displayName: true, avatarId: true },
-    });
+    let members: { id: string; displayName: string | null; avatarId: number | null }[] = [];
+
+    if (scope === 'house') {
+      // Get user's house
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { houseId: true },
+      });
+
+      if (!user?.houseId) {
+        throw new ForbiddenException({
+          code: 'FORBIDDEN',
+          message: 'You must be in a house to view leaderboard',
+        });
+      }
+
+      // Get all members of the house
+      members = await this.prisma.user.findMany({
+        where: { houseId: user.houseId },
+        select: { id: true, displayName: true, avatarId: true },
+      });
+    } else {
+      // GLOBAL SCOPE
+      // For performance, we should ideally use a raw query or better aggregation,
+      // but for now we'll find top active users in the period.
+      // 1. Get IDs of users with activities in this period
+      const activeUserIds = await this.prisma.activity.groupBy({
+        by: ['userId'],
+        where: {
+          completedAt: {
+            gte: weekStart,
+            lte: weekEnd,
+          },
+        },
+        _sum: { pointsEarned: true },
+        orderBy: { _sum: { pointsEarned: 'desc' } },
+        take: 50, // Limit to top 50 for global
+      });
+
+      // 2. Fetch user details for these IDs
+      const users = await this.prisma.user.findMany({
+        where: { id: { in: activeUserIds.map((u) => u.userId) } },
+        select: { id: true, displayName: true, avatarId: true },
+      });
+
+      members = users;
+    }
 
     // Get activity aggregates for each member
+    // optimization: for global, we already have sum from groupBy, but let's consistency check
     const rankings = await Promise.all(
       members.map(async (member) => {
         const agg = await this.prisma.activity.aggregate({
@@ -223,6 +255,7 @@ export class ActivitiesService {
     }));
 
     return {
+      scope,
       week: weekString,
       weekStart: weekStart.toISOString(),
       weekEnd: weekEnd.toISOString(),

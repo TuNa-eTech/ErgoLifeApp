@@ -35,6 +35,8 @@ import 'package:ergo_life_app/ui/screens/house/create_house_screen.dart';
 // Task management
 import 'package:ergo_life_app/ui/screens/tasks/manage_tasks_screen.dart';
 
+
+
 class AppRouter {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';

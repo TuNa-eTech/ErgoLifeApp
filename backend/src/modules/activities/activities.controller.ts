@@ -65,14 +65,14 @@ export class ActivitiesController {
   @Get('leaderboard')
   @ApiOperation({
     summary: 'Get weekly leaderboard',
-    description: 'Get weekly leaderboard for current house',
+    description: 'Get weekly leaderboard for current house or global',
   })
   @ApiResponse({
     status: 200,
     description: 'Weekly leaderboard',
     type: LeaderboardResponseDto,
   })
-  @ApiResponse({ status: 403, description: 'Not in a house' })
+  @ApiResponse({ status: 403, description: 'Not in a house (if scope=house)' })
   async getLeaderboard(
     @CurrentUser() user: JwtPayload,
     @Query() query: GetLeaderboardQueryDto,

@@ -121,7 +121,7 @@ Future<void> setupServiceLocator() async {
 
   // LeaderboardBloc - factory for fresh data each time
   sl.registerFactory<LeaderboardBloc>(
-    () => LeaderboardBloc(activityRepository: sl(), storageService: sl()),
+    () => LeaderboardBloc(activityRepository: sl()),
   );
 
   // TasksBloc - factory for independent instances
@@ -145,8 +145,8 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
-  // HouseBloc - factory for independent instances
-  sl.registerFactory<HouseBloc>(() => HouseBloc(houseRepository: sl()));
+  // HouseBloc - lazy singleton for shared state
+  sl.registerLazySingleton<HouseBloc>(() => HouseBloc(houseRepository: sl()));
 
   // OnboardingBloc - factory for fresh onboarding state
   sl.registerFactory<OnboardingBloc>(
