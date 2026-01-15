@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
+import 'package:ergo_life_app/ui/screens/stats/task_stats_screen.dart';
 
 /// Compact stats bar displaying Streak, Points, and Time in a single row
 class CompactStatsBar extends StatelessWidget {
@@ -20,7 +21,7 @@ class CompactStatsBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
-        width: double.infinity, // Full width to allow decorations to spread
+        width: double.infinity,
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(20),
@@ -35,90 +36,103 @@ class CompactStatsBar extends StatelessWidget {
             ),
           ],
         ),
-        clipBehavior: Clip.antiAlias, // Clip decorations
-        child: Stack(
-          children: [
-            // Decorative Circle 1 (Top Right)
-            Positioned(
-              top: -20,
-              right: -20,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.08),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            // Decorative Circle 2 (Bottom Left)
-            Positioned(
-              bottom: -15,
-              left: -15,
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.08),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            // Main Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Section Title
-                  const Text(
-                    'YOUR PROGRESS',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.5,
-                      color: AppColors.primary,
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TaskStatsScreen()),
+              );
+            },
+            child: Stack(
+              children: [
+                // Decorative Circle 1 (Top Right)
+                Positioned(
+                  top: -20,
+                  right: -20,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.08),
+                      shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                ),
+                // Decorative Circle 2 (Bottom Left)
+                Positioned(
+                  bottom: -15,
+                  left: -15,
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
 
-                  // Pills Row
-                  Row(
+                // Main Content
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: _buildPill(
-                          icon: Icons.local_fire_department_rounded,
-                          iconColor: Colors.orange,
-                          label: '$currentStreak Day',
-                          bgColor: Colors.orange.withOpacity(0.1),
+                      // Section Title
+                      const Text(
+                        'YOUR PROGRESS',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                          color: AppColors.primary,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildPill(
-                          icon: Icons.stars_rounded,
-                          iconColor: AppColors.primary,
-                          label: '${stats.formattedPoints} pts',
-                          bgColor: AppColors.primary.withOpacity(0.1),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildPill(
-                          icon: Icons.timer_rounded,
-                          iconColor: AppColors.secondary,
-                          label: _formatDuration(stats.totalDurationMinutes),
-                          bgColor: AppColors.secondary.withOpacity(0.1),
-                        ),
+                      const SizedBox(height: 12),
+
+                      // Pills Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildPill(
+                              icon: Icons.local_fire_department_rounded,
+                              iconColor: Colors.orange,
+                              label: '$currentStreak Day',
+                              bgColor: Colors.orange.withOpacity(0.1),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildPill(
+                              icon: Icons.stars_rounded,
+                              iconColor: AppColors.primary,
+                              label: '${stats.formattedPoints} pts',
+                              bgColor: AppColors.primary.withOpacity(0.1),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildPill(
+                              icon: Icons.timer_rounded,
+                              iconColor: AppColors.secondary,
+                              label: _formatDuration(
+                                stats.totalDurationMinutes,
+                              ),
+                              bgColor: AppColors.secondary.withOpacity(0.1),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

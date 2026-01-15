@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
-import 'dart:ui';
 
 /// Modern premium swipe-to-end button for ending active session
 /// Features a glassmorphism style with smooth interactive feedback

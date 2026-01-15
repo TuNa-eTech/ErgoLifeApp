@@ -267,16 +267,41 @@ export class ActivitiesService {
     userId: string,
     query: GetStatsQueryDto,
   ): Promise<StatsResponseDto> {
-    const { period = 'week' } = query;
-    const { startDate, endDate } = this.getPeriodBounds(period);
+    const { period = 'week', taskName, year, month } = query;
 
-    const where = {
+    // Determine date range
+    let startDate: Date;
+    let endDate: Date;
+
+    if (year) {
+      // Custom date filter logic
+      if (month) {
+        // Specific Month in Year
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 0, 23, 59, 59, 999);
+      } else {
+        // Whole Year
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+      }
+    } else {
+      // Standard period logic
+      const bounds = this.getPeriodBounds(period);
+      startDate = bounds.startDate;
+      endDate = bounds.endDate;
+    }
+
+    const where: any = {
       userId,
       completedAt: {
         gte: startDate,
         lte: endDate,
       },
     };
+
+    if (taskName) {
+      where.taskName = taskName;
+    }
 
     // Get aggregates
     const agg = await this.prisma.activity.aggregate({
@@ -288,18 +313,34 @@ export class ActivitiesService {
       _count: true,
     });
 
-    // Get top tasks
-    const topTasks = await this.prisma.activity.groupBy({
-      by: ['taskName'],
-      where,
-      _count: true,
-      _sum: { pointsEarned: true },
-      orderBy: { _sum: { pointsEarned: 'desc' } },
-      take: 5,
-    });
+    // Get top tasks (only if not filtering by specific task)
+    let topTasks: any[] = [];
+    if (!taskName) {
+      const topTasksRaw = await this.prisma.activity.groupBy({
+        by: ['taskName'],
+        where,
+        _count: true,
+        _sum: { pointsEarned: true, durationSeconds: true },
+        orderBy: { _sum: { pointsEarned: 'desc' } },
+        take: 5,
+      });
+      topTasks = topTasksRaw;
+    } else {
+       // If filtering by task, we might want to return just that task as the "top task"
+       topTasks = [{
+           taskName: taskName,
+           _count: agg._count,
+           _sum: { 
+             pointsEarned: agg._sum.pointsEarned || 0,
+             durationSeconds: agg._sum.durationSeconds || 0
+           }
+       }];
+    }
 
     // Estimate calories: Duration(min) × METs × 3.5 × Weight(kg) / 200
     // Using average weight of 70kg and average METs of 3.0
+    // Note: If we had METs in aggregate, it would be more accurate.
+    // For specific task filter, we could look up the task's METs, but for now using average is acceptable or we should aggregate METs * Duration
     const totalMinutes = (agg._sum.durationSeconds || 0) / 60;
     const estimatedCalories = Math.round((totalMinutes * 3.0 * 3.5 * 70) / 200);
 
@@ -310,7 +351,7 @@ export class ActivitiesService {
     });
 
     return {
-      period,
+      period: year ? (month ? `${year}-${month}` : `${year}`) : period,
       totalPoints: agg._sum.pointsEarned || 0,
       totalActivities: agg._count,
       totalDuration: agg._sum.durationSeconds || 0,
@@ -319,10 +360,11 @@ export class ActivitiesService {
         taskName: t.taskName,
         count: t._count,
         totalPoints: t._sum.pointsEarned || 0,
+        totalDuration: t._sum.durationSeconds || 0,
       })),
       streak: {
-        current: user.currentStreak,
-        longest: user.longestStreak,
+        current: user?.currentStreak || 0,
+        longest: user?.longestStreak || 0,
       },
     };
   }

@@ -190,16 +190,26 @@ class ActivityRepository {
   }
 
   /// Get activity stats for a period
-  Future<Either<Failure, StatsModel>> getStats({String period = 'week'}) async {
+  Future<Either<Failure, StatsModel>> getStats({
+    String period = 'week',
+    String? taskName,
+    int? year,
+    int? month,
+  }) async {
     try {
       AppLogger.info(
-        'Fetching stats for period: $period',
+        'Fetching stats for period: $period ${taskName != null ? '(task: $taskName)' : ''} ${year != null ? '(year: $year)' : ''}',
         'ActivityRepository',
       );
 
+      final queryParams = <String, dynamic>{'period': period};
+      if (taskName != null) queryParams['taskName'] = taskName;
+      if (year != null) queryParams['year'] = year;
+      if (month != null) queryParams['month'] = month;
+
       final response = await _apiClient.get(
         ApiConstants.activitiesStats,
-        queryParameters: {'period': period},
+        queryParameters: queryParams,
       );
 
       // Backend wraps response in {success: bool, data: {...}}

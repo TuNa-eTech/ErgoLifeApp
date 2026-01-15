@@ -17,6 +17,7 @@ import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/ui/screens/profile/widgets/house_card.dart';
 import 'package:ergo_life_app/ui/common/common.dart';
+import 'package:ergo_life_app/ui/screens/stats/task_stats_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -312,64 +313,78 @@ class _ProfileViewState extends State<ProfileView> {
     bool isDark,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildCompactStatItem(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
               context,
-              AppLocalizations.of(context)!.totalPoints,
-              '${stats.totalPoints}',
-              Icons.stars_rounded,
-              Colors.amber,
-              isDark,
+              MaterialPageRoute(builder: (_) => const TaskStatsScreen()),
+            );
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildCompactStatItem(
+                    context,
+                    AppLocalizations.of(context)!.totalPoints,
+                    '${stats.totalPoints}',
+                    Icons.stars_rounded,
+                    Colors.amber,
+                    isDark,
+                  ),
+                ),
+                _buildVerticalDivider(isDark),
+                Expanded(
+                  child: _buildCompactStatItem(
+                    context,
+                    AppLocalizations.of(context)!.activities,
+                    '${stats.totalActivities}',
+                    Icons.fitness_center_rounded,
+                    Colors.blue,
+                    isDark,
+                  ),
+                ),
+                _buildVerticalDivider(isDark),
+                Expanded(
+                  child: _buildCompactStatItem(
+                    context,
+                    AppLocalizations.of(context)!.durationStat,
+                    '${stats.totalMinutes ~/ 60}h',
+                    Icons.timer_rounded,
+                    Colors.purple,
+                    isDark,
+                  ),
+                ),
+                _buildVerticalDivider(isDark),
+                Expanded(
+                  child: _buildCompactStatItem(
+                    context,
+                    AppLocalizations.of(context)!.bestStreak,
+                    '${stats.longestStreak}d',
+                    Icons.local_fire_department_rounded,
+                    Colors.orange,
+                    isDark,
+                  ),
+                ),
+              ],
             ),
           ),
-          _buildVerticalDivider(isDark),
-          Expanded(
-            child: _buildCompactStatItem(
-              context,
-              AppLocalizations.of(context)!.activities,
-              '${stats.totalActivities}',
-              Icons.fitness_center_rounded,
-              Colors.blue,
-              isDark,
-            ),
-          ),
-          _buildVerticalDivider(isDark),
-          Expanded(
-            child: _buildCompactStatItem(
-              context,
-              AppLocalizations.of(context)!.durationStat,
-              '${stats.totalMinutes ~/ 60}h',
-              Icons.timer_rounded,
-              Colors.purple,
-              isDark,
-            ),
-          ),
-          _buildVerticalDivider(isDark),
-          Expanded(
-            child: _buildCompactStatItem(
-              context,
-              AppLocalizations.of(context)!.bestStreak,
-              '${stats.longestStreak}d',
-              Icons.local_fire_department_rounded,
-              Colors.orange,
-              isDark,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

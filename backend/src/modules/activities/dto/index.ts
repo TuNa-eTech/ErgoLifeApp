@@ -124,6 +124,34 @@ export class GetStatsQueryDto {
   @IsOptional()
   @IsString()
   period?: 'week' | 'month' | 'all' = 'week';
+
+  @ApiPropertyOptional({
+    example: 'Hút bụi',
+    description: 'Filter by specific task name',
+  })
+  @IsOptional()
+  @IsString()
+  taskName?: string;
+
+  @ApiPropertyOptional({
+    example: 2025,
+    description: 'Filter by year',
+  })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  year?: number;
+
+  @ApiPropertyOptional({
+    example: 12,
+    description: 'Filter by month (1-12)',
+  })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
+  @Max(12)
+  month?: number;
 }
 
 // ============= Response DTOs =============
@@ -299,6 +327,9 @@ export class TopTaskDto {
 
   @ApiProperty({ example: 2800 })
   totalPoints: number;
+
+  @ApiProperty({ example: 3600 })
+  totalDuration: number;
 }
 
 export class StreakDto {
