@@ -26,9 +26,8 @@ class LeaderboardErrorView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => context.read<LeaderboardBloc>().add(
-              const RefreshLeaderboard(),
-            ),
+            onPressed: () =>
+                context.read<LeaderboardBloc>().add(const RefreshLeaderboard()),
             child: const Text('Try Again'),
           ),
         ],

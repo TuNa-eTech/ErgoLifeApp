@@ -79,7 +79,9 @@ class HouseCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                            color: isDark
+                                ? AppColors.textMainDark
+                                : AppColors.textMainLight,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -88,7 +90,9 @@ class HouseCard extends StatelessWidget {
                           house!.isPersonal ? 'Personal House' : 'Team House',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
                           ),
                         ),
                       ],
@@ -97,26 +101,31 @@ class HouseCard extends StatelessWidget {
                   Icon(
                     Icons.chevron_right_rounded,
                     color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
-                  )
+                  ),
                 ],
               ),
-              
+
               const SizedBox(height: 20),
 
               // 2. Stats Block (Grouped)
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 20,
+                ),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.05),
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Colors.grey.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatItem(
-                      context, 
-                      '${house!.memberCount}', 
-                      'Members', 
+                      context,
+                      '${house!.memberCount}',
+                      'Members',
                       Icons.people_outline_rounded,
                       isDark,
                     ),
@@ -126,9 +135,9 @@ class HouseCard extends StatelessWidget {
                       color: isDark ? Colors.white12 : Colors.black12,
                     ),
                     _buildStatItem(
-                      context, 
-                      '$todayPoints', 
-                      'Today Pts', 
+                      context,
+                      '$todayPoints',
+                      'Today Pts',
                       Icons.stars_outlined,
                       isDark,
                     ),
@@ -141,27 +150,27 @@ class HouseCard extends StatelessWidget {
               // 3. Action Buttons
               Row(
                 children: [
-                   Expanded(
+                  Expanded(
                     child: _buildPrimaryButton(
-                      context, 
-                      'Invite Member', 
+                      context,
+                      'Invite Member',
                       Icons.person_add_outlined,
                       () => context.push(AppRouter.inviteMembers),
                       isDark,
                     ),
-                   ),
-                   if (house!.isPersonal) ...[
-                     const SizedBox(width: 12),
-                     Expanded(
-                        child: _buildSecondaryButton(
-                          context, 
-                          'Join House', 
-                          Icons.login_rounded,
-                          () => context.push(AppRouter.joinHouse),
-                          isDark,
-                        ),
-                     ),
-                   ]
+                  ),
+                  if (house!.isPersonal) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildSecondaryButton(
+                        context,
+                        'Join House',
+                        Icons.login_rounded,
+                        () => context.push(AppRouter.joinHouse),
+                        isDark,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -171,20 +180,32 @@ class HouseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String value, String label, IconData icon, bool isDark) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String value,
+    String label,
+    IconData icon,
+    bool isDark,
+  ) {
     return Column(
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            Icon(
+              icon,
+              size: 16,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
             const SizedBox(width: 4),
             Text(
               value,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
               ),
             ),
           ],
@@ -201,7 +222,13 @@ class HouseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPrimaryButton(BuildContext context, String label, IconData icon, VoidCallback onTap, bool isDark) {
+  Widget _buildPrimaryButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
     return FilledButton(
       onPressed: onTap,
       style: FilledButton.styleFrom(
@@ -222,19 +249,31 @@ class HouseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSecondaryButton(BuildContext context, String label, IconData icon, VoidCallback onTap, bool isDark) {
+  Widget _buildSecondaryButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
     return OutlinedButton(
       onPressed: onTap,
-       style: OutlinedButton.styleFrom(
+      style: OutlinedButton.styleFrom(
         foregroundColor: isDark ? Colors.white : AppColors.textMainLight,
-        side: BorderSide(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+        side: BorderSide(
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+        ),
         padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: isDark ? Colors.white70 : AppColors.textSubLight),
+          Icon(
+            icon,
+            size: 18,
+            color: isDark ? Colors.white70 : AppColors.textSubLight,
+          ),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
@@ -284,24 +323,28 @@ class HouseCard extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton(
-                   onPressed: () => context.push(AppRouter.createHouse),
-                   style: FilledButton.styleFrom(
-                     backgroundColor: AppColors.secondary,
-                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                   ),
-                   child: const Text('Create'),
+                  onPressed: () => context.push(AppRouter.createHouse),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Create'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton(
-                   onPressed: () => context.push(AppRouter.joinHouse),
-                   style: OutlinedButton.styleFrom(
-                     foregroundColor: AppColors.secondary,
-                     side: const BorderSide(color: AppColors.secondary),
-                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                   ),
-                   child: const Text('Join'),
+                  onPressed: () => context.push(AppRouter.joinHouse),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.secondary,
+                    side: const BorderSide(color: AppColors.secondary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Join'),
                 ),
               ),
             ],
@@ -319,12 +362,14 @@ class HouseCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
       ),
-       child: Center(
-         child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
-       ),
+      child: Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.secondary,
+        ),
+      ),
     );
   }
-
 
   /// Calculate today's total points from all members
   /// Note: This is a placeholder - real implementation would need daily stats from backend

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
 /// Bottom sheet for joining a house with invite code
 class JoinHouseBottomSheet extends StatefulWidget {
@@ -100,60 +101,15 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
   }
 
   Future<bool> _showLeaveConfirmDialog() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            icon: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.orange.withAlpha(30),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.warning_amber_rounded,
-                color: Colors.orange,
-                size: 32,
-              ),
-            ),
-            title: Text(
-              'Leave Personal Space?',
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
-              ),
-            ),
-            content: Text(
-              'You will leave your current Personal Space to join "${_preview?.name ?? 'this house'}". This action cannot be undone.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Join House'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+    return await ModernDialog.showConfirmation(
+      context,
+      title: 'Leave Personal Space?',
+      message:
+          'You will leave your current Personal Space to join "${_preview?.name ?? 'this house'}". This action cannot be undone.',
+      confirmText: 'Join House',
+      cancelText: 'Cancel',
+      isDestructive: false,
+    );
   }
 
   @override

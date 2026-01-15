@@ -4,6 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getAvatarUrl } from '../../common/utils/avatar.utils';
 import {
   UpdateProfileDto,
   UserProfileDto,
@@ -31,6 +32,7 @@ export class UserService {
       id: user.id,
       displayName: user.displayName,
       avatarId: user.avatarId,
+      avatarUrl: getAvatarUrl(user.avatarId),
       email: user.email,
       walletBalance: user.walletBalance,
       houseId: user.houseId,
@@ -90,6 +92,7 @@ export class UserService {
       id: targetUser.id,
       displayName: targetUser.displayName,
       avatarId: targetUser.avatarId,
+      avatarUrl: getAvatarUrl(targetUser.avatarId),
       walletBalance: targetUser.walletBalance,
     };
   }

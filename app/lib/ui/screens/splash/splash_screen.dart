@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -20,19 +19,33 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 1200),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.6,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
+
+    _controller.forward();
 
     // Check authentication status
     widget.authBloc.add(const AuthCheckRequested());
@@ -46,246 +59,244 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    //  Specific colors from design
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark
-        ? const Color(0xFF23170F)
-        : const Color(0xFFF8F7F5);
-    final navyColor = isDark ? Colors.white : const Color(0xFF1D2939);
-    final primaryColor = const Color(0xFFFF6A00); // Matches design primary
 
     return BlocListener<AuthBloc, AuthState>(
       bloc: widget.authBloc,
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          // User is authenticated, go to home
           context.go(AppRouter.home);
         } else if (state is AuthUnauthenticated) {
-          // User is not authenticated, go to login
           context.go(AppRouter.login);
         }
-        // For AuthInitial and AuthLoading, stay on splash screen
       },
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: isDark ? const Color(0xFF0A0A0A) : Colors.white,
         body: SafeArea(
-          child: Column(
-            children: [
-              // Status Bar Placeholder (Visual only, usually handled by system)
-              // Included to match design visually if needed, but in Flutter SafeArea handles spacing.
-              // We can add the specific header row if we strictly want to match the HTML layout "look".
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
+
+                // Logo and branding
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildContent(isDark),
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '9:41',
-                      style: TextStyle(
-                        color: navyColor.withValues(alpha: 0.4),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.signal_cellular_alt,
-                          size: 16,
-                          color: navyColor.withValues(alpha: 0.4),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.wifi,
-                          size: 16,
-                          color: navyColor.withValues(alpha: 0.4),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.battery_full,
-                          size: 16,
-                          color: navyColor.withValues(alpha: 0.4),
-                        ),
-                      ],
-                    ),
-                  ],
+
+                const Spacer(flex: 2),
+
+                // Minimal loading indicator
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _buildLoadingDots(isDark),
                 ),
-              ),
-              const Spacer(),
-              // Main Content Area
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo
-                    SizedBox(
-                      width: 128,
-                      height: 128,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Glow
-                          Container(
-                            width: 140,
-                            height: 140,
-                            decoration: BoxDecoration(
-                              color: primaryColor.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                              child: Container(color: Colors.transparent),
-                            ),
-                          ),
-                          // Logo Container
-                          Container(
-                            width: 128,
-                            height: 128,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF23170F)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(40), // 2.5rem
-                              border: Border.all(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.05)
-                                    : Colors.grey.shade100,
-                              ),
-                              boxShadow: isDark
-                                  ? []
-                                  : [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.04,
-                                        ),
-                                        blurRadius: 30,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.end, // Align bottom
-                                  children: [
-                                    _buildPill(
-                                      12,
-                                      32,
-                                      isDark
-                                          ? Colors.white
-                                          : const Color(0xFF1D2939),
-                                    ), // Navy
-                                    const SizedBox(width: 6),
-                                    _buildPill(12, 48, primaryColor), // Orange
-                                    const SizedBox(width: 6),
-                                    _buildPill(
-                                      12,
-                                      24,
-                                      (isDark
-                                              ? Colors.white
-                                              : const Color(0xFF1D2939))
-                                          .withValues(alpha: 0.8),
-                                    ), // Navy 80%
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                _buildPill(
-                                  48,
-                                  12,
-                                  primaryColor,
-                                ), // Bottom Orange Pill
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // Text
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 36, // text-4xl
-                          fontWeight: FontWeight.w800,
-                          color: navyColor,
-                          letterSpacing: -1.0,
-                          height: 1.0,
-                        ),
-                        children: [
-                          const TextSpan(text: 'Ergo'),
-                          TextSpan(
-                            text: 'Life',
-                            style: TextStyle(color: primaryColor),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'MOVE. ACHIEVE. CONQUER.',
-                      style: TextStyle(
-                        color: navyColor.withValues(alpha: 0.6),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+
+                const SizedBox(height: 32),
+
+                // Version
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _buildVersion(isDark),
                 ),
-              ),
-              const Spacer(),
-              // Loading Indicator & Version
-              SizedBox(
-                width: 160,
-                child: Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: LinearProgressIndicator(
-                        value: 0.66,
-                        minHeight: 6,
-                        backgroundColor: isDark
-                            ? Colors.white.withValues(alpha: 0.1)
-                            : Colors.grey.shade200,
-                        valueColor: AlwaysStoppedAnimation(primaryColor),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'v2.4.0',
-                      style: TextStyle(
-                        color: navyColor.withValues(alpha: 0.3),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-            ],
+
+                const SizedBox(height: 48),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPill(double width, double height, Color color) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(100),
+  Widget _buildContent(bool isDark) {
+    const primaryColor = Color(0xFFFF6A00);
+    final textColor = isDark ? Colors.white : const Color(0xFF0A0A0A);
+    final mutedColor = isDark
+        ? Colors.white.withValues(alpha: 0.4)
+        : Colors.black.withValues(alpha: 0.4);
+
+    return Column(
+      children: [
+        // App logo
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.06),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.15),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(6),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(26),
+            child: Image.asset('assets/icons/app_icon.png', fit: BoxFit.cover),
+          ),
+        ),
+
+        const SizedBox(height: 48),
+
+        // Brand name - minimal
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 40,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+              letterSpacing: -1.5,
+              height: 1.0,
+            ),
+            children: [
+              const TextSpan(text: 'Ergo'),
+              TextSpan(
+                text: 'Life',
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Simple tagline
+        Text(
+          'Move • Achieve • Conquer',
+          style: TextStyle(
+            color: mutedColor,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingDots(bool isDark) {
+    const primaryColor = Color(0xFFFF6A00);
+    final dotColor = isDark
+        ? Colors.white.withValues(alpha: 0.2)
+        : Colors.black.withValues(alpha: 0.1);
+
+    return SizedBox(
+      height: 8,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _AnimatedDot(color: dotColor, activeColor: primaryColor, delay: 0),
+          const SizedBox(width: 8),
+          _AnimatedDot(color: dotColor, activeColor: primaryColor, delay: 150),
+          const SizedBox(width: 8),
+          _AnimatedDot(color: dotColor, activeColor: primaryColor, delay: 300),
+        ],
       ),
+    );
+  }
+
+  Widget _buildVersion(bool isDark) {
+    final versionColor = isDark
+        ? Colors.white.withValues(alpha: 0.3)
+        : Colors.black.withValues(alpha: 0.3);
+
+    return Text(
+      'v2.4.0',
+      style: TextStyle(
+        color: versionColor,
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.5,
+      ),
+    );
+  }
+}
+
+/// Animated loading dot
+class _AnimatedDot extends StatefulWidget {
+  final Color color;
+  final Color activeColor;
+  final int delay;
+
+  const _AnimatedDot({
+    required this.color,
+    required this.activeColor,
+    required this.delay,
+  });
+
+  @override
+  State<_AnimatedDot> createState() => _AnimatedDotState();
+}
+
+class _AnimatedDotState extends State<_AnimatedDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.3,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    // Start animation with delay
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) {
+        _controller.repeat(reverse: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color.lerp(
+              widget.color,
+              widget.activeColor,
+              _scaleAnimation.value - 1.0,
+            ),
+          ),
+        );
+      },
     );
   }
 }

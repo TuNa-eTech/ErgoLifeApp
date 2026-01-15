@@ -8,6 +8,7 @@ import 'package:ergo_life_app/blocs/house/house_state.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/data/models/user_model.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
 /// Screen displaying house details and member leaderboard
 class HouseDetailScreen extends StatefulWidget {
@@ -497,54 +498,14 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
   }
 
   Future<void> _showLeaveConfirmation(BuildContext context) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.red,
-            size: 32,
-          ),
-        ),
-        title: Text(
-          'Leave House?',
-          style: TextStyle(
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-          ),
-        ),
-        content: Text(
+    final confirmed = await ModernDialog.showConfirmation(
+      context,
+      title: 'Leave House?',
+      message:
           'Your wallet balance will be reset to 0. This action cannot be undone.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Leave'),
-          ),
-        ],
-      ),
+      confirmText: 'Leave',
+      cancelText: 'Cancel',
+      isDestructive: true,
     );
 
     if (confirmed == true && mounted) {

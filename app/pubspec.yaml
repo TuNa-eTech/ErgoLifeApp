@@ -1,7 +1,7 @@
 name: ergo_life_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+3
 environment:
   sdk: ^3.10.1
 
@@ -55,6 +55,7 @@ dependencies:
   shimmer: ^3.0.0
   flutter_staggered_animations: ^1.1.1
   glass_kit: ^4.0.2
+  webview_flutter: ^4.13.1
 
 dev_dependencies:
   flutter_test:

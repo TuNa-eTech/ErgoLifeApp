@@ -30,6 +30,11 @@ export class UserDto {
   @ApiPropertyOptional({ example: 3 })
   avatarId: number | null;
 
+  @ApiPropertyOptional({
+    example: 'https://api.dicebear.com/7.x/avataaars/png?seed=avatar3',
+  })
+  avatarUrl: string | null;
+
   @ApiPropertyOptional({ example: '660e8400-e29b-41d4-a716-446655441111' })
   houseId: string | null;
 

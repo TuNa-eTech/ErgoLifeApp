@@ -16,21 +16,58 @@ import 'package:ergo_life_app/blocs/house/house_state.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/ui/screens/profile/widgets/house_card.dart';
+import 'package:ergo_life_app/ui/common/common.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late final ProfileBloc _profileBloc;
+  late final HouseBloc _houseBloc;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize BLoCs but don't add events yet
+    _profileBloc = sl<ProfileBloc>();
+    _houseBloc = sl<HouseBloc>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      // Initial load
+      _profileBloc.add(const LoadProfile());
+      _houseBloc.add(const LoadHouse());
+      _isInitialized = true;
+    } else {
+      // Refresh when coming back (e.g., from EditProfileScreen)
+      _profileBloc.add(const RefreshProfile());
+      _houseBloc.add(const LoadHouse());
+    }
+  }
+
+  @override
+  void dispose() {
+    // Don't close BLoCs - ProfileScreen is kept alive in StatefulShellRoute
+    // Closing them causes "Cannot add events after close" errors
+    // when navigating between tabs or coming back from EditProfileScreen
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ProfileBloc>(
-          create: (_) => sl<ProfileBloc>()..add(const LoadProfile()),
-        ),
+        BlocProvider<ProfileBloc>.value(value: _profileBloc),
         BlocProvider<AuthBloc>.value(value: sl<AuthBloc>()),
-        BlocProvider<HouseBloc>(
-          create: (_) => sl<HouseBloc>()..add(const LoadHouse()),
-        ),
+        BlocProvider<HouseBloc>.value(value: _houseBloc),
       ],
       child: const ProfileView(),
     );
@@ -166,27 +203,30 @@ class _ProfileViewState extends State<ProfileView> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 40),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
+                ),
                 child: Column(
                   children: [
                     _buildUnifiedStatsCard(context, stats, isDark),
-                    
+
                     const SizedBox(height: 20),
-                  BlocBuilder<HouseBloc, HouseState>(
-                    builder: (context, houseState) {
-                      if (houseState is HouseLoading) {
-                        return const HouseCard(isLoading: true);
-                      } else if (houseState is HouseLoaded) {
-                        return HouseCard(
-                          house: houseState.house,
-                          onRefresh: () {
-                            context.read<HouseBloc>().add(const LoadHouse());
-                          },
-                        );
-                      }
-                      return const HouseCard();
-                    },
-                  ),
+                    BlocBuilder<HouseBloc, HouseState>(
+                      builder: (context, houseState) {
+                        if (houseState is HouseLoading) {
+                          return const HouseCard(isLoading: true);
+                        } else if (houseState is HouseLoaded) {
+                          return HouseCard(
+                            house: houseState.house,
+                            onRefresh: () {
+                              context.read<HouseBloc>().add(const LoadHouse());
+                            },
+                          );
+                        }
+                        return const HouseCard();
+                      },
+                    ),
 
                     const SizedBox(height: 20),
                     _buildSettingsGroup(context, isDark),
@@ -241,50 +281,36 @@ class _ProfileViewState extends State<ProfileView> {
               color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
             ),
             child: user.avatarUrl == null
-                ? Icon(Icons.person, size: 28, color: isDark ? Colors.white54 : Colors.grey.shade400)
+                ? Icon(
+                    Icons.person,
+                    size: 28,
+                    color: isDark ? Colors.white54 : Colors.grey.shade400,
+                  )
                 : null,
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  user.name ?? 'User',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight,
-                  ),
-                ),
-                Text(
-                   AppLocalizations.of(context)!.memberSince(membershipDuration),
-                   style: TextStyle(
-                     color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                     fontSize: 12,
-                   ),
-                ),
-              ],
+            child: Text(
+              user.name ?? 'User',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
+              ),
             ),
-          ),
-          IconButton(
-             onPressed: () {
-               // Quick edit or share action
-             },
-             icon: Icon(
-               Icons.qr_code_rounded, 
-               color: isDark ? AppColors.textSubDark : AppColors.textMainLight
-             ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildUnifiedStatsCard(BuildContext context, dynamic stats, bool isDark) {
+  Widget _buildUnifiedStatsCard(
+    BuildContext context,
+    dynamic stats,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
       decoration: BoxDecoration(
@@ -352,7 +378,9 @@ class _ProfileViewState extends State<ProfileView> {
     return Container(
       height: 32,
       width: 1,
-      color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.2),
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.grey.withValues(alpha: 0.2),
     );
   }
 
@@ -393,7 +421,7 @@ class _ProfileViewState extends State<ProfileView> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
-         boxShadow: [
+        boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
@@ -403,23 +431,15 @@ class _ProfileViewState extends State<ProfileView> {
       ),
       child: Column(
         children: [
-           _buildSettingsTile(
+          _buildSettingsTile(
             context,
             AppLocalizations.of(context)!.editProfile,
             Icons.edit_rounded,
-            () {},
+            () => context.push(AppRouter.editProfile),
             isDark,
           ),
           _buildDivider(isDark),
-           _buildSettingsTile(
-            context,
-            AppLocalizations.of(context)!.settings,
-            Icons.settings_rounded,
-            () {},
-            isDark,
-          ),
-          _buildDivider(isDark),
-           BlocBuilder<LocaleCubit, Locale>(
+          BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
               final currentLanguage = locale.languageCode == 'vi'
                   ? AppLocalizations.of(context)!.vietnamese
@@ -428,14 +448,30 @@ class _ProfileViewState extends State<ProfileView> {
                 context,
                 AppLocalizations.of(context)!.language,
                 Icons.language_rounded,
-                () => _showLanguageDialog(context, locale),
+                () => LanguageSelectorBottomSheet.show(context),
                 isDark,
                 trailingText: currentLanguage,
               );
             },
           ),
-           _buildDivider(isDark),
-           _buildSettingsTile(
+          _buildDivider(isDark),
+          _buildSettingsTile(
+            context,
+            AppLocalizations.of(context)!.termsOfService,
+            Icons.description_rounded,
+            () => context.push(AppRouter.termsOfService),
+            isDark,
+          ),
+          _buildDivider(isDark),
+          _buildSettingsTile(
+            context,
+            AppLocalizations.of(context)!.privacyPolicy,
+            Icons.privacy_tip_rounded,
+            () => context.push(AppRouter.privacyPolicy),
+            isDark,
+          ),
+          _buildDivider(isDark),
+          _buildSettingsTile(
             context,
             AppLocalizations.of(context)!.logout,
             Icons.logout_rounded,
@@ -465,8 +501,8 @@ class _ProfileViewState extends State<ProfileView> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isDestructive 
-              ? Colors.red.withValues(alpha: 0.1) 
+          color: isDestructive
+              ? Colors.red.withValues(alpha: 0.1)
               : AppColors.backgroundLight,
           shape: BoxShape.circle,
         ),
@@ -548,94 +584,6 @@ void _showLogoutDialog(BuildContext context) {
           ),
         ),
       ],
-    ),
-  );
-}
-
-void _showLanguageDialog(BuildContext context, Locale currentLocale) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.language, color: AppColors.secondary),
-          const SizedBox(width: 12),
-          Text(AppLocalizations.of(context)!.language),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildLanguageOption(
-            context: context,
-            ctx: ctx,
-            languageCode: 'en',
-            languageName: AppLocalizations.of(context)!.english,
-            isSelected: currentLocale.languageCode == 'en',
-            isDark: isDark,
-          ),
-          const SizedBox(height: 12),
-          _buildLanguageOption(
-            context: context,
-            ctx: ctx,
-            languageCode: 'vi',
-            languageName: AppLocalizations.of(context)!.vietnamese,
-            isSelected: currentLocale.languageCode == 'vi',
-            isDark: isDark,
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildLanguageOption({
-  required BuildContext context,
-  required BuildContext ctx,
-  required String languageCode,
-  required String languageName,
-  required bool isSelected,
-  required bool isDark,
-}) {
-  return InkWell(
-    onTap: () {
-      context.read<LocaleCubit>().setLocale(Locale(languageCode));
-      Navigator.pop(ctx);
-    },
-    borderRadius: BorderRadius.circular(12),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.secondary.withValues(alpha: 0.1)
-            : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isSelected
-              ? AppColors.secondary
-              : (isDark ? Colors.grey.shade700 : Colors.grey.shade300),
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            languageName,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected
-                  ? AppColors.secondary
-                  : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
-            ),
-          ),
-          const Spacer(),
-          if (isSelected)
-            const Icon(Icons.check_circle, color: AppColors.secondary),
-        ],
-      ),
     ),
   );
 }

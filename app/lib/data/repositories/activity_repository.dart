@@ -147,11 +147,12 @@ class ActivityRepository {
     LeaderboardScope scope = LeaderboardScope.house,
   }) async {
     try {
-      AppLogger.info('Fetching leaderboard (scope: ${scope.name})', 'ActivityRepository');
+      AppLogger.info(
+        'Fetching leaderboard (scope: ${scope.name})',
+        'ActivityRepository',
+      );
 
-      final queryParams = <String, dynamic>{
-        'scope': scope.name,
-      };
+      final queryParams = <String, dynamic>{'scope': scope.name};
       if (week != null) queryParams['week'] = week;
 
       final response = await _apiClient.get(

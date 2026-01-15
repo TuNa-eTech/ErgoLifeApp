@@ -254,6 +254,24 @@ abstract class AppLocalizations {
   /// **'Log in to track your progress and compete.'**
   String get loginSubtitle;
 
+  /// No description provided for @startYourJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Your Journey'**
+  String get startYourJourney;
+
+  /// No description provided for @buildBetterHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Build better habits, achieve your goals'**
+  String get buildBetterHabits;
+
+  /// No description provided for @joinUsersWorldwide.
+  ///
+  /// In en, this message translates to:
+  /// **'Join 10K+ users worldwide'**
+  String get joinUsersWorldwide;
+
   /// No description provided for @continueWithGoogle.
   ///
   /// In en, this message translates to:
@@ -265,6 +283,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue with Apple'**
   String get continueWithApple;
+
+  /// No description provided for @termsPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to our Terms & Privacy Policy'**
+  String get termsPrivacyPolicy;
 
   /// No description provided for @newToErgoLife.
   ///
@@ -307,6 +331,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome back!'**
   String get welcomeBack;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
 
   /// No description provided for @chooseYourAvatar.
   ///

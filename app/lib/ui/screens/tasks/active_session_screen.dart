@@ -1,22 +1,27 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/home/home_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_event.dart';
+import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/session/session_bloc.dart';
 import 'package:ergo_life_app/blocs/session/session_event.dart';
 import 'package:ergo_life_app/blocs/session/session_state.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
-import 'package:ergo_life_app/ui/common/widgets/glass_button.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/swipe_to_end_button.dart';
-import 'package:ergo_life_app/ui/screens/tasks/widgets/session_stat_item.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/session_start_overlay.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/session_progress_bar.dart';
+import 'package:ergo_life_app/ui/screens/tasks/widgets/compact_session_stats.dart';
 import 'package:ergo_life_app/ui/widgets/streak_milestone_dialog.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
-/// Screen showing active exercise session with real timer and stats
+/// Screen showing active exercise session - Redesigned for simplicity
 class ActiveSessionScreen extends StatelessWidget {
   final TaskModel task;
 
@@ -42,7 +47,6 @@ class ActiveSessionView extends StatelessWidget {
 
     return BlocConsumer<SessionBloc, SessionState>(
       listener: (context, state) {
-        // Handle session completion
         if (state is SessionCompleted) {
           _showCompletionDialog(context, state);
         } else if (state is SessionError) {
@@ -50,13 +54,24 @@ class ActiveSessionView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        // Show beautiful start overlay when session is pending
+        // Show start overlay when session is pending
         if (state is SessionPending) {
+          int currentStreak = 0;
+          try {
+            final homeState = context.read<HomeBloc>().state;
+            currentStreak = homeState is HomeLoaded
+                ? homeState.stats.streakDays
+                : 0;
+          } catch (e) {
+            currentStreak = 0;
+          }
+
           return Scaffold(
             backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
             body: SessionStartOverlay(
               task: task,
               formattedTarget: state.formattedTarget,
+              currentStreak: currentStreak,
               onStart: () {
                 context.read<SessionBloc>().add(StartSession(task: task));
               },
@@ -66,288 +81,304 @@ class ActiveSessionView extends StatelessWidget {
         }
 
         return Scaffold(
-          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-          body: Column(
-            children: [
-              // Top Image Section (approx 55% height)
-              Expanded(flex: 55, child: _buildTopSection(context, isDark)),
-
-              // Bottom Content Section (approx 45% height)
-              Expanded(
-                flex: 45,
-                child: _buildBottomSection(context, isDark, state),
-              ),
-            ],
-          ),
+          backgroundColor: isDark
+              ? AppColors.backgroundDark
+              : AppColors.backgroundLight,
+          body: state is SessionCompleting
+              ? _buildCompletingView(isDark)
+              : state is SessionActive
+              ? _buildActiveSessionView(context, state, isDark)
+              : const Center(child: CircularProgressIndicator()),
         );
       },
     );
   }
 
-  Widget _buildTopSection(BuildContext context, bool isDark) {
+  Widget _buildActiveSessionView(
+    BuildContext context,
+    SessionActive state,
+    bool isDark,
+  ) {
+    // Check if exceeded target
+    final hasExceededTarget = state.elapsedSeconds >= state.targetSeconds;
+    final overtimeSeconds = hasExceededTarget
+        ? state.elapsedSeconds - state.targetSeconds
+        : 0;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(48),
-          bottomRight: Radius.circular(48),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          _buildBackgroundImage(),
-          _buildTopGradient(),
-          _buildHeader(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackgroundImage() {
-    return Positioned.fill(
-      child: Image.asset(
-        "assets/images/active_session_bg.png",
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-
-  Widget _buildTopGradient() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 128,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.white.withValues(alpha: 0.8),
-              Colors.white.withValues(alpha: 0.3),
-              Colors.transparent,
-            ],
-          ),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? [
+                  Colors.black.withValues(alpha: 0.95),
+                  const Color(0xFF0F1115).withValues(alpha: 0.98),
+                ]
+              : [
+                  Colors.white.withValues(alpha: 0.95),
+                  const Color(0xFFF5F6F8).withValues(alpha: 0.98),
+                ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GlassButton(
-                icon: Icons.keyboard_arrow_down,
-                onTap: () => _handleBackButton(context),
-              ),
-              _buildTitleWithIndicator(),
-              BlocBuilder<SessionBloc, SessionState>(
-                builder: (context, state) {
-                  if (state is SessionActive) {
-                    return GlassButton(
-                      icon: state.isPaused ? Icons.play_arrow : Icons.pause,
-                      onTap: () {
-                        if (state.isPaused) {
-                          context.read<SessionBloc>().add(
-                            const ResumeSession(),
-                          );
-                        } else {
-                          context.read<SessionBloc>().add(const PauseSession());
-                        }
-                      },
-                    );
-                  }
-                  return const GlassButton(icon: Icons.more_horiz);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitleWithIndicator() {
-    return Row(
-      children: [
-        const PulsingRecordIndicator(),
-        const SizedBox(width: 8),
-        const Text(
-          'Active Session',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomSection(
-    BuildContext context,
-    bool isDark,
-    SessionState state,
-  ) {
-    if (state is SessionCompleting) {
-      return _buildCompletingView(isDark);
-    }
-
-    if (state is! SessionActive) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildTimerSection(isDark, state),
-          _buildStatsRow(isDark, state),
-          _buildTaskInfo(isDark),
-          SwipeToEndButton(
-            isDark: isDark,
-            onComplete: () => _handleCompleteSession(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimerSection(bool isDark, SessionActive state) {
-    return Column(
-      children: [
-        Text(
-          state.formattedTime,
-          style: TextStyle(
-            fontSize: 88,
-            fontWeight: FontWeight.w900,
-            height: 1.0,
-            letterSpacing: -4,
-            color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
           children: [
-            const Icon(Icons.timer, color: AppColors.secondary, size: 20),
-            const SizedBox(width: 6),
-            Text(
-              'TARGET ${state.formattedTarget}',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : const Color(0xFF0F172A),
+            _buildHeader(context, state, isDark),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 2),
+                    // Task icon
+                    _buildTaskIcon(isDark, hasExceededTarget),
+                    const SizedBox(height: 16),
+                    // Task name
+                    Text(
+                      task.exerciseName,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Task description/category
+                    if (task.taskDescription != null)
+                      Text(
+                        task.taskDescription!.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
+                      ),
+                    const SizedBox(height: 32),
+                    // HUGE Timer
+                    _buildTimer(state, isDark, hasExceededTarget),
+                    const SizedBox(height: 12),
+                    // Progress bar
+                    SessionProgressBar(
+                      progress: state.progress,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 8),
+                    // Target time or overtime indicator
+                    _buildTargetOrOvertimeText(
+                      state,
+                      isDark,
+                      hasExceededTarget,
+                      overtimeSeconds,
+                    ),
+                    const SizedBox(height: 32),
+                    // Compact stats
+                    CompactSessionStats(
+                      durationMinutes: state.elapsedSeconds ~/ 60,
+                      calories: state.estimatedCalories,
+                      points: state.estimatedPoints,
+                      isDark: isDark,
+                    ),
+                    const Spacer(flex: 3),
+                  ],
+                ),
+              ),
+            ),
+            // Swipe to end button
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              child: SwipeToEndButton(
+                isDark: isDark,
+                onComplete: () {
+                  context.read<SessionBloc>().add(const CompleteSession());
+                },
               ),
             ),
           ],
         ),
-        if (state.isPaused) ...[
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, SessionActive state, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildGlassButton(
+            icon: Icons.keyboard_arrow_down,
+            onTap: () => _handleBackButton(context),
+          ),
+          _buildStatusIndicator(state.isPaused, isDark),
+          _buildGlassButton(
+            icon: state.isPaused ? Icons.play_arrow : Icons.pause,
+            onTap: () {
+              if (state.isPaused) {
+                context.read<SessionBloc>().add(const ResumeSession());
+              } else {
+                context.read<SessionBloc>().add(const PauseSession());
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.pause_circle, color: Colors.orange, size: 16),
-                SizedBox(width: 6),
-                Text(
-                  'PAUSED',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    letterSpacing: 1,
-                  ),
+            child: Icon(icon, color: Colors.grey[700], size: 22),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusIndicator(bool isPaused, bool isDark) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!isPaused) const PulsingDot(),
+        if (!isPaused) const SizedBox(width: 8),
+        Text(
+          isPaused ? '⏸ PAUSED' : 'ACTIVE SESSION',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: isPaused
+                ? Colors.orange
+                : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskIcon(bool isDark, bool hasExceededTarget) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: hasExceededTarget ? Colors.green : AppColors.primary,
+        boxShadow: [
+          BoxShadow(
+            color: (hasExceededTarget ? Colors.green : AppColors.primary)
+                .withValues(alpha: 0.3),
+            blurRadius: hasExceededTarget ? 16 : 12,
+            spreadRadius: hasExceededTarget ? 2 : 0,
+          ),
+        ],
+      ),
+      child: Icon(
+        hasExceededTarget ? Icons.check_circle : task.icon,
+        size: 36,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildTimer(SessionActive state, bool isDark, bool hasExceededTarget) {
+    return Text(
+      state.formattedTime,
+      style: TextStyle(
+        fontSize: 96,
+        fontWeight: FontWeight.w900,
+        height: 1.0,
+        letterSpacing: -2,
+        color: hasExceededTarget
+            ? Colors.green
+            : (isDark ? AppColors.textMainDark : const Color(0xFF0F172A)),
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+  }
+
+  Widget _buildTargetOrOvertimeText(
+    SessionActive state,
+    bool isDark,
+    bool hasExceededTarget,
+    int overtimeSeconds,
+  ) {
+    if (hasExceededTarget) {
+      final overtimeMinutes = overtimeSeconds ~/ 60;
+      final overtimeRemainder = overtimeSeconds % 60;
+      final overtimeFormatted =
+          '+${overtimeMinutes.toString().padLeft(2, '0')}:${overtimeRemainder.toString().padLeft(2, '0')}';
+
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.celebration, color: Colors.green, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                'TARGET EXCEEDED',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                  color: Colors.green,
                 ),
-              ],
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.celebration, color: Colors.green, size: 16),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'OVERTIME $overtimeFormatted',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
         ],
-      ],
-    );
-  }
-
-  Widget _buildStatsRow(bool isDark, SessionActive state) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SessionStatItem(
-          icon: Icons.local_fire_department,
-          value: '${state.estimatedCalories}',
-          label: 'CALORIES',
-          color: AppColors.secondary,
-          isDark: isDark,
+      );
+    } else {
+      return Text(
+        'TARGET ${state.formattedTarget}',
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
         ),
-        Container(
-          height: 32,
-          width: 1,
-          margin: const EdgeInsets.symmetric(horizontal: 40),
-          color: Colors.grey.withValues(alpha: 0.3),
-        ),
-        SessionStatItem(
-          icon: Icons.bolt,
-          value: '${state.estimatedPoints}',
-          label: 'POINTS',
-          color: Colors.amber,
-          isDark: isDark,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTaskInfo(bool isDark) {
-    return Column(
-      children: [
-        Text(
-          task.exerciseName,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          task.taskDescription?.toUpperCase() ?? 'EXERCISE',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
-      ],
-    );
+      );
+    }
   }
 
   Widget _buildCompletingView(bool isDark) {
@@ -362,7 +393,7 @@ class ActiveSessionView extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.textMainDark : const Color(0xFF0F172A),
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
         ],
@@ -379,44 +410,30 @@ class ActiveSessionView extends StatelessWidget {
     }
   }
 
-  void _handleCompleteSession(BuildContext context) {
-    context.read<SessionBloc>().add(const CompleteSession());
-  }
-
-  void _showCancelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Cancel Session?'),
-        content: const Text(
+  void _showCancelDialog(BuildContext context) async {
+    final confirmed = await ModernDialog.showConfirmation(
+      context,
+      title: 'Cancel Session?',
+      message:
           'Your progress will not be saved. Are you sure you want to cancel?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Continue Session'),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<SessionBloc>().add(const CancelSession());
-              Navigator.pop(ctx); // Close dialog
-              Navigator.pop(context); // Close screen
-            },
-            child: const Text('Cancel', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      confirmText: 'Cancel Session',
+      cancelText: 'Continue',
+      isDestructive: true,
     );
+
+    if (confirmed && context.mounted) {
+      context.read<SessionBloc>().add(const CancelSession());
+      // Navigate back to tasks screen
+      context.go(AppRouter.tasks);
+    }
   }
 
   void _showCompletionDialog(
     BuildContext context,
     SessionCompleted state,
   ) async {
-    // Check if milestone dialog should be shown
     final streakInfo = state.activityResponse?.streak;
     if (streakInfo != null && streakInfo.isMilestone) {
-      // Show milestone celebration first
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -425,74 +442,77 @@ class ActiveSessionView extends StatelessWidget {
       );
     }
 
-    // Then show completion summary
     if (context.mounted) {
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.celebration, color: Colors.amber, size: 32),
-              SizedBox(width: 12),
-              Text('Great Job!'),
-            ],
+      // Build custom streak info widget if available
+      Widget? streakWidget;
+      if (streakInfo != null && streakInfo.info != null) {
+        streakWidget = Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: streakInfo.usedFreeze
+                ? Colors.orange.withValues(alpha: 0.1)
+                : streakInfo.wasReset
+                ? Colors.grey.withValues(alpha: 0.1)
+                : Colors.green.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: streakInfo.usedFreeze
+                  ? Colors.orange
+                  : streakInfo.wasReset
+                  ? Colors.grey
+                  : Colors.green,
+              width: 1.5,
+            ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                'You earned ${state.pointsEarned} points!',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Icon(
+                streakInfo.usedFreeze
+                    ? Icons.ac_unit
+                    : streakInfo.wasReset
+                    ? Icons.refresh
+                    : Icons.local_fire_department,
+                color: streakInfo.usedFreeze
+                    ? Colors.orange
+                    : streakInfo.wasReset
+                    ? Colors.grey
+                    : Colors.green,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  streakInfo.info!,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: streakInfo.usedFreeze
+                        ? Colors.orange.shade900
+                        : streakInfo.wasReset
+                        ? Colors.grey.shade700
+                        : Colors.green.shade900,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text('New balance: ${state.newWalletBalance} EP'),
-              if (streakInfo != null && streakInfo.info != null) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: streakInfo.usedFreeze
-                        ? Colors.orange.shade50
-                        : streakInfo.wasReset
-                        ? Colors.grey.shade100
-                        : Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    streakInfo.info!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: streakInfo.usedFreeze
-                          ? Colors.orange.shade900
-                          : streakInfo.wasReset
-                          ? Colors.grey.shade700
-                          : Colors.green.shade900,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Refresh HomeBloc and LeaderboardBloc after activity completion
-                sl<HomeBloc>().add(const RefreshHomeData());
-                sl<LeaderboardBloc>().add(const RefreshLeaderboard());
+        );
+      }
 
-                Navigator.pop(ctx); // Close dialog
-                Navigator.pop(context); // Close screen
-              },
-              child: const Text('Done'),
-            ),
-          ],
-        ),
+      await ModernDialog.showSuccess(
+        context,
+        title: 'Session Complete! 🎉',
+        message:
+            'You earned ${state.pointsEarned} points!\nNew balance: ${state.newWalletBalance} EP',
+        buttonText: 'Done',
+        customContent: streakWidget,
       );
+
+      if (context.mounted) {
+        sl<HomeBloc>().add(const RefreshHomeData());
+        sl<LeaderboardBloc>().add(const RefreshLeaderboard());
+        // Navigate back to tasks screen
+        context.go(AppRouter.tasks);
+      }
     }
   }
 
@@ -513,14 +533,15 @@ class ActiveSessionView extends StatelessWidget {
   }
 }
 
-class PulsingRecordIndicator extends StatefulWidget {
-  const PulsingRecordIndicator({super.key});
+/// Pulsing dot indicator for active state
+class PulsingDot extends StatefulWidget {
+  const PulsingDot({super.key});
 
   @override
-  State<PulsingRecordIndicator> createState() => _PulsingRecordIndicatorState();
+  State<PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
+class _PulsingDotState extends State<PulsingDot>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -547,7 +568,6 @@ class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Ping animation
           ScaleTransition(
             scale: Tween<double>(begin: 1.0, end: 2.0).animate(
               CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -564,7 +584,6 @@ class _PulsingRecordIndicatorState extends State<PulsingRecordIndicator>
               ),
             ),
           ),
-          // Solid center
           Container(
             width: 10,
             height: 10,

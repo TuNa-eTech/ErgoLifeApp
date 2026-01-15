@@ -24,31 +24,19 @@ class LeaderboardPodium extends StatelessWidget {
           if (podium.length > 1)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: _PodiumItem(
-                entry: podium[1],
-                position: 2,
-                height: 120,
-              ),
+              child: _PodiumItem(entry: podium[1], position: 2, height: 120),
             ),
           // 1st Place (Center and Highest)
           if (podium.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _PodiumItem(
-                entry: podium[0],
-                position: 1,
-                height: 150,
-              ),
+              child: _PodiumItem(entry: podium[0], position: 1, height: 150),
             ),
           // 3rd Place
           if (podium.length > 2)
             Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: _PodiumItem(
-                entry: podium[2],
-                position: 3,
-                height: 100,
-              ),
+              child: _PodiumItem(entry: podium[2], position: 3, height: 100),
             ),
         ],
       ),
@@ -109,10 +97,7 @@ class _PodiumItem extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           width: avatarSize,
           height: avatarSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: stepColor,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: stepColor),
           clipBehavior: Clip.antiAlias,
           child: entry.user.avatarUrl != null
               ? Image.network(entry.user.avatarUrl!, fit: BoxFit.cover)
@@ -126,7 +111,7 @@ class _PodiumItem extends StatelessWidget {
                   ),
                 ),
         ),
-        
+
         // Name
         SizedBox(
           width: 80, // Constrain width for long names
@@ -140,7 +125,7 @@ class _PodiumItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        
+
         // Points
         Text(
           entry.formattedPoints,
@@ -150,7 +135,7 @@ class _PodiumItem extends StatelessWidget {
         ),
 
         const SizedBox(height: 8),
-        
+
         // Podium Step
         Container(
           width: position == 1 ? 96 : 80,
@@ -173,4 +158,3 @@ class _PodiumItem extends StatelessWidget {
     );
   }
 }
-

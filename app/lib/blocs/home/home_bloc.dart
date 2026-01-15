@@ -37,7 +37,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     AppLogger.info('Loading home data...', 'HomeBloc');
     emit(const HomeLoading());
+    await _loadData(emit);
+  }
 
+  /// Refresh home data (same as load but for pull-to-refresh)
+  Future<void> _onRefreshHomeData(
+    RefreshHomeData event,
+    Emitter<HomeState> emit,
+  ) async {
+    AppLogger.info('Refreshing home data...', 'HomeBloc');
+    // Don't emit loading state to avoid UI flash
+    await _loadData(emit);
+  }
+
+  Future<void> _loadData(Emitter<HomeState> emit) async {
     try {
       // Fetch user data
       final userResult = await _authRepository.getCurrentUser();
@@ -111,16 +124,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       AppLogger.error('Unexpected error loading home', e, null, 'HomeBloc');
       emit(const HomeError(message: 'Failed to load home data'));
     }
-  }
-
-  /// Refresh home data (same as load but for pull-to-refresh)
-  Future<void> _onRefreshHomeData(
-    RefreshHomeData event,
-    Emitter<HomeState> emit,
-  ) async {
-    AppLogger.info('Refreshing home data...', 'HomeBloc');
-    // Keep current state while refreshing
-    add(const LoadHomeData());
   }
 
   /// Load with mock data for offline/demo mode

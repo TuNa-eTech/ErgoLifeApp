@@ -44,9 +44,9 @@ class _LeaderboardViewState extends State<LeaderboardView>
     _tabController.addListener(_onTabChanged);
 
     // Initial load - start with Global
-    context
-        .read<LeaderboardBloc>()
-        .add(const LoadLeaderboard(scope: LeaderboardScope.global));
+    context.read<LeaderboardBloc>().add(
+      const LoadLeaderboard(scope: LeaderboardScope.global),
+    );
   }
 
   @override
@@ -57,6 +57,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
   }
 
   void _onTabChanged() {
+    if (!mounted) return;
     if (_tabController.indexIsChanging) return;
 
     final scope = _tabController.index == 0
@@ -82,7 +83,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
       ),
       body: TabBarView(
         controller: _tabController,
-        physics: const NeverScrollableScrollPhysics(), // Disable swipe to avoid accidental refresh triggers
+        physics:
+            const NeverScrollableScrollPhysics(), // Disable swipe to avoid accidental refresh triggers
         children: [
           _buildLeaderboardTab(context, LeaderboardScope.global),
           _buildLeaderboardTab(context, LeaderboardScope.house),
@@ -94,34 +96,38 @@ class _LeaderboardViewState extends State<LeaderboardView>
   Widget _buildLeaderboardTab(BuildContext context, LeaderboardScope scope) {
     return BlocConsumer<HouseBloc, HouseState>(
       listener: (context, houseState) {
-         // Reload if house state changes and we are on the relevant tab
-         if (houseState is HouseLoaded && scope == LeaderboardScope.house) {
-            context.read<LeaderboardBloc>().add(const LoadLeaderboard(scope: LeaderboardScope.house));
-         }
+        // Reload if house state changes and we are on the relevant tab
+        if (!mounted) return;
+        if (houseState is HouseLoaded && scope == LeaderboardScope.house) {
+          context.read<LeaderboardBloc>().add(
+            const LoadLeaderboard(scope: LeaderboardScope.house),
+          );
+        }
       },
       builder: (context, houseState) {
-         // Check special case: House Tab but User is in Personal House
-         if (scope == LeaderboardScope.house && 
-             houseState is HouseLoaded && 
-             houseState.house.isPersonal) {
-           return Column(
-             children: [
-               const JoinHouseBanner(),
-                Expanded(
-                  child: _buildLeaderboardContent(context, scope),
-                ),
-             ],
-           );
-         }
+        // Check special case: House Tab but User is in Personal House
+        if (scope == LeaderboardScope.house &&
+            houseState is HouseLoaded &&
+            houseState.house.isPersonal) {
+          return Column(
+            children: [
+              const JoinHouseBanner(),
+              Expanded(child: _buildLeaderboardContent(context, scope)),
+            ],
+          );
+        }
 
-         return _buildLeaderboardContent(context, scope);
+        return _buildLeaderboardContent(context, scope);
       },
     );
   }
 
-  Widget _buildLeaderboardContent(BuildContext context, LeaderboardScope scope) {
+  Widget _buildLeaderboardContent(
+    BuildContext context,
+    LeaderboardScope scope,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return BlocBuilder<LeaderboardBloc, LeaderboardState>(
       builder: (context, state) {
         if (state is LeaderboardLoading) {
@@ -129,17 +135,15 @@ class _LeaderboardViewState extends State<LeaderboardView>
         }
 
         if (state is LeaderboardLoaded) {
-           // Verify we are showing the correct data for the requested scope
-           // This prevents flashing old data from a different scope
-           if (state.leaderboard.scope != scope) {
-              return const Center(child: CircularProgressIndicator());
-           }
+          // Verify we are showing the correct data for the requested scope
+          // This prevents flashing old data from a different scope
+          if (state.leaderboard.scope != scope) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
           return RefreshIndicator(
             onRefresh: () async {
-              context
-                  .read<LeaderboardBloc>()
-                  .add(const RefreshLeaderboard());
+              context.read<LeaderboardBloc>().add(const RefreshLeaderboard());
             },
             child: CustomScrollView(
               slivers: [
@@ -165,20 +169,15 @@ class _LeaderboardViewState extends State<LeaderboardView>
                   ),
                 ),
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final entry = state.runnersUp[index];
-                      return LeaderboardRankingItem(
-                        entry: entry,
-                        isMe: state.isMe(entry),
-                      );
-                    },
-                    childCount: state.runnersUp.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final entry = state.runnersUp[index];
+                    return LeaderboardRankingItem(
+                      entry: entry,
+                      isMe: state.isMe(entry),
+                    );
+                  }, childCount: state.runnersUp.length),
                 ),
-                const SliverPadding(
-                  padding: EdgeInsets.only(bottom: 100),
-                ),
+                const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
               ],
             ),
           );
@@ -193,4 +192,3 @@ class _LeaderboardViewState extends State<LeaderboardView>
     );
   }
 }
-

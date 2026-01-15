@@ -14,15 +14,32 @@ import 'package:ergo_life_app/core/utils/talker_config.dart';
 // Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final HomeBloc homeBloc;
 
   const HomeScreen({super.key, required this.homeBloc});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data when coming back to this tab
+    widget.homeBloc.add(const RefreshHomeData());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocProvider<HomeBloc>.value(
-      value: homeBloc..add(const LoadHomeData()),
+      value: widget.homeBloc,
       child: const HomeView(),
     );
   }
@@ -254,6 +271,7 @@ class HomeView extends StatelessWidget {
             title: HomeHeader(
               isDark: isDark,
               userName: state.firstName,
+              avatarUrl: state.user.avatarUrl,
               onNotificationTap: () {
                 // TODO: Handle notification tap
               },

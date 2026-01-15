@@ -3,7 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
 
-
 /// Slidable task card with edit and delete actions
 /// Redesigned to be fully tappable and show more information
 class TaskCardWidget extends StatelessWidget {
@@ -23,10 +22,13 @@ class TaskCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor =
-        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final backgroundColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
-    final subTextColor = isDark ? AppColors.textSubDark : AppColors.textSubLight;
+    final subTextColor = isDark
+        ? AppColors.textSubDark
+        : AppColors.textSubLight;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -42,7 +44,9 @@ class TaskCardWidget extends StatelessWidget {
               foregroundColor: Colors.white,
               icon: Icons.edit_rounded,
               label: 'Edit',
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(16),
+              ),
               padding: EdgeInsets.zero,
             ),
             SlidableAction(
@@ -51,7 +55,9 @@ class TaskCardWidget extends StatelessWidget {
               foregroundColor: Colors.white,
               icon: Icons.delete_rounded,
               label: 'Delete',
-              borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(16),
+              ),
               padding: EdgeInsets.zero,
             ),
           ],
@@ -91,7 +97,7 @@ class TaskCardWidget extends StatelessWidget {
                       child: Icon(task.icon, color: task.color, size: 28),
                     ),
                     const SizedBox(width: 16),
-                    
+
                     // Content
                     Expanded(
                       child: Column(
@@ -141,7 +147,7 @@ class TaskCardWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Play Action Visual
                     const SizedBox(width: 12),
                     Container(

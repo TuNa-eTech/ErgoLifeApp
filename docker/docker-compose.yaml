@@ -54,6 +54,38 @@ services:
       - ../backend:/app
       - /app/node_modules
     command: sh -c "yarn prisma:generate && yarn prisma:migrate && yarn start:dev"
+  landing-page:
+    build:
+      context: ../landing-page
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    container_name: ergolife-landing-page
+    restart: unless-stopped
+    ports:
+      - "5175:3003"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3003', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ergolife-network
+  adminer:
+    image: adminer:latest
+    container_name: ergolife-adminer
+    restart: unless-stopped
+    ports:
+      - "5052:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ergolife-network
 
 networks:
   ergolife-network:

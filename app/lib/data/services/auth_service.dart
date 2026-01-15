@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logging/logging.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Service for handling authentication with Firebase using social providers.
 /// Supports Google Sign-In and Sign In with Apple.
@@ -138,34 +134,30 @@ class AuthService {
   Future<UserCredential> signInWithApple() async {
     _log.info('Starting Apple Sign-In flow');
 
-    // Generate a random nonce for security
-    final rawNonce = _generateNonce();
-    final nonce = _sha256ofString(rawNonce);
+    // Use Firebase's built-in Apple provider
+    // This handles the entire OAuth flow including nonce generation
+    final appleProvider = AppleAuthProvider();
+    appleProvider.addScope('email');
+    appleProvider.addScope('name');
 
-    // Request credentials from Apple
-    final appleCredential = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-      nonce: nonce,
-    );
-
-    // Create an OAuthCredential for Firebase
-    final oauthCredential = OAuthProvider(
-      'apple.com',
-    ).credential(idToken: appleCredential.identityToken, rawNonce: rawNonce);
-
-    // Sign in to Firebase with the credential
-    final userCredential = await _auth.signInWithCredential(oauthCredential);
+    final userCredential = await _auth.signInWithProvider(appleProvider);
 
     // Apple only returns the display name the first time,
     // so we need to update the user profile if it's available
     if (userCredential.additionalUserInfo?.isNewUser ?? false) {
-      final displayName = [
-        appleCredential.givenName,
-        appleCredential.familyName,
-      ].where((name) => name != null).join(' ');
+      // Try to get display name from user profile first
+      String? displayName = userCredential.user?.displayName;
+
+      // If no display name, extract from email (part before @)
+      if (displayName == null || displayName.isEmpty) {
+        final email = userCredential.user?.email;
+        if (email != null && email.contains('@')) {
+          displayName = email.split('@').first;
+        }
+      }
+
+      // Fallback to empty string if still null
+      displayName ??= '';
 
       if (displayName.isNotEmpty) {
         await userCredential.user?.updateDisplayName(displayName);
@@ -193,24 +185,6 @@ class AuthService {
   void dispose() {
     _googleAuthSubscription?.cancel();
     _googleAuthSubscription = null;
-  }
-
-  /// Generates a cryptographically secure random nonce.
-  String _generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(
-      length,
-      (_) => charset[random.nextInt(charset.length)],
-    ).join();
-  }
-
-  /// Returns the SHA256 hash of the input string.
-  String _sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
   }
 }
 

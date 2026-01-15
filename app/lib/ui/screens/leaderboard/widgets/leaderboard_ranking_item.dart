@@ -19,7 +19,9 @@ class LeaderboardRankingItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: isMe ? colorScheme.primaryContainer.withValues(alpha: 0.3) : Colors.transparent,
+        color: isMe
+            ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -33,13 +35,15 @@ class LeaderboardRankingItem extends StatelessWidget {
                 '${entry.rank}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isMe ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                  color: isMe
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(width: 16),
-            
+
             // Avatar
             Container(
               width: 40,
@@ -62,7 +66,7 @@ class LeaderboardRankingItem extends StatelessWidget {
                     ),
             ),
             const SizedBox(width: 16),
-            
+
             // Name
             Expanded(
               child: Column(
@@ -87,7 +91,7 @@ class LeaderboardRankingItem extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Points
             Text(
               entry.formattedPoints,

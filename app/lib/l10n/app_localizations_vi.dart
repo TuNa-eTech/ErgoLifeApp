@@ -87,10 +87,23 @@ class AppLocalizationsVi extends AppLocalizations {
   String get loginSubtitle => 'Đăng nhập để theo dõi tiến trình và thi đua.';
 
   @override
+  String get startYourJourney => 'Bắt Đầu Hành Trình';
+
+  @override
+  String get buildBetterHabits => 'Xây dựng thói quen tốt, đạt mục tiêu';
+
+  @override
+  String get joinUsersWorldwide => 'Tham gia cùng 10K+ người dùng';
+
+  @override
   String get continueWithGoogle => 'Tiếp tục với Google';
 
   @override
   String get continueWithApple => 'Tiếp tục với Apple';
+
+  @override
+  String get termsPrivacyPolicy =>
+      'Bằng việc tiếp tục, bạn đồng ý với Điều khoản & Chính sách';
 
   @override
   String get newToErgoLife => 'Mới với ErgoLife? ';
@@ -113,6 +126,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get welcomeBack => 'Chào mừng trở lại!';
+
+  @override
+  String get termsOfService => 'Điều Khoản Dịch Vụ';
+
+  @override
+  String get privacyPolicy => 'Chính Sách Riêng Tư';
 
   @override
   String get chooseYourAvatar => 'Chọn avatar của bạn';

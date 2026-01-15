@@ -60,10 +60,6 @@ class InviteMembersView extends StatelessWidget {
         },
         child: BlocBuilder<HouseBloc, HouseState>(
           builder: (context, state) {
-            if (state is HouseLoading || state is HouseProcessing) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
             if (state is HouseError) {
               return _buildErrorState(context, state.message, isDark);
             }
@@ -72,12 +68,8 @@ class InviteMembersView extends StatelessWidget {
               return _buildInviteContent(context, state, isDark);
             }
 
-            // No invite details yet
-            return _buildErrorState(
-              context,
-              'Unable to load invite code. Please try again.',
-              isDark,
-            );
+            // Show skeleton loading instead of spinner
+            return _buildSkeletonLoading(context, isDark);
           },
         ),
       ),
@@ -235,6 +227,137 @@ class InviteMembersView extends StatelessWidget {
                         ? AppColors.textSubDark
                         : AppColors.textSubLight,
                     height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonLoading(BuildContext context, bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header illustration skeleton
+          Center(
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Title skeleton
+          Center(
+            child: Container(
+              width: 200,
+              height: 24,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: Container(
+              width: 150,
+              height: 18,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Invite code card skeleton
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 100,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: 200,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Copy button skeleton
+          Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Instructions skeleton
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 120,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...List.generate(
+                  3,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      width: double.infinity,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
                 ),
               ],

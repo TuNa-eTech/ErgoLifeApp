@@ -32,8 +32,12 @@
 
   "loginTitle": "Let's Get Moving",
   "loginSubtitle": "Log in to track your progress and compete.",
+  "startYourJourney": "Start Your Journey",
+  "buildBetterHabits": "Build better habits, achieve your goals",
+  "joinUsersWorldwide": "Join 10K+ users worldwide",
   "continueWithGoogle": "Continue with Google",
   "continueWithApple": "Continue with Apple",
+  "termsPrivacyPolicy": "By continuing, you agree to our Terms & Privacy Policy",
   "newToErgoLife": "New to ErgoLife? ",
   "createAccount": "Create Account",
   "signIn": "Sign In",
@@ -41,6 +45,9 @@
   "logout": "Logout",
   "logoutConfirmation": "Are you sure you want to logout? You will need to sign in again to access your account.",
   "welcomeBack": "Welcome back!",
+  "termsOfService": "Terms of Service",
+  "privacyPolicy": "Privacy Policy",
+
 
   "chooseYourAvatar": "Choose your avatar",
   "pickAvatarHint": "Pick one for the leaderboard (optional)",

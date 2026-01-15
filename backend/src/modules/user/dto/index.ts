@@ -24,14 +24,14 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional({
     example: 5,
-    description: 'Avatar ID from library (1-20)',
+    description: 'Avatar ID from library (1-60, 6 styles x 10 variations)',
     minimum: 1,
-    maximum: 20,
+    maximum: 60,
   })
   @IsOptional()
   @IsInt()
   @Min(1, { message: 'Avatar ID must be at least 1' })
-  @Max(20, { message: 'Avatar ID must be at most 20' })
+  @Max(60, { message: 'Avatar ID must be at most 60' })
   avatarId?: number;
 }
 
@@ -59,6 +59,11 @@ export class UserProfileDto {
   @ApiPropertyOptional({ example: 5 })
   avatarId: number | null;
 
+  @ApiPropertyOptional({
+    example: 'https://api.dicebear.com/7.x/avataaars/png?seed=avatar5',
+  })
+  avatarUrl: string | null;
+
   @ApiPropertyOptional({ example: 'user@gmail.com' })
   email: string | null;
 
@@ -78,6 +83,11 @@ export class OtherUserDto {
 
   @ApiPropertyOptional({ example: 8 })
   avatarId: number | null;
+
+  @ApiPropertyOptional({
+    example: 'https://api.dicebear.com/7.x/avataaars/png?seed=avatar8',
+  })
+  avatarUrl: string | null;
 
   @ApiProperty({ example: 1800 })
   walletBalance: number;

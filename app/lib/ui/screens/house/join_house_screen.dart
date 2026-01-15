@@ -82,7 +82,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                       ? AppColors.textMainDark
                       : AppColors.textMainLight,
                 ),
-                onPressed: () => context.pop(),
+                onPressed: isLoading ? null : () => context.pop(),
               ),
               title: Text(
                 AppLocalizations.of(context)!.joinHouse,
@@ -94,192 +94,240 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                 ),
               ),
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header Icon
-                  Center(
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.secondary, Color(0xFFEE0979)],
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.secondary.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.home_outlined,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Title
-                  Text(
-                    AppLocalizations.of(context)!.enterInviteCode,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? AppColors.textMainDark
-                          : AppColors.textMainLight,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(context)!.askYourFriendForCode,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark
-                          ? AppColors.textSubDark
-                          : AppColors.textSubLight,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Code Input Field
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.surfaceDark
-                          : AppColors.surfaceLight,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : Colors.grey.shade200,
-                        width: 2,
-                      ),
-                    ),
-                    child: TextField(
-                      controller: _codeController,
-                      focusNode: _codeFocusNode,
-                      autofocus: true,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 8,
-                        color: isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight,
-                      ),
-                      maxLength: 6,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        hintText: '000000',
-                        hintStyle: TextStyle(
-                          color: isDark
-                              ? Colors.grey.shade700
-                              : Colors.grey.shade300,
-                        ),
-                        border: InputBorder.none,
-                        counterText: '',
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 24,
-                        ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {});
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Join Button
-                  ElevatedButton(
-                    onPressed: isLoading || _codeController.text.length != 6
-                        ? null
-                        : () => _joinHouse(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      disabledBackgroundColor: Colors.grey.shade300,
-                    ),
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+            body: Stack(
+              children: [
+                // Main content
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Header Icon
+                      Center(
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.secondary, Color(0xFFEE0979)],
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.secondary.withValues(
+                                  alpha: 0.3,
+                                ),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.home_outlined,
+                            size: 60,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Title
+                      Text(
+                        AppLocalizations.of(context)!.enterInviteCode,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context)!.askYourFriendForCode,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Code Input Field
+                      Container(
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surfaceLight,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade200,
+                            width: 2,
+                          ),
+                        ),
+                        child: TextField(
+                          controller: _codeController,
+                          focusNode: _codeFocusNode,
+                          enabled: !isLoading,
+                          autofocus: true,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 8,
+                            color: isDark
+                                ? AppColors.textMainDark
+                                : AppColors.textMainLight,
+                          ),
+                          maxLength: 6,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            hintText: '000000',
+                            hintStyle: TextStyle(
+                              color: isDark
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade300,
                             ),
-                          )
-                        : Text(
-                            AppLocalizations.of(context)!.joinHouse,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                            border: InputBorder.none,
+                            counterText: '',
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 24,
                             ),
                           ),
-                  ),
-                  const SizedBox(height: 24),
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 32),
 
-                  // Info Box
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Colors.blue,
-                              size: 20,
+                      // Join Button
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        child: ElevatedButton(
+                          onPressed:
+                              isLoading || _codeController.text.length != 6
+                              ? null
+                              : () => _joinHouse(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.secondary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            const SizedBox(width: 8),
+                            disabledBackgroundColor: isDark
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade300,
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    AppLocalizations.of(context)!.joinHouse,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Info Box
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.info_outline,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  AppLocalizations.of(context)!.goodToKnow,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             Text(
-                              AppLocalizations.of(context)!.goodToKnow,
+                              '• You can only be in one house at a time\n'
+                              '• Maximum 4 members per house\n'
+                              '• Compete with housemates on the leaderboard!',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade700,
+                                color: isDark
+                                    ? AppColors.textSubDark
+                                    : AppColors.textSubLight,
+                                height: 1.5,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          '• You can only be in one house at a time\n'
-                          '• Maximum 4 members per house\n'
-                          '• Compete with housemates on the leaderboard!',
-                          style: TextStyle(
-                            color: isDark
-                                ? AppColors.textSubDark
-                                : AppColors.textSubLight,
-                            height: 1.5,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Processing overlay
+                if (isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      child: const Center(
+                        child: Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Joining house...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           );
         },

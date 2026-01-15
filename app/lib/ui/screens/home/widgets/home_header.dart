@@ -57,12 +57,22 @@ class HomeHeader extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.primary, width: 2),
         ),
-        child: CircleAvatar(
-          radius: 18, // Smaller avatar
-          backgroundImage: avatarUrl != null
-              ? NetworkImage(avatarUrl!)
-              : const AssetImage("assets/images/default_avatar.png"),
-        ),
+        child: avatarUrl != null
+            ? CircleAvatar(
+                radius: 18,
+                backgroundImage: NetworkImage(avatarUrl!),
+              )
+            : CircleAvatar(
+                radius: 18,
+                backgroundColor: isDark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade200,
+                child: Icon(
+                  Icons.person,
+                  size: 20,
+                  color: isDark ? Colors.white54 : Colors.grey.shade400,
+                ),
+              ),
       ),
     );
   }

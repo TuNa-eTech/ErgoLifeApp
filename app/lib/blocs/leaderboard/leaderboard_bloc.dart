@@ -8,14 +8,13 @@ import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 /// BLoC for managing leaderboard state
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   final ActivityRepository _activityRepository;
-  
+
   String? _currentWeek;
   LeaderboardScope? _currentScope;
 
-  LeaderboardBloc({
-    required ActivityRepository activityRepository,
-  }) : _activityRepository = activityRepository,
-       super(const LeaderboardInitial()) {
+  LeaderboardBloc({required ActivityRepository activityRepository})
+    : _activityRepository = activityRepository,
+      super(const LeaderboardInitial()) {
     on<LoadLeaderboard>(_onLoadLeaderboard);
     on<RefreshLeaderboard>(_onRefreshLeaderboard);
   }

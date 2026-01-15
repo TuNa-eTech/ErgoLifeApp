@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
 /// Shop card for purchasing Streak Freeze
 ///
@@ -38,41 +39,13 @@ class _StreakFreezeShopItemState extends State<StreakFreezeShopItem> {
     if (!_canBuy) return;
 
     // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Purchase Streak Freeze?'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Protect your streak for 1 missed day'),
-            const SizedBox(height: 12),
-            Text(
-              'Cost: $_freezeCost EP',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Your balance: ${widget.walletBalance} EP',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B00),
-            ),
-            child: const Text('Buy'),
-          ),
-        ],
-      ),
+    final confirmed = await ModernDialog.showConfirmation(
+      context,
+      title: 'Purchase Streak Freeze?',
+      message:
+          'Protect your streak for 1 missed day\n\nCost: $_freezeCost EP\nYour balance: ${widget.walletBalance} EP',
+      confirmText: 'Buy',
+      cancelText: 'Cancel',
     );
 
     if (confirmed == true && mounted) {

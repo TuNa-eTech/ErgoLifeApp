@@ -87,10 +87,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSubtitle => 'Log in to track your progress and compete.';
 
   @override
+  String get startYourJourney => 'Start Your Journey';
+
+  @override
+  String get buildBetterHabits => 'Build better habits, achieve your goals';
+
+  @override
+  String get joinUsersWorldwide => 'Join 10K+ users worldwide';
+
+  @override
   String get continueWithGoogle => 'Continue with Google';
 
   @override
   String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get termsPrivacyPolicy =>
+      'By continuing, you agree to our Terms & Privacy Policy';
 
   @override
   String get newToErgoLife => 'New to ErgoLife? ';
@@ -113,6 +126,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeBack => 'Welcome back!';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
 
   @override
   String get chooseYourAvatar => 'Choose your avatar';

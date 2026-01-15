@@ -29,8 +29,12 @@
 
   "loginTitle": "Cùng Bắt Đầu Nào",
   "loginSubtitle": "Đăng nhập để theo dõi tiến trình và thi đua.",
+  "startYourJourney": "Bắt Đầu Hành Trình",
+  "buildBetterHabits": "Xây dựng thói quen tốt, đạt mục tiêu",
+  "joinUsersWorldwide": "Tham gia cùng 10K+ người dùng",
   "continueWithGoogle": "Tiếp tục với Google",
   "continueWithApple": "Tiếp tục với Apple",
+  "termsPrivacyPolicy": "Bằng việc tiếp tục, bạn đồng ý với Điều khoản & Chính sách",
   "newToErgoLife": "Mới với ErgoLife? ",
   "createAccount": "Tạo Tài Khoản",
   "signIn": "Đăng Nhập",
@@ -38,6 +42,8 @@
   "logout": "Đăng Xuất",
   "logoutConfirmation": "Bạn có chắc chắn muốn đăng xuất? Bạn sẽ cần đăng nhập lại để truy cập tài khoản.",
   "welcomeBack": "Chào mừng trở lại!",
+  "termsOfService": "Điều Khoản Dịch Vụ",
+  "privacyPolicy": "Chính Sách Riêng Tư",
 
   "chooseYourAvatar": "Chọn avatar của bạn",
   "pickAvatarHint": "Chọn một để hiển thị trên bảng xếp hạng (tùy chọn)",

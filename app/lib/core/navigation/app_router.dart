@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/ui/screens/home/home_screen.dart';
 import 'package:ergo_life_app/ui/screens/profile/profile_screen.dart';
+import 'package:ergo_life_app/ui/screens/profile/edit_profile_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/tasks_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/create_task_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
@@ -25,6 +26,7 @@ import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
+import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
 
 // House screens
 import 'package:ergo_life_app/ui/screens/house/invite_members_screen.dart';
@@ -34,8 +36,8 @@ import 'package:ergo_life_app/ui/screens/house/create_house_screen.dart';
 
 // Task management
 import 'package:ergo_life_app/ui/screens/tasks/manage_tasks_screen.dart';
-
-
+import 'package:ergo_life_app/ui/screens/legal/terms_of_service_screen.dart';
+import 'package:ergo_life_app/ui/screens/legal/privacy_policy_screen.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -45,6 +47,7 @@ class AppRouter {
   static const String rank = '/rank';
   static const String tasks = '/tasks';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
   static const String createTask = '/create-task';
 
   static const String activeSession = '/active-session';
@@ -58,6 +61,10 @@ class AppRouter {
 
   // Task management
   static const String manageTasks = '/manage-tasks';
+
+  // Legal routes
+  static const String termsOfService = '/terms';
+  static const String privacyPolicy = '/privacy';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -230,6 +237,34 @@ class AppRouter {
             create: (_) => sl<ManageTasksBloc>(),
             child: const ManageTasksScreen(),
           ),
+        ),
+      ),
+      // Profile Management Route
+      GoRoute(
+        path: editProfile,
+        name: 'editProfile',
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: BlocProvider.value(
+            value: sl<ProfileBloc>(),
+            child: const EditProfileScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: termsOfService,
+        name: 'termsOfService',
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: TermsOfServiceScreen(),
+        ),
+      ),
+      GoRoute(
+        path: privacyPolicy,
+        name: 'privacyPolicy',
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: PrivacyPolicyScreen(),
         ),
       ),
     ],

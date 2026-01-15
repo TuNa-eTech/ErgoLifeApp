@@ -1,22 +1,33 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
-WORKDIR /app
-RUN npm ci
+# syntax=docker/dockerfile:1
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
+# Build stage: install deps and build static files
+FROM node:20-alpine AS builder
 WORKDIR /app
-RUN npm ci --omit=dev
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
-RUN npm run build
+# Enable corepack (yarn) and install dependencies
+COPY package.json yarn.lock ./
+RUN corepack enable && yarn install --frozen-lockfile
 
-FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+# Copy source files
+COPY . .
+
+# Build the application (outputs to dist/)
+# Environment variables for build-time (Vite)
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+RUN yarn build
+
+# Production stage: serve static files with Node.js
+FROM node:20-alpine AS runner
 WORKDIR /app
-CMD ["npm", "run", "start"]
+
+# Install serve package globally
+RUN npm install -g serve
+
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3002
+CMD ["serve", "-s", "dist", "-l", "3002"]
+

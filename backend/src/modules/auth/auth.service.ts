@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FirebaseService, FirebaseUserInfo } from '../../firebase';
 import { AuthProvider, User } from '@prisma/client';
+import { getAvatarUrl } from '../../common/utils/avatar.utils';
 import {
   AuthResponseDto,
   UserDto,
@@ -192,6 +193,7 @@ export class AuthService {
       email: user.email,
       displayName: user.displayName,
       avatarId: user.avatarId,
+      avatarUrl: getAvatarUrl(user.avatarId),
       houseId: user.houseId,
       walletBalance: user.walletBalance,
       currentStreak: user.currentStreak,

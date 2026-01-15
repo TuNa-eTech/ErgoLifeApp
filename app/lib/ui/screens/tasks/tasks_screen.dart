@@ -15,6 +15,7 @@ import 'package:ergo_life_app/ui/screens/tasks/widgets/activity_card_widget.dart
 import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_header.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/stats_summary_bar.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/tasks_loading_skeleton.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
 class TasksScreen extends StatefulWidget {
   final TasksBloc tasksBloc;
@@ -296,50 +297,25 @@ class _TasksViewState extends State<TasksView>
     context.push(AppRouter.createTask, extra: task);
   }
 
-  void _deleteTask(BuildContext context, TaskModel task) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        title: Text(
-          'Delete Task?',
-          style: TextStyle(
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-          ),
-        ),
-        content: Text(
+  void _deleteTask(BuildContext context, TaskModel task) async {
+    final confirmed = await ModernDialog.showConfirmation(
+      context,
+      title: 'Delete Task?',
+      message:
           'Are you sure you want to delete "${task.exerciseName}"? This action cannot be undone.',
-          style: TextStyle(
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              // TODO: Add DeleteTask event when backend is ready
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Delete functionality coming soon!'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
     );
+
+    if (confirmed && context.mounted) {
+      // TODO: Add DeleteTask event when backend is ready
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Delete functionality coming soon!'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 }

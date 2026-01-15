@@ -5,6 +5,7 @@ import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_event.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/manage_task_item.dart';
+import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
 
 /// Screen for managing tasks (reorder, hide/show)
 class ManageTasksScreen extends StatefulWidget {
@@ -252,35 +253,23 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
     );
   }
 
-  void _handleBack(BuildContext context) {
+  void _handleBack(BuildContext context) async {
     final state = context.read<ManageTasksBloc>().state;
 
     if (state is ManageTasksLoaded && state.hasChanges) {
       // Show confirmation dialog
-      showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Unsaved Changes'),
-          content: const Text(
-            'You have unsaved changes. Do you want to discard them?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Discard'),
-            ),
-          ],
-        ),
-      ).then((discard) {
-        if (discard == true) {
-          Navigator.of(context).pop(false);
-        }
-      });
+      final discard = await ModernDialog.showConfirmation(
+        context,
+        title: 'Unsaved Changes',
+        message: 'You have unsaved changes. Do you want to discard them?',
+        confirmText: 'Discard',
+        cancelText: 'Cancel',
+        isDestructive: true,
+      );
+
+      if (discard && mounted) {
+        Navigator.of(context).pop(false);
+      }
     } else {
       Navigator.of(context).pop(false);
     }

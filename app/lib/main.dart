@@ -32,9 +32,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => LocaleCubit()),
-        BlocProvider(
-          create: (_) => sl<HouseBloc>()..add(const LoadHouse()),
-        ),
+        BlocProvider(create: (_) => sl<HouseBloc>()..add(const LoadHouse())),
       ],
       child: const MyApp(),
     ),

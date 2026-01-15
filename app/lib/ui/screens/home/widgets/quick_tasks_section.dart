@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 
 /// Model class for task data
@@ -138,7 +139,7 @@ class TaskCard extends StatelessWidget {
             fontSize: 12,
             color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
           ),
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -263,25 +264,37 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
   }
 
   Widget _buildTaskGrid() {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.85,
+    return AnimationLimiter(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.85,
+        ),
+        padding: EdgeInsets.zero, // Remove default top padding
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: widget.tasks.length,
+        itemBuilder: (context, index) {
+          final task = widget.tasks[index];
+          return AnimationConfiguration.staggeredGrid(
+            position: index,
+            duration: const Duration(milliseconds: 375),
+            columnCount: 2,
+            child: SlideAnimation(
+              verticalOffset: 50.0,
+              child: FadeInAnimation(
+                child: TaskCard(
+                  isDark: widget.isDark,
+                  task: task,
+                  onTap: () => widget.onTaskTap?.call(task),
+                ),
+              ),
+            ),
+          );
+        },
       ),
-      padding: EdgeInsets.zero, // Remove default top padding
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: widget.tasks.length,
-      itemBuilder: (context, index) {
-        final task = widget.tasks[index];
-        return TaskCard(
-          isDark: widget.isDark,
-          task: task,
-          onTap: () => widget.onTaskTap?.call(task),
-        );
-      },
     );
   }
 }
