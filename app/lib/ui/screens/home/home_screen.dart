@@ -11,6 +11,7 @@ import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart'; /
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ergo_life_app/core/utils/talker_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 // Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
@@ -64,7 +65,7 @@ class HomeView extends StatelessWidget {
                 content: Text(state.message),
                 backgroundColor: Colors.red,
                 action: SnackBarAction(
-                  label: 'Retry',
+                  label: AppLocalizations.of(context)!.retry,
                   textColor: Colors.white,
                   onPressed: () {
                     context.push(AppRouter.createTask);
@@ -199,7 +200,7 @@ class HomeView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Failed to load home data',
+                AppLocalizations.of(context)!.failedToLoadHomeData,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -224,7 +225,7 @@ class HomeView extends StatelessWidget {
                   context.read<HomeBloc>().add(const LoadHomeData());
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(AppLocalizations.of(context)!.retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: Colors.white,

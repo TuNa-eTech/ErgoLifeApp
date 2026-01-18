@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class JoinHouseBanner extends StatelessWidget {
   const JoinHouseBanner({super.key});
@@ -32,14 +33,14 @@ class JoinHouseBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Join a House',
+                        AppLocalizations.of(context)!.joinAHouse,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onTertiaryContainer,
                         ),
                       ),
                       Text(
-                        'Compete together!',
+                        AppLocalizations.of(context)!.competeTogether,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onTertiaryContainer.withValues(
                             alpha: 0.7,
@@ -58,7 +59,7 @@ class JoinHouseBanner extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: () => context.push(AppRouter.joinHouse),
                     icon: const Icon(Icons.login_rounded, size: 18),
-                    label: const Text('Join House'),
+                    label: Text(AppLocalizations.of(context)!.joinHouseAction),
                     style: FilledButton.styleFrom(
                       backgroundColor: colorScheme.onTertiaryContainer,
                       foregroundColor: colorScheme.tertiaryContainer,
@@ -74,7 +75,7 @@ class JoinHouseBanner extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => context.push(AppRouter.inviteMembers),
                     icon: const Icon(Icons.person_add_outlined, size: 18),
-                    label: const Text('Invite My House'),
+                    label: Text(AppLocalizations.of(context)!.inviteMyHouse),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: colorScheme.onTertiaryContainer,
                       side: BorderSide(

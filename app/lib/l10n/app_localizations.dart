@@ -380,7 +380,7 @@ abstract class AppLocalizations {
   /// **'Please enter your display name'**
   String get pleaseEnterDisplayName;
 
-  /// Progress indicator showing current step and total steps
+  /// No description provided for @stepCounter.
   ///
   /// In en, this message translates to:
   /// **'Step {current}/{total}'**
@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @familyArena.
   ///
   /// In en, this message translates to:
-  /// **'FAMILY ARENA'**
+  /// **'Family Arena'**
   String get familyArena;
 
   /// No description provided for @createNewHouse.
@@ -461,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterHouseName.
   ///
   /// In en, this message translates to:
-  /// **'Enter house name...'**
+  /// **'Please enter a house name'**
   String get enterHouseName;
 
   /// No description provided for @createArena.
@@ -869,7 +869,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterInviteCode.
   ///
   /// In en, this message translates to:
-  /// **'Enter Invite Code'**
+  /// **'Please enter an invite code'**
   String get enterInviteCode;
 
   /// No description provided for @askYourFriendForCode.
@@ -1243,6 +1243,600 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resource not found.'**
   String get notFoundError;
+
+  /// No description provided for @rewardsShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards Shop'**
+  String get rewardsShop;
+
+  /// No description provided for @noRewardsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No rewards available'**
+  String get noRewardsAvailable;
+
+  /// No description provided for @lifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get lifetime;
+
+  /// No description provided for @changeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Avatar'**
+  String get changeAvatar;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @houseDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'House Details'**
+  String get houseDetailsTitle;
+
+  /// No description provided for @notInHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not in a house'**
+  String get notInHouse;
+
+  /// No description provided for @goHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Home'**
+  String get goHome;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get join;
+
+  /// No description provided for @invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get invite;
+
+  /// Message shown when code is copied
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied: {code}'**
+  String codeCopiedWithCode(String code);
+
+  /// No description provided for @houseCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'House created successfully!'**
+  String get houseCreatedTitle;
+
+  /// No description provided for @createYourHouseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your House'**
+  String get createYourHouseTitle;
+
+  /// Message shown when a house is created
+  ///
+  /// In en, this message translates to:
+  /// **'House \"{name}\" created!'**
+  String houseCreatedWithName(String name);
+
+  /// No description provided for @noLeaderboardData.
+  ///
+  /// In en, this message translates to:
+  /// **'No leaderboard data'**
+  String get noLeaderboardData;
+
+  /// No description provided for @inviteMyHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite My House'**
+  String get inviteMyHouse;
+
+  /// No description provided for @joinHouseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Join House'**
+  String get joinHouseAction;
+
+  /// No description provided for @manageTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Tasks'**
+  String get manageTasks;
+
+  /// No description provided for @deleteComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete functionality coming soon!'**
+  String get deleteComingSoon;
+
+  /// No description provided for @changesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved successfully'**
+  String get changesSaved;
+
+  /// No description provided for @savingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving changes...'**
+  String get savingChanges;
+
+  /// No description provided for @inviteCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code copied!'**
+  String get inviteCodeCopied;
+
+  /// Welcome message for joining a house
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to {name}! 🎉'**
+  String welcomeToHouse(String name);
+
+  /// No description provided for @globalLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get globalLeaderboard;
+
+  /// No description provided for @houseLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get houseLeaderboard;
+
+  /// No description provided for @joinAHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a House'**
+  String get joinAHouse;
+
+  /// No description provided for @competeTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Compete together!'**
+  String get competeTogether;
+
+  /// No description provided for @failedToLoadTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load tasks'**
+  String get failedToLoadTasks;
+
+  /// No description provided for @deleteTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task?'**
+  String get deleteTaskTitle;
+
+  /// Confirmation message for deleting a task
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{taskName}\"? This action cannot be undone.'**
+  String deleteTaskConfirmation(String taskName);
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @dragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder, toggle to show/hide'**
+  String get dragToReorder;
+
+  /// No description provided for @unsavedChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved Changes'**
+  String get unsavedChangesTitle;
+
+  /// No description provided for @unsavedChangesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes. Do you want to discard them?'**
+  String get unsavedChangesMessage;
+
+  /// No description provided for @dailyMissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Missions'**
+  String get dailyMissions;
+
+  /// No description provided for @activeTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeTasks;
+
+  /// No description provided for @completedTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedTasks;
+
+  /// No description provided for @failedToLoadHomeData.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load home data'**
+  String get failedToLoadHomeData;
+
+  /// No description provided for @failedToLoadInviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load invite code'**
+  String get failedToLoadInviteCode;
+
+  /// No description provided for @failedToUpdateName.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update name'**
+  String get failedToUpdateName;
+
+  /// No description provided for @joinMyHouseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join my ErgoLife house! Use code: {code}\n\n{link}'**
+  String joinMyHouseMessage(String code, String link);
+
+  /// No description provided for @joinMyHouseSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Join my ErgoLife house!'**
+  String get joinMyHouseSubject;
+
+  /// No description provided for @nameYourArena.
+  ///
+  /// In en, this message translates to:
+  /// **'Name Your Arena'**
+  String get nameYourArena;
+
+  /// No description provided for @nameArenaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your house a cool name before inviting friends!'**
+  String get nameArenaDescription;
+
+  /// No description provided for @nameArenaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., \"The Warriors\" 💪'**
+  String get nameArenaHint;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// No description provided for @inviteFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Friends'**
+  String get inviteFriends;
+
+  /// No description provided for @inviteFriendsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this code with friends to join \"{name}\"'**
+  String inviteFriendsDescription(String name);
+
+  /// No description provided for @tapToCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to copy'**
+  String get tapToCopy;
+
+  /// No description provided for @shareInviteLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Invite Link'**
+  String get shareInviteLink;
+
+  /// No description provided for @failedToLoadHouseInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load house info'**
+  String get failedToLoadHouseInfo;
+
+  /// No description provided for @failedToJoinHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to join house'**
+  String get failedToJoinHouse;
+
+  /// No description provided for @leavePersonalSpaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Personal Space?'**
+  String get leavePersonalSpaceTitle;
+
+  /// No description provided for @leavePersonalSpaceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will leave your current Personal Space to join \"{houseName}\". This action cannot be undone.'**
+  String leavePersonalSpaceMessage(String houseName);
+
+  /// No description provided for @enterInviteCodeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the invite code shared by your friend'**
+  String get enterInviteCodeDescription;
+
+  /// No description provided for @previewHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview House'**
+  String get previewHouse;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by {ownerName}'**
+  String createdBy(String ownerName);
+
+  /// No description provided for @memberCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String memberCount(int count);
+
+  /// Greeting on home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {userName}!'**
+  String helloUser(String userName);
+
+  /// No description provided for @yourProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR PROGRESS'**
+  String get yourProgress;
+
+  /// No description provided for @dayCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Day'**
+  String dayCount(int count);
+
+  /// No description provided for @pointsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pts'**
+  String pointsCount(String count);
+
+  /// No description provided for @hoursCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String hoursCount(int count);
+
+  /// No description provided for @minutesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String minutesCount(int count);
+
+  /// No description provided for @quickTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Tasks'**
+  String get quickTasks;
+
+  /// No description provided for @activeTasksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Active'**
+  String activeTasksCount(int count);
+
+  /// No description provided for @enterDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a display name'**
+  String get enterDisplayName;
+
+  /// No description provided for @chooseAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your avatar'**
+  String get chooseAvatar;
+
+  /// No description provided for @pickForLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one for the leaderboard (optional)'**
+  String get pickForLeaderboard;
+
+  /// No description provided for @onboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to experience ErgoLife?'**
+  String get onboardingSubtitle;
+
+  /// No description provided for @personalSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Space'**
+  String get personalSpace;
+
+  /// No description provided for @soloJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Solo journey'**
+  String get soloJourney;
+
+  /// No description provided for @trackProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your progress'**
+  String get trackProgress;
+
+  /// No description provided for @challengeLovedOnes.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge loved ones'**
+  String get challengeLovedOnes;
+
+  /// No description provided for @friendlyCompetition.
+  ///
+  /// In en, this message translates to:
+  /// **'Friendly competition'**
+  String get friendlyCompetition;
+
+  /// No description provided for @climbLeaderboards.
+  ///
+  /// In en, this message translates to:
+  /// **'Climb leaderboards'**
+  String get climbLeaderboards;
+
+  /// No description provided for @haveInviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Have an invite code?'**
+  String get haveInviteCode;
+
+  /// No description provided for @createYourArena.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your Arena'**
+  String get createYourArena;
+
+  /// No description provided for @giveArenaName.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your family competition a name!'**
+  String get giveArenaName;
+
+  /// No description provided for @arenaNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. \"The Warriors\" 💪'**
+  String get arenaNameHint;
+
+  /// No description provided for @enterJoinCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code shared by your house admin.'**
+  String get enterJoinCodeMessage;
+
+  /// No description provided for @inviteCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Code'**
+  String get inviteCodeLabel;
+
+  /// No description provided for @joinBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get joinBtn;
+
+  /// No description provided for @personalHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal House'**
+  String get personalHouse;
+
+  /// No description provided for @teamHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Team House'**
+  String get teamHouse;
+
+  /// No description provided for @todayPts.
+  ///
+  /// In en, this message translates to:
+  /// **'Today Pts'**
+  String get todayPts;
+
+  /// No description provided for @inviteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Member'**
+  String get inviteMember;
+
+  /// No description provided for @competeAndMotivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Compete with friends & stay motivated'**
+  String get competeAndMotivate;
+
+  /// No description provided for @displayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display Name'**
+  String get displayName;
+
+  /// No description provided for @enterDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your display name'**
+  String get enterDisplayNameHint;
+
+  /// No description provided for @displayNameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name cannot be empty'**
+  String get displayNameEmptyError;
+
+  /// No description provided for @displayNameMinLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name must be at least 2 characters'**
+  String get displayNameMinLengthError;
+
+  /// No description provided for @displayNameMaxLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name must be at most 30 characters'**
+  String get displayNameMaxLengthError;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @noEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'No email'**
+  String get noEmail;
+
+  /// No description provided for @emailCannotBeChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Email cannot be changed'**
+  String get emailCannotBeChanged;
+
+  /// No description provided for @validationErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation Error'**
+  String get validationErrorTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Dialog for entering a join code - Using ModernDialog
 class JoinCodeDialog extends StatefulWidget {
@@ -43,8 +44,8 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
   Widget build(BuildContext context) {
     return ModernDialog(
       type: DialogType.info,
-      title: 'Join House',
-      message: 'Enter the 6-digit code shared by your house admin.',
+      title: AppLocalizations.of(context)!.joinHouseAction,
+      message: AppLocalizations.of(context)!.enterJoinCodeMessage,
       customIcon: const Icon(
         Icons.home_outlined,
         size: 24,
@@ -55,15 +56,15 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
         autofocus: true,
         textCapitalization: TextCapitalization.characters,
         maxLength: 6,
-        decoration: const InputDecoration(
-          labelText: 'Invite Code',
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.inviteCodeLabel,
           hintText: 'ABC123',
           counterText: '',
         ),
         onSubmitted: (_) => _handleJoin(context),
       ),
-      primaryButtonText: 'Join',
-      secondaryButtonText: 'Cancel',
+      primaryButtonText: AppLocalizations.of(context)!.joinBtn,
+      secondaryButtonText: AppLocalizations.of(context)!.cancel,
       onPrimaryPressed: () => _handleJoin(context),
       onSecondaryPressed: () => Navigator.pop(context),
     );

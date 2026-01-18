@@ -8,6 +8,7 @@ import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_event.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_state.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 import 'package:ergo_life_app/ui/screens/tasks/widgets/task_card_widget.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/high_priority_task_card.dart';
@@ -80,7 +81,7 @@ class _TasksViewState extends State<TasksView>
                 content: Text(state.message),
                 backgroundColor: Colors.red,
                 action: SnackBarAction(
-                  label: 'Retry',
+                  label: AppLocalizations.of(context)!.retry,
                   textColor: Colors.white,
                   onPressed: () =>
                       context.read<TasksBloc>().add(const LoadTasks()),
@@ -135,7 +136,7 @@ class _TasksViewState extends State<TasksView>
             Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Failed to load tasks',
+              AppLocalizations.of(context)!.failedToLoadTasks,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -152,7 +153,7 @@ class _TasksViewState extends State<TasksView>
             ElevatedButton.icon(
               onPressed: () => context.read<TasksBloc>().add(const LoadTasks()),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.white,
@@ -300,19 +301,20 @@ class _TasksViewState extends State<TasksView>
   void _deleteTask(BuildContext context, TaskModel task) async {
     final confirmed = await ModernDialog.showConfirmation(
       context,
-      title: 'Delete Task?',
-      message:
-          'Are you sure you want to delete "${task.exerciseName}"? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: AppLocalizations.of(context)!.deleteTaskTitle,
+      message: AppLocalizations.of(
+        context,
+      )!.deleteTaskConfirmation(task.exerciseName),
+      confirmText: AppLocalizations.of(context)!.delete,
+      cancelText: AppLocalizations.of(context)!.cancel,
       isDestructive: true,
     );
 
     if (confirmed && context.mounted) {
       // TODO: Add DeleteTask event when backend is ready
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Delete functionality coming soon!'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.deleteComingSoon),
           backgroundColor: Colors.orange,
         ),
       );

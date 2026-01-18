@@ -11,6 +11,7 @@ import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_error_v
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_podium.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_ranking_item.dart';
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class LeaderboardScreen extends StatelessWidget {
   final LeaderboardBloc leaderboardBloc;
@@ -71,13 +72,13 @@ class _LeaderboardViewState extends State<LeaderboardView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Leaderboard'),
+        title: Text(AppLocalizations.of(context)!.leaderboard),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Global'),
-            Tab(text: 'House'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.globalLeaderboard),
+            Tab(text: AppLocalizations.of(context)!.houseLeaderboard),
           ],
         ),
       ),
@@ -157,7 +158,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
                       vertical: 8,
                     ),
                     child: Text(
-                      'Rankings',
+                      AppLocalizations.of(context)!.rankings,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -187,7 +188,9 @@ class _LeaderboardViewState extends State<LeaderboardView>
           return LeaderboardErrorView(message: state.message);
         }
 
-        return const Center(child: Text('No leaderboard data'));
+        return Center(
+          child: Text(AppLocalizations.of(context)!.noLeaderboardData),
+        );
       },
     );
   }

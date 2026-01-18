@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Bottom sheet for inviting friends to your house
 class InviteHouseBottomSheet extends StatefulWidget {
@@ -81,7 +82,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to load invite code';
+        _error = AppLocalizations.of(context)!.failedToLoadInviteCode;
       });
     }
   }
@@ -89,7 +90,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
   Future<void> _onSaveName() async {
     final newName = _nameController.text.trim();
     if (newName.isEmpty) {
-      setState(() => _error = 'Please enter a house name');
+      setState(() => _error = AppLocalizations.of(context)!.enterHouseName);
       return;
     }
 
@@ -103,13 +104,13 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
       } else {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to update name';
+          _error = AppLocalizations.of(context)!.failedToUpdateName;
         });
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to update name';
+        _error = AppLocalizations.of(context)!.failedToUpdateName;
       });
     }
   }
@@ -119,10 +120,10 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
 
     Clipboard.setData(ClipboardData(text: _invite!.inviteCode));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Invite code copied! 📋'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.inviteCodeCopied),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -132,9 +133,10 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
 
     SharePlus.instance.share(
       ShareParams(
-        text:
-            'Join my ErgoLife house! Use code: ${_invite!.inviteCode}\n\n${_invite!.inviteLink}',
-        subject: 'Join my ErgoLife house!',
+        text: AppLocalizations.of(
+          context,
+        )!.joinMyHouseMessage(_invite!.inviteCode, _invite!.inviteLink),
+        subject: AppLocalizations.of(context)!.joinMyHouseSubject,
       ),
     );
   }
@@ -191,7 +193,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
 
         // Title
         Text(
-          'Name Your Arena',
+          AppLocalizations.of(context)!.nameYourArena,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -200,7 +202,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Give your house a cool name before inviting friends!',
+          AppLocalizations.of(context)!.nameArenaDescription,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -228,7 +230,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
             decoration: InputDecoration(
-              hintText: 'e.g., "The Warriors" 💪',
+              hintText: AppLocalizations.of(context)!.nameArenaHint,
               hintStyle: TextStyle(color: Colors.grey.shade400),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(20),
@@ -272,9 +274,9 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
                       valueColor: AlwaysStoppedAnimation(Colors.white),
                     ),
                   )
-                : const Text(
-                    'Continue',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                : Text(
+                    AppLocalizations.of(context)!.continueAction,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
           ),
         ),
@@ -291,7 +293,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
 
         // Title
         Text(
-          'Invite Friends',
+          AppLocalizations.of(context)!.inviteFriends,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -300,7 +302,9 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Share this code with friends to join "${_nameController.text}"',
+          AppLocalizations.of(
+            context,
+          )!.inviteFriendsDescription(_nameController.text),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -355,7 +359,7 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Tap to copy',
+                        AppLocalizations.of(context)!.tapToCopy,
                         style: TextStyle(
                           fontSize: 13,
                           color: AppColors.primary.withAlpha(180),
@@ -376,9 +380,9 @@ class _InviteHouseBottomSheetState extends State<InviteHouseBottomSheet> {
             child: ElevatedButton.icon(
               onPressed: _shareInvite,
               icon: const Icon(Icons.share),
-              label: const Text(
-                'Share Invite Link',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                AppLocalizations.of(context)!.shareInviteLink,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,

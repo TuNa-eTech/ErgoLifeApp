@@ -4,6 +4,7 @@ import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_event.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/data/models/reward_model.dart';
 
 class RewardsScreen extends StatelessWidget {
@@ -32,7 +33,7 @@ class RewardsView extends StatelessWidget {
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Rewards Shop'),
+        title: Text(AppLocalizations.of(context)!.rewardsShop),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -87,7 +88,9 @@ class RewardsView extends StatelessWidget {
             );
           }
 
-          return const Center(child: Text("No rewards available"));
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noRewardsAvailable),
+          );
         },
       ),
     );
@@ -224,7 +227,10 @@ class RewardsView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text('Redeem', style: TextStyle(color: Colors.white)),
+            child: Text(
+              AppLocalizations.of(context)!.redeem,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

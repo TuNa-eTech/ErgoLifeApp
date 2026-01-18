@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
 
@@ -87,7 +88,9 @@ class HouseCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          house!.isPersonal ? 'Personal House' : 'Team House',
+                          house!.isPersonal
+                              ? AppLocalizations.of(context)!.personalHouse
+                              : AppLocalizations.of(context)!.teamHouse,
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark
@@ -125,7 +128,7 @@ class HouseCard extends StatelessWidget {
                     _buildStatItem(
                       context,
                       '${house!.memberCount}',
-                      'Members',
+                      AppLocalizations.of(context)!.members,
                       Icons.people_outline_rounded,
                       isDark,
                     ),
@@ -137,7 +140,7 @@ class HouseCard extends StatelessWidget {
                     _buildStatItem(
                       context,
                       '$todayPoints',
-                      'Today Pts',
+                      AppLocalizations.of(context)!.todayPts,
                       Icons.stars_outlined,
                       isDark,
                     ),
@@ -153,7 +156,7 @@ class HouseCard extends StatelessWidget {
                   Expanded(
                     child: _buildPrimaryButton(
                       context,
-                      'Invite Member',
+                      AppLocalizations.of(context)!.inviteMember,
                       Icons.person_add_outlined,
                       () => context.push(AppRouter.inviteMembers),
                       isDark,
@@ -164,7 +167,7 @@ class HouseCard extends StatelessWidget {
                     Expanded(
                       child: _buildSecondaryButton(
                         context,
-                        'Join House',
+                        AppLocalizations.of(context)!.joinHouse,
                         Icons.login_rounded,
                         () => context.push(AppRouter.joinHouse),
                         isDark,
@@ -302,7 +305,7 @@ class HouseCard extends StatelessWidget {
           Icon(Icons.home_work_outlined, size: 40, color: Colors.grey.shade400),
           const SizedBox(height: 12),
           Text(
-            'Join a House',
+            AppLocalizations.of(context)!.joinAHouse,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -311,7 +314,7 @@ class HouseCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Compete with friends & stay motivated',
+            AppLocalizations.of(context)!.competeAndMotivate,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -330,7 +333,7 @@ class HouseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Create'),
+                  child: Text(AppLocalizations.of(context)!.create),
                 ),
               ),
               const SizedBox(width: 12),
@@ -344,7 +347,7 @@ class HouseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Join'),
+                  child: Text(AppLocalizations.of(context)!.join),
                 ),
               ),
             ],

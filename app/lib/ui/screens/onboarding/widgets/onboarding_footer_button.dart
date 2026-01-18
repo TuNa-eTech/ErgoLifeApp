@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Footer continue button for onboarding with gradient background
 class OnboardingFooterButton extends StatelessWidget {
@@ -43,11 +44,11 @@ class OnboardingFooterButton extends StatelessWidget {
             elevation: 8,
             shadowColor: AppColors.secondary.withValues(alpha: 0.3),
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Continue',
+                AppLocalizations.of(context)!.continueButton,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

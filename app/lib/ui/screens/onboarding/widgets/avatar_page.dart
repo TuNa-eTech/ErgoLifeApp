@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/widgets/avatar_helpers.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Page 1 of onboarding: Avatar selection and name input
 class AvatarPage extends StatelessWidget {
@@ -36,7 +37,7 @@ class AvatarPage extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'Choose your avatar',
+                  AppLocalizations.of(context)!.chooseAvatar,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32,
@@ -47,7 +48,7 @@ class AvatarPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Pick one for the leaderboard (optional)',
+                  AppLocalizations.of(context)!.pickForLeaderboard,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -104,7 +105,7 @@ class AvatarPage extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'What should we call you?',
+                  AppLocalizations.of(context)!.whatShouldWeCallYou,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -136,7 +137,7 @@ class AvatarPage extends StatelessWidget {
                         color: AppColors.success,
                       ),
                     ),
-                    hintText: 'Enter your name...',
+                    hintText: AppLocalizations.of(context)!.enterYourName,
                   ),
                 ),
               ],

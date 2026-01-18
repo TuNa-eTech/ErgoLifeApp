@@ -6,6 +6,7 @@ import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/ui/screens/tasks/widgets/manage_task_item.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Screen for managing tasks (reorder, hide/show)
 class ManageTasksScreen extends StatefulWidget {
@@ -37,10 +38,10 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
           if (state is ManageTasksSaved) {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Changes saved successfully'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.changesSaved),
                 backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
               ),
             );
             // Navigate back after a short delay
@@ -100,7 +101,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
         onPressed: () => _handleBack(context),
       ),
       title: Text(
-        'Manage Tasks',
+        AppLocalizations.of(context)!.manageTasks,
         style: TextStyle(
           color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
           fontSize: 20,
@@ -123,9 +124,9 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
               onPressed: () {
                 context.read<ManageTasksBloc>().add(const SaveTaskChanges());
               },
-              child: const Text(
-                'Update',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.update,
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: Text(
-                'Drag to reorder, toggle to show/hide',
+                AppLocalizations.of(context)!.dragToReorder,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark
@@ -202,7 +203,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
         if (isSaving)
           Container(
             color: Colors.black.withOpacity(0.3),
-            child: const Center(
+            child: Center(
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(24),
@@ -211,7 +212,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
-                      Text('Saving changes...'),
+                      Text(AppLocalizations.of(context)!.savingChanges),
                     ],
                   ),
                 ),
@@ -245,7 +246,7 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
               onPressed: () {
                 context.read<ManageTasksBloc>().add(const LoadManageTasks());
               },
-              child: const Text('Retry'),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -260,10 +261,10 @@ class _ManageTasksScreenState extends State<ManageTasksScreen> {
       // Show confirmation dialog
       final discard = await ModernDialog.showConfirmation(
         context,
-        title: 'Unsaved Changes',
-        message: 'You have unsaved changes. Do you want to discard them?',
-        confirmText: 'Discard',
-        cancelText: 'Cancel',
+        title: AppLocalizations.of(context)!.unsavedChangesTitle,
+        message: AppLocalizations.of(context)!.unsavedChangesMessage,
+        confirmText: AppLocalizations.of(context)!.discard,
+        cancelText: AppLocalizations.of(context)!.cancel,
         isDestructive: true,
       );
 

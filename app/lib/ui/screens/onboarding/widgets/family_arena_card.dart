@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Family arena card widget for competitive mode - Minimalist design
 class FamilyArenaCard extends StatelessWidget {
@@ -53,7 +54,7 @@ class FamilyArenaCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Family Arena',
+                      AppLocalizations.of(context)!.familyArena,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isDark
@@ -63,7 +64,7 @@ class FamilyArenaCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      'Compete together',
+                      AppLocalizations.of(context)!.competeTogether,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
@@ -80,19 +81,19 @@ class FamilyArenaCard extends StatelessWidget {
           // Benefits
           _BenefitItem(
             icon: Icons.people_outline,
-            text: 'Challenge loved ones',
+            text: AppLocalizations.of(context)!.challengeLovedOnes,
             isDark: isDark,
           ),
           const SizedBox(height: 6),
           _BenefitItem(
             icon: Icons.emoji_events_outlined,
-            text: 'Friendly competition',
+            text: AppLocalizations.of(context)!.friendlyCompetition,
             isDark: isDark,
           ),
           const SizedBox(height: 6),
           _BenefitItem(
             icon: Icons.leaderboard_outlined,
-            text: 'Climb leaderboards',
+            text: AppLocalizations.of(context)!.climbLeaderboards,
             isDark: isDark,
           ),
 
@@ -116,7 +117,7 @@ class FamilyArenaCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Create Arena',
+                    AppLocalizations.of(context)!.createArena,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

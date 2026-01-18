@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/onboarding/onboarding_event.dart';
@@ -81,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _nextPage() {
     if (_currentPage == 0 && !_isNameValid) {
-      _showError('Vui lòng nhập tên hiển thị');
+      _showError(AppLocalizations.of(context)!.pleaseEnterDisplayName);
       return;
     }
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/blocs/house/house_state.dart';
@@ -178,7 +179,7 @@ class InviteMembersView extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => _copyToClipboard(context, inviteCode),
             icon: const Icon(Icons.copy),
-            label: const Text('Copy Code'),
+            label: Text(AppLocalizations.of(context)!.copyCode),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               foregroundColor: Colors.white,
@@ -405,7 +406,7 @@ class InviteMembersView extends StatelessWidget {
                 context.read<HouseBloc>().add(const GetInviteDetails());
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.white,
@@ -425,7 +426,7 @@ class InviteMembersView extends StatelessWidget {
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 12),
-            Text('Code copied: $code'),
+            Text(AppLocalizations.of(context)!.codeCopiedWithCode(code)),
           ],
         ),
         backgroundColor: Colors.green,

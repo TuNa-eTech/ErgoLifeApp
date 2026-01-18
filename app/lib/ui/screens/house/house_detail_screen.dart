@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_state.dart';
@@ -37,7 +38,9 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
         backgroundColor: isDark
             ? AppColors.backgroundDark
             : AppColors.backgroundLight,
-        appBar: AppBar(title: const Text('House Details')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.houseDetailsTitle),
+        ),
         body: BlocBuilder<HouseBloc, HouseState>(
           builder: (context, state) {
             if (state is HouseLoading || state is HouseProcessing) {
@@ -59,7 +62,7 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => widget.houseBloc.add(const LoadHouse()),
-                      child: const Text('Retry'),
+                      child: Text(AppLocalizations.of(context)!.retry),
                     ),
                   ],
                 ),
@@ -73,11 +76,11 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
                   children: [
                     const Icon(Icons.home_outlined, size: 64),
                     const SizedBox(height: 16),
-                    const Text('You are not in a house'),
+                    Text(AppLocalizations.of(context)!.notInHouse),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => context.go(AppRouter.home),
-                      child: const Text('Go Home'),
+                      child: Text(AppLocalizations.of(context)!.goHome),
                     ),
                   ],
                 ),
@@ -452,7 +455,7 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => context.push(AppRouter.inviteMembers),
                 icon: const Icon(Icons.person_add_rounded),
-                label: const Text('Invite'),
+                label: Text(AppLocalizations.of(context)!.invite),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: Colors.white,

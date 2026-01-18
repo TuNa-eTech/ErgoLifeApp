@@ -70,17 +70,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     // Validation
     if (name.isEmpty) {
-      _showErrorDialog('Display name cannot be empty');
+      _showErrorDialog(AppLocalizations.of(context)!.displayNameEmptyError);
       return;
     }
 
     if (name.length < 2) {
-      _showErrorDialog('Display name must be at least 2 characters');
+      _showErrorDialog(AppLocalizations.of(context)!.displayNameMinLengthError);
       return;
     }
 
     if (name.length > 30) {
-      _showErrorDialog('Display name must be at most 30 characters');
+      _showErrorDialog(AppLocalizations.of(context)!.displayNameMaxLengthError);
       return;
     }
 
@@ -104,9 +104,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       context: context,
       builder: (ctx) => ModernDialog(
         type: DialogType.error,
-        title: 'Validation Error',
+        title: AppLocalizations.of(context)!.validationErrorTitle,
         message: message,
-        primaryButtonText: 'OK',
+        primaryButtonText: AppLocalizations.of(context)!.ok,
         onPrimaryPressed: () => Navigator.pop(ctx),
       ),
     );
@@ -158,8 +158,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _hasChanges = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.profileUpdatedSuccessfully,
+              ),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               duration: Duration(seconds: 2),
@@ -230,7 +232,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        'Save',
+                        AppLocalizations.of(context)!.save,
                         style: TextStyle(
                           color: _hasChanges
                               ? AppColors.secondary
@@ -326,7 +328,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextButton.icon(
           onPressed: isLoading ? null : _showAvatarSelector,
           icon: const Icon(Icons.edit, size: 16),
-          label: const Text('Change Avatar'),
+          label: Text(AppLocalizations.of(context)!.changeAvatar),
           style: TextButton.styleFrom(foregroundColor: AppColors.secondary),
         ),
       ],
@@ -338,7 +340,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Display Name',
+          AppLocalizations.of(context)!.displayName,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -350,7 +352,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           controller: _nameController,
           enabled: !isLoading,
           decoration: InputDecoration(
-            hintText: 'Enter your display name',
+            hintText: AppLocalizations.of(context)!.enterDisplayNameHint,
             filled: true,
             fillColor: isDark ? AppColors.surfaceDark : Colors.white,
             border: OutlineInputBorder(
@@ -384,7 +386,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Name must be 2-30 characters',
+          AppLocalizations.of(context)!.displayNameMaxLengthError,
           style: TextStyle(
             fontSize: 12,
             color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
@@ -401,7 +403,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Email',
+          AppLocalizations.of(context)!.emailLabel,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -422,7 +424,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               Expanded(
                 child: Text(
-                  email ?? 'No email',
+                  email ?? AppLocalizations.of(context)!.noEmail,
                   style: TextStyle(
                     fontSize: 16,
                     color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -439,7 +441,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Email cannot be changed',
+          AppLocalizations.of(context)!.emailCannotBeChanged,
           style: TextStyle(
             fontSize: 12,
             color: isDark ? AppColors.textSubDark : AppColors.textSubLight,

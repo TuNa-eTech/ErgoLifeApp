@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
@@ -52,7 +53,11 @@ class _CreateHouseScreenState extends State<CreateHouseScreen> {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('🎉 House "${state.house.name}" created!'),
+                content: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.houseCreatedWithName(state.house.name),
+                ),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
               ),
@@ -83,7 +88,7 @@ class _CreateHouseScreenState extends State<CreateHouseScreen> {
               ? AppColors.backgroundDark
               : AppColors.backgroundLight,
           appBar: AppBar(
-            title: const Text('Create Your House'),
+            title: Text(AppLocalizations.of(context)!.createYourHouseTitle),
             backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,

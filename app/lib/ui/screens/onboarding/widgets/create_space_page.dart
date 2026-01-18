@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/widgets/personal_space_card.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/widgets/family_arena_card.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Page 2 of onboarding: Choose between personal space or family arena
 class CreateSpacePage extends StatelessWidget {
@@ -33,7 +34,7 @@ class CreateSpacePage extends StatelessWidget {
 
           // Title
           Text(
-            'Choose Your Journey',
+            AppLocalizations.of(context)!.chooseYourJourney,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w900,
@@ -44,7 +45,7 @@ class CreateSpacePage extends StatelessWidget {
 
           // Subtitle
           Text(
-            'Bạn muốn ErgoLife như thế nào?',
+            AppLocalizations.of(context)!.onboardingSubtitle,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
@@ -68,7 +69,7 @@ class CreateSpacePage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'OR',
+                  AppLocalizations.of(context)!.or.toUpperCase(),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: isDark
                         ? AppColors.textSubDark
@@ -98,7 +99,7 @@ class CreateSpacePage extends StatelessWidget {
                 color: isDark ? AppColors.textMainDark : AppColors.primary,
               ),
               label: Text(
-                'Have an invite code?',
+                AppLocalizations.of(context)!.haveInviteCode,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: isDark ? AppColors.textMainDark : AppColors.primary,
                   fontWeight: FontWeight.w600,

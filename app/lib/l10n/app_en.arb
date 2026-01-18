@@ -232,5 +232,240 @@
   "checkYourConnection": "Please check your internet connection and try again",
   "timeoutError": "Request timeout. Please try again.",
   "unauthorizedError": "Unauthorized access.",
-  "notFoundError": "Resource not found."
+  "notFoundError": "Resource not found.",
+  "rewardsShop": "Rewards Shop",
+  "noRewardsAvailable": "No rewards available",
+
+  "lifetime": "Lifetime",
+
+  "changeAvatar": "Change Avatar",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+
+  "houseDetailsTitle": "House Details",
+  "notInHouse": "You are not in a house",
+  "goHome": "Go Home",
+  "create": "Create",
+  "join": "Join",
+  "invite": "Invite",
+
+  "copyCode": "Copy Code",
+  "codeCopiedWithCode": "Code copied: {code}",
+  "@codeCopiedWithCode": {
+    "description": "Message shown when code is copied",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+
+  "houseCreatedTitle": "House created successfully!",
+  "createYourHouseTitle": "Create Your House",
+  "houseCreatedWithName": "House \"{name}\" created!",
+  "@houseCreatedWithName": {
+    "description": "Message shown when a house is created",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "noLeaderboardData": "No leaderboard data",
+  "inviteMyHouse": "Invite My House",
+  "joinHouseAction": "Join House",
+
+  "manageTasks": "Manage Tasks",
+  "deleteComingSoon": "Delete functionality coming soon!",
+  "changesSaved": "Changes saved successfully",
+  "savingChanges": "Saving changes...",
+
+  "inviteCodeCopied": "Invite code copied!",
+  "welcomeToHouse": "Welcome to {name}! 🎉",
+  "@welcomeToHouse": {
+    "description": "Welcome message for joining a house",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "globalLeaderboard": "Global",
+  "houseLeaderboard": "House",
+  "joinAHouse": "Join a House",
+  "competeTogether": "Compete together!",
+  "failedToLoadTasks": "Failed to load tasks",
+  "deleteTaskTitle": "Delete Task?",
+  "deleteTaskConfirmation": "Are you sure you want to delete \"{taskName}\"? This action cannot be undone.",
+  "@deleteTaskConfirmation": {
+    "description": "Confirmation message for deleting a task",
+    "placeholders": {
+      "taskName": {
+        "type": "String"
+      }
+    }
+  },
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "discard": "Discard",
+  "update": "Update",
+  "dragToReorder": "Drag to reorder, toggle to show/hide",
+  "unsavedChangesTitle": "Unsaved Changes",
+  "unsavedChangesMessage": "You have unsaved changes. Do you want to discard them?",
+  "dailyMissions": "Daily Missions",
+  "activeTasks": "Active",
+  "completedTasks": "Completed",
+
+  "failedToLoadHomeData": "Failed to load home data",
+  "failedToLoadInviteCode": "Failed to load invite code",
+  "enterHouseName": "Please enter a house name",
+  "failedToUpdateName": "Failed to update name",
+  "joinMyHouseMessage": "Join my ErgoLife house! Use code: {code}\n\n{link}",
+  "@joinMyHouseMessage": {
+    "placeholders": {
+      "code": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "joinMyHouseSubject": "Join my ErgoLife house!",
+  "nameYourArena": "Name Your Arena",
+  "nameArenaDescription": "Give your house a cool name before inviting friends!",
+  "nameArenaHint": "e.g., \"The Warriors\" 💪",
+  "continueAction": "Continue",
+  "inviteFriends": "Invite Friends",
+  "inviteFriendsDescription": "Share this code with friends to join \"{name}\"",
+  "@inviteFriendsDescription": {
+      "placeholders": {
+          "name": { "type": "String" }
+      }
+  },
+  "tapToCopy": "Tap to copy",
+  "shareInviteLink": "Share Invite Link",
+  "enterInviteCode": "Please enter an invite code",
+  "failedToLoadHouseInfo": "Failed to load house info",
+  "failedToJoinHouse": "Failed to join house",
+  "leavePersonalSpaceTitle": "Leave Personal Space?",
+  "leavePersonalSpaceMessage": "You will leave your current Personal Space to join \"{houseName}\". This action cannot be undone.",
+  "@leavePersonalSpaceMessage": {
+      "placeholders": {
+          "houseName": { "type": "String" }
+      }
+  },
+  "enterInviteCodeDescription": "Enter the invite code shared by your friend",
+  "previewHouse": "Preview House",
+  "createdBy": "Created by {ownerName}",
+  "@createdBy": {
+      "placeholders": {
+          "ownerName": { "type": "String" }
+      }
+  },
+  "memberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@memberCount": {
+      "placeholders": {
+          "count": { "type": "int" }
+      }
+  },
+    "helloUser": "Hello, {userName}!",
+    "@helloUser": {
+        "description": "Greeting on home screen",
+        "placeholders": {
+            "userName": {
+                "type": "String"
+            }
+        }
+    },
+    "yourProgress": "YOUR PROGRESS",
+    "dayCount": "{count} Day",
+    "@dayCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "pointsCount": "{count} pts",
+    "@pointsCount": {
+        "placeholders": {
+            "count": {
+                "type": "String"
+            }
+        }
+    },
+    "hoursCount": "{count}h",
+    "@hoursCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "minutesCount": "{count}m",
+    "@minutesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "quickTasks": "Quick Tasks",
+    "activeTasksCount": "{count} Active",
+    "@activeTasksCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "enterDisplayName": "Please enter a display name",
+    "chooseAvatar": "Choose your avatar",
+    "pickForLeaderboard": "Pick one for the leaderboard (optional)",
+    "whatShouldWeCallYou": "What should we call you?",
+    "enterYourName": "Enter your name...",
+    "chooseYourJourney": "Choose Your Journey",
+    "onboardingSubtitle": "How do you want to experience ErgoLife?",
+    "personalSpace": "Personal Space",
+    "soloJourney": "Solo journey",
+    "focusOnYourself": "Focus on yourself",
+    "trackProgress": "Track your progress",
+    "buildHealthyHabits": "Build healthy habits",
+    "continueSolo": "Continue Solo",
+    "familyArena": "Family Arena",
+    "challengeLovedOnes": "Challenge loved ones",
+    "friendlyCompetition": "Friendly competition",
+    "climbLeaderboards": "Climb leaderboards",
+    "createArena": "Create Arena",
+    "haveInviteCode": "Have an invite code?",
+    "createYourArena": "Create Your Arena",
+    "giveArenaName": "Give your family competition a name!",
+    "arenaNameHint": "e.g. \"The Warriors\" \uD83D\uDCAA",
+    "enterJoinCodeMessage": "Enter the 6-digit code shared by your house admin.",
+    "inviteCodeLabel": "Invite Code",
+    "joinBtn": "Join",
+    "stepCounter": "Step {current}/{total}",
+    "@stepCounter": {
+        "placeholders": {
+            "current": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "personalHouse": "Personal House",
+    "teamHouse": "Team House",
+    "todayPts": "Today Pts",
+    "inviteMember": "Invite Member",
+    "competeAndMotivate": "Compete with friends & stay motivated",
+    "displayName": "Display Name",
+    "enterDisplayNameHint": "Enter your display name",
+    "displayNameEmptyError": "Display name cannot be empty",
+    "displayNameMinLengthError": "Display name must be at least 2 characters",
+    "displayNameMaxLengthError": "Display name must be at most 30 characters",
+    "emailLabel": "Email",
+    "noEmail": "No email",
+    "emailCannotBeChanged": "Email cannot be changed",
+    "validationErrorTitle": "Validation Error",
+    "save": "Save"
 }

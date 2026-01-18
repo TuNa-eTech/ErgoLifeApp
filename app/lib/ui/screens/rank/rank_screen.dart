@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
@@ -110,7 +111,7 @@ class RankView extends StatelessWidget {
               onPressed: () =>
                   context.read<LeaderboardBloc>().add(const LoadLeaderboard()),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.white,

@@ -6,6 +6,7 @@ import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/tasks/tasks_event.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class TasksAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController tabController;
@@ -18,7 +19,7 @@ class TasksAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false,
       titleSpacing: 24,
       title: Text(
-        'Daily Missions',
+        AppLocalizations.of(context)!.dailyMissions,
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w800,
@@ -34,13 +35,13 @@ class TasksAppBar extends StatelessWidget implements PreferredSizeWidget {
             }
           },
           itemBuilder: (BuildContext context) => [
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'manage',
               child: Row(
                 children: [
-                  Icon(Icons.tune, size: 20),
-                  SizedBox(width: 12),
-                  Text('Manage Tasks'),
+                  const Icon(Icons.tune, size: 20),
+                  const SizedBox(width: 12),
+                  Text(AppLocalizations.of(context)!.manageTasks),
                 ],
               ),
             ),
@@ -94,9 +95,9 @@ class TasksAppBar extends StatelessWidget implements PreferredSizeWidget {
               fontSize: 16,
               fontWeight: FontWeight.normal,
             ),
-            tabs: const [
-              Tab(text: 'Active'),
-              Tab(text: 'Completed'),
+            tabs: [
+              Tab(text: AppLocalizations.of(context)!.activeTasks),
+              Tab(text: AppLocalizations.of(context)!.completedTasks),
             ],
             onTap: (index) {
               final filter = index == 0 ? 'active' : 'completed';

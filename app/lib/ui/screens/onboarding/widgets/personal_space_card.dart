@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Personal space card widget for solo mode - Minimalist design
 class PersonalSpaceCard extends StatelessWidget {
@@ -55,7 +56,7 @@ class PersonalSpaceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Personal Space',
+                      AppLocalizations.of(context)!.personalSpace,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isDark
@@ -65,7 +66,7 @@ class PersonalSpaceCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      'Solo journey',
+                      AppLocalizations.of(context)!.soloJourney,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.secondary,
                         fontWeight: FontWeight.w600,
@@ -82,19 +83,19 @@ class PersonalSpaceCard extends StatelessWidget {
           // Benefits
           _BenefitItem(
             icon: Icons.person_outline,
-            text: 'Focus on yourself',
+            text: AppLocalizations.of(context)!.focusOnYourself,
             isDark: isDark,
           ),
           const SizedBox(height: 6),
           _BenefitItem(
             icon: Icons.trending_up,
-            text: 'Track your progress',
+            text: AppLocalizations.of(context)!.trackProgress,
             isDark: isDark,
           ),
           const SizedBox(height: 6),
           _BenefitItem(
             icon: Icons.spa_outlined,
-            text: 'Build healthy habits',
+            text: AppLocalizations.of(context)!.buildHealthyHabits,
             isDark: isDark,
           ),
 
@@ -127,7 +128,7 @@ class PersonalSpaceCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Continue Solo',
+                          AppLocalizations.of(context)!.continueSolo,
                           style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,

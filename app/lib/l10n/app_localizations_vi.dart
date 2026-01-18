@@ -182,7 +182,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get orCompeteWith => 'hoặc thi đua với';
 
   @override
-  String get familyArena => 'ĐẤU TRƯỜNG GIA ĐÌNH';
+  String get familyArena => 'Đấu Trường Gia Đình';
 
   @override
   String get createNewHouse => 'Tạo Nhà Mới';
@@ -194,7 +194,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get alreadyHaveInviteCode => 'Đã có mã mời?';
 
   @override
-  String get enterHouseName => 'Nhập tên nhà...';
+  String get enterHouseName => 'Vui lòng nhập tên nhà';
 
   @override
   String get createArena => 'Tạo Đấu Trường';
@@ -403,7 +403,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get members => 'Thành Viên';
 
   @override
-  String get enterInviteCode => 'Nhập Mã Mời';
+  String get enterInviteCode => 'Vui lòng nhập mã mời';
 
   @override
   String get askYourFriendForCode => 'Hỏi bạn bè mã 6 chữ số';
@@ -594,4 +594,342 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get notFoundError => 'Không tìm thấy tài nguyên.';
+
+  @override
+  String get rewardsShop => 'Cửa Hàng Quà Tặng';
+
+  @override
+  String get noRewardsAvailable => 'Không có quà tặng';
+
+  @override
+  String get lifetime => 'Trọn Đời';
+
+  @override
+  String get changeAvatar => 'Đổi Avatar';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Cập nhật hồ sơ thành công';
+
+  @override
+  String get houseDetailsTitle => 'Chi Tiết Nhà';
+
+  @override
+  String get notInHouse => 'Bạn chưa tham gia nhà nào';
+
+  @override
+  String get goHome => 'Về Trang Chủ';
+
+  @override
+  String get create => 'Tạo';
+
+  @override
+  String get join => 'Tham Gia';
+
+  @override
+  String get invite => 'Mời';
+
+  @override
+  String codeCopiedWithCode(String code) {
+    return 'Đã sao chép mã: $code';
+  }
+
+  @override
+  String get houseCreatedTitle => 'Tạo nhà thành công!';
+
+  @override
+  String get createYourHouseTitle => 'Tạo Nhà Của Bạn';
+
+  @override
+  String houseCreatedWithName(String name) {
+    return 'Đã tạo nhà \"$name\"!';
+  }
+
+  @override
+  String get noLeaderboardData => 'Chưa có dữ liệu bảng xếp hạng';
+
+  @override
+  String get inviteMyHouse => 'Mời Nhà Của Tôi';
+
+  @override
+  String get joinHouseAction => 'Tham Gia Nhà';
+
+  @override
+  String get manageTasks => 'Quản Lý Nhiệm Vụ';
+
+  @override
+  String get deleteComingSoon => 'Tính năng xóa sắp ra mắt!';
+
+  @override
+  String get changesSaved => 'Lưu thay đổi thành công';
+
+  @override
+  String get savingChanges => 'Đang lưu thay đổi...';
+
+  @override
+  String get inviteCodeCopied => 'Đã sao chép mã mời!';
+
+  @override
+  String welcomeToHouse(String name) {
+    return 'Chào mừng đến với $name! 🎉';
+  }
+
+  @override
+  String get globalLeaderboard => 'Toàn cầu';
+
+  @override
+  String get houseLeaderboard => 'Nhà';
+
+  @override
+  String get joinAHouse => 'Tham gia Nhà';
+
+  @override
+  String get competeTogether => 'Cùng nhau thi đua!';
+
+  @override
+  String get failedToLoadTasks => 'Không thể tải danh sách nhiệm vụ';
+
+  @override
+  String get deleteTaskTitle => 'Xóa nhiệm vụ?';
+
+  @override
+  String deleteTaskConfirmation(String taskName) {
+    return 'Bạn có chắc chắn muốn xóa \"$taskName\"? Hành động này không thể hoàn tác.';
+  }
+
+  @override
+  String get discard => 'Hủy bỏ';
+
+  @override
+  String get update => 'Cập nhật';
+
+  @override
+  String get dragToReorder => 'Kéo để sắp xếp, chạm để hiện/ẩn';
+
+  @override
+  String get unsavedChangesTitle => 'Thay đổi chưa lưu';
+
+  @override
+  String get unsavedChangesMessage =>
+      'Bạn có thay đổi chưa lưu. Bạn có muốn hủy bỏ chúng không?';
+
+  @override
+  String get dailyMissions => 'Nhiệm vụ hàng ngày';
+
+  @override
+  String get activeTasks => 'Đang thực hiện';
+
+  @override
+  String get completedTasks => 'Đã hoàn thành';
+
+  @override
+  String get failedToLoadHomeData => 'Không thể tải dữ liệu trang chủ';
+
+  @override
+  String get failedToLoadInviteCode => 'Không thể tải mã mời';
+
+  @override
+  String get failedToUpdateName => 'Cập nhật tên thất bại';
+
+  @override
+  String joinMyHouseMessage(String code, String link) {
+    return 'Hãy tham gia nhà ErgoLife của tôi! Sử dụng mã: $code\n\n$link';
+  }
+
+  @override
+  String get joinMyHouseSubject => 'Tham gia nhà ErgoLife của tôi!';
+
+  @override
+  String get nameYourArena => 'Đặt Tên Nhà';
+
+  @override
+  String get nameArenaDescription =>
+      'Đặt một cái tên thật ngầu cho nhà của bạn trước khi mời bạn bè!';
+
+  @override
+  String get nameArenaHint => 'ví dụ: \"Chiến Binh\" 💪';
+
+  @override
+  String get continueAction => 'Tiếp tục';
+
+  @override
+  String get inviteFriends => 'Mời bạn bè';
+
+  @override
+  String inviteFriendsDescription(String name) {
+    return 'Chia sẻ mã này với bạn bè để tham gia \"$name\"';
+  }
+
+  @override
+  String get tapToCopy => 'Chạm để sao chép';
+
+  @override
+  String get shareInviteLink => 'Chia sẻ liên kết mời';
+
+  @override
+  String get failedToLoadHouseInfo => 'Không thể tải thông tin nhà';
+
+  @override
+  String get failedToJoinHouse => 'Tham gia nhà thất bại';
+
+  @override
+  String get leavePersonalSpaceTitle => 'Rời khỏi Không gian Cá nhân?';
+
+  @override
+  String leavePersonalSpaceMessage(String houseName) {
+    return 'Bạn sẽ rời khỏi Không gian Cá nhân hiện tại để tham gia \"$houseName\". Hành động này không thể hoàn tác.';
+  }
+
+  @override
+  String get enterInviteCodeDescription => 'Nhập mã mời được bạn bè chia sẻ';
+
+  @override
+  String get previewHouse => 'Xem trước Nhà';
+
+  @override
+  String createdBy(String ownerName) {
+    return 'Tạo bởi $ownerName';
+  }
+
+  @override
+  String memberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count thành viên',
+      one: '1 thành viên',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String helloUser(String userName) {
+    return 'Xin chào, $userName!';
+  }
+
+  @override
+  String get yourProgress => 'TIẾN ĐỘ CỦA BẠN';
+
+  @override
+  String dayCount(int count) {
+    return '$count Ngày';
+  }
+
+  @override
+  String pointsCount(String count) {
+    return '$count điểm';
+  }
+
+  @override
+  String hoursCount(int count) {
+    return '${count}g';
+  }
+
+  @override
+  String minutesCount(int count) {
+    return '${count}p';
+  }
+
+  @override
+  String get quickTasks => 'Nhiệm vụ nhanh';
+
+  @override
+  String activeTasksCount(int count) {
+    return '$count Đang chạy';
+  }
+
+  @override
+  String get enterDisplayName => 'Vui lòng nhập tên hiển thị';
+
+  @override
+  String get chooseAvatar => 'Chọn ảnh đại diện';
+
+  @override
+  String get pickForLeaderboard => 'Chọn một cái cho bảng xếp hạng (tùy chọn)';
+
+  @override
+  String get onboardingSubtitle => 'Bạn muốn ErgoLife như thế nào?';
+
+  @override
+  String get personalSpace => 'Không gian cá nhân';
+
+  @override
+  String get soloJourney => 'Hành trình đơn độc';
+
+  @override
+  String get trackProgress => 'Theo dõi tiến trình';
+
+  @override
+  String get challengeLovedOnes => 'Thách thức người thân';
+
+  @override
+  String get friendlyCompetition => 'Cạnh tranh vui vẻ';
+
+  @override
+  String get climbLeaderboards => 'Leo bảng xếp hạng';
+
+  @override
+  String get haveInviteCode => 'Có mã mời?';
+
+  @override
+  String get createYourArena => 'Tạo Đấu Trường Của Bạn';
+
+  @override
+  String get giveArenaName => 'Đặt tên cho cuộc thi gia đình!';
+
+  @override
+  String get arenaNameHint => 'ví dụ \"Nhà Vô Địch\" 💪';
+
+  @override
+  String get enterJoinCodeMessage =>
+      'Nhập mã 6 chữ số được chia sẻ bởi quản trị viên.';
+
+  @override
+  String get inviteCodeLabel => 'Mã mời';
+
+  @override
+  String get joinBtn => 'Tham gia';
+
+  @override
+  String get personalHouse => 'Nhà Cá nhân';
+
+  @override
+  String get teamHouse => 'Nhà Nhóm';
+
+  @override
+  String get todayPts => 'Điểm Hôm nay';
+
+  @override
+  String get inviteMember => 'Mời Thành viên';
+
+  @override
+  String get competeAndMotivate => 'Thách thức bạn bè & giữ động lực';
+
+  @override
+  String get displayName => 'Tên Hiển Thị';
+
+  @override
+  String get enterDisplayNameHint => 'Nhập tên hiển thị của bạn';
+
+  @override
+  String get displayNameEmptyError => 'Tên hiển thị không được để trống';
+
+  @override
+  String get displayNameMinLengthError =>
+      'Tên hiển thị phải có ít nhất 2 ký tự';
+
+  @override
+  String get displayNameMaxLengthError =>
+      'Tên hiển thị không được quá 30 ký tự';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get noEmail => 'Không có email';
+
+  @override
+  String get emailCannotBeChanged => 'Email không thể thay đổi';
+
+  @override
+  String get validationErrorTitle => 'Lỗi xác thực';
 }

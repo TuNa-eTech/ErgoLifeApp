@@ -3,6 +3,7 @@ import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 class LeaderboardErrorView extends StatelessWidget {
   final String message;
@@ -28,7 +29,7 @@ class LeaderboardErrorView extends StatelessWidget {
           ElevatedButton(
             onPressed: () =>
                 context.read<LeaderboardBloc>().add(const RefreshLeaderboard()),
-            child: const Text('Try Again'),
+            child: Text(AppLocalizations.of(context)!.tryAgain),
           ),
         ],
       ),

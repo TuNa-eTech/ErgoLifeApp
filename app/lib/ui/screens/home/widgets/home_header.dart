@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Header widget for home screen
 /// Contains avatar, notification button, date and greeting
@@ -38,7 +39,7 @@ class HomeHeader extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [_buildCompactGreeting(), _buildCompactDate()],
+              children: [_buildCompactGreeting(context), _buildCompactDate()],
             ),
           ),
 
@@ -78,9 +79,9 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactGreeting() {
+  Widget _buildCompactGreeting(BuildContext context) {
     return Text(
-      'Hello, $userName!', // Minimal greeting
+      AppLocalizations.of(context)!.helloUser(userName), // Minimal greeting
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,

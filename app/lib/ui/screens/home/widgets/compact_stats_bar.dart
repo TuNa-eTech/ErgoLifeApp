@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/ui/screens/stats/task_stats_screen.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Compact stats bar displaying Streak, Points, and Time in a single row
 class CompactStatsBar extends StatelessWidget {
@@ -83,8 +84,8 @@ class CompactStatsBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Section Title
-                      const Text(
-                        'YOUR PROGRESS',
+                      Text(
+                        AppLocalizations.of(context)!.yourProgress,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -101,7 +102,9 @@ class CompactStatsBar extends StatelessWidget {
                             child: _buildPill(
                               icon: Icons.local_fire_department_rounded,
                               iconColor: Colors.orange,
-                              label: '$currentStreak Day',
+                              label: AppLocalizations.of(
+                                context,
+                              )!.dayCount(currentStreak),
                               bgColor: Colors.orange.withOpacity(0.1),
                             ),
                           ),
@@ -110,7 +113,9 @@ class CompactStatsBar extends StatelessWidget {
                             child: _buildPill(
                               icon: Icons.stars_rounded,
                               iconColor: AppColors.primary,
-                              label: '${stats.formattedPoints} pts',
+                              label: AppLocalizations.of(
+                                context,
+                              )!.pointsCount(stats.formattedPoints),
                               bgColor: AppColors.primary.withOpacity(0.1),
                             ),
                           ),
@@ -120,6 +125,7 @@ class CompactStatsBar extends StatelessWidget {
                               icon: Icons.timer_rounded,
                               iconColor: AppColors.secondary,
                               label: _formatDuration(
+                                context,
                                 stats.totalDurationMinutes,
                               ),
                               bgColor: AppColors.secondary.withOpacity(0.1),
@@ -186,11 +192,11 @@ class CompactStatsBar extends StatelessWidget {
     );
   }
 
-  String _formatDuration(int minutes) {
+  String _formatDuration(BuildContext context, int minutes) {
     if (minutes >= 60) {
       final hours = minutes ~/ 60;
-      return '${hours}h';
+      return AppLocalizations.of(context)!.hoursCount(hours);
     }
-    return '${minutes}m';
+    return AppLocalizations.of(context)!.minutesCount(minutes);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Bottom sheet for creating an arena/house
 class ArenaBottomSheet extends StatefulWidget {
@@ -78,7 +79,7 @@ class _ArenaBottomSheetState extends State<ArenaBottomSheet> {
 
             // Title
             Text(
-              'Create Your Arena',
+              AppLocalizations.of(context)!.createYourArena,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -91,7 +92,7 @@ class _ArenaBottomSheetState extends State<ArenaBottomSheet> {
             const SizedBox(height: 8),
 
             Text(
-              'Give your family competition a name!',
+              AppLocalizations.of(context)!.giveArenaName,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
 
@@ -121,7 +122,7 @@ class _ArenaBottomSheetState extends State<ArenaBottomSheet> {
                     fontWeight: FontWeight.w600,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'e.g. "Nhà Warriors" 💪',
+                    hintText: AppLocalizations.of(context)!.arenaNameHint,
                     hintStyle: TextStyle(
                       color: Colors.grey[400],
                       fontWeight: FontWeight.normal,
@@ -164,11 +165,11 @@ class _ArenaBottomSheetState extends State<ArenaBottomSheet> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Create Arena',
+                        AppLocalizations.of(context)!.createArena,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

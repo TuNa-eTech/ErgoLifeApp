@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Model class for task data
 class TaskData {
@@ -216,7 +217,7 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
     return Row(
       children: [
         Text(
-          'Quick Tasks',
+          AppLocalizations.of(context)!.quickTasks,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -233,7 +234,7 @@ class _QuickTasksSectionState extends State<QuickTasksSection> {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '${widget.tasks.length} Active',
+            AppLocalizations.of(context)!.activeTasksCount(widget.tasks.length),
             style: TextStyle(
               fontSize: 12,
               color: widget.isDark

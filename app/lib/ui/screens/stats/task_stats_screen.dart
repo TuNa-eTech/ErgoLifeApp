@@ -1,4 +1,5 @@
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
@@ -142,7 +143,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
           Row(
             children: [
               FilterChip(
-                label: const Text('Lifetime'),
+                label: Text(AppLocalizations.of(context)!.lifetime),
                 selected: _isLifetime,
                 onSelected: (selected) {
                   if (selected) {
@@ -603,7 +604,10 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _loadStats, child: const Text('Retry')),
+            ElevatedButton(
+              onPressed: _loadStats,
+              child: Text(AppLocalizations.of(context)!.retry),
+            ),
           ],
         ),
       ),

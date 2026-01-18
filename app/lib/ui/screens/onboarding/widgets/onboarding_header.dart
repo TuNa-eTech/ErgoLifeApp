@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/widgets/circle_button.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Header widget for onboarding screens with navigation and progress indicators
 class OnboardingHeader extends StatelessWidget {
@@ -66,7 +67,9 @@ class OnboardingHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'Step ${currentPage + 1}/$totalPages',
+              AppLocalizations.of(
+                context,
+              )!.stepCounter(currentPage + 1, totalPages),
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,

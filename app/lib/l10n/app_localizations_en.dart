@@ -181,7 +181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orCompeteWith => 'or compete with';
 
   @override
-  String get familyArena => 'FAMILY ARENA';
+  String get familyArena => 'Family Arena';
 
   @override
   String get createNewHouse => 'Create New House';
@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyHaveInviteCode => 'Already have an invite code?';
 
   @override
-  String get enterHouseName => 'Enter house name...';
+  String get enterHouseName => 'Please enter a house name';
 
   @override
   String get createArena => 'Create Arena';
@@ -402,7 +402,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get members => 'Members';
 
   @override
-  String get enterInviteCode => 'Enter Invite Code';
+  String get enterInviteCode => 'Please enter an invite code';
 
   @override
   String get askYourFriendForCode => 'Ask your friend for the 6-digit code';
@@ -593,4 +593,343 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notFoundError => 'Resource not found.';
+
+  @override
+  String get rewardsShop => 'Rewards Shop';
+
+  @override
+  String get noRewardsAvailable => 'No rewards available';
+
+  @override
+  String get lifetime => 'Lifetime';
+
+  @override
+  String get changeAvatar => 'Change Avatar';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+
+  @override
+  String get houseDetailsTitle => 'House Details';
+
+  @override
+  String get notInHouse => 'You are not in a house';
+
+  @override
+  String get goHome => 'Go Home';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get invite => 'Invite';
+
+  @override
+  String codeCopiedWithCode(String code) {
+    return 'Code copied: $code';
+  }
+
+  @override
+  String get houseCreatedTitle => 'House created successfully!';
+
+  @override
+  String get createYourHouseTitle => 'Create Your House';
+
+  @override
+  String houseCreatedWithName(String name) {
+    return 'House \"$name\" created!';
+  }
+
+  @override
+  String get noLeaderboardData => 'No leaderboard data';
+
+  @override
+  String get inviteMyHouse => 'Invite My House';
+
+  @override
+  String get joinHouseAction => 'Join House';
+
+  @override
+  String get manageTasks => 'Manage Tasks';
+
+  @override
+  String get deleteComingSoon => 'Delete functionality coming soon!';
+
+  @override
+  String get changesSaved => 'Changes saved successfully';
+
+  @override
+  String get savingChanges => 'Saving changes...';
+
+  @override
+  String get inviteCodeCopied => 'Invite code copied!';
+
+  @override
+  String welcomeToHouse(String name) {
+    return 'Welcome to $name! 🎉';
+  }
+
+  @override
+  String get globalLeaderboard => 'Global';
+
+  @override
+  String get houseLeaderboard => 'House';
+
+  @override
+  String get joinAHouse => 'Join a House';
+
+  @override
+  String get competeTogether => 'Compete together!';
+
+  @override
+  String get failedToLoadTasks => 'Failed to load tasks';
+
+  @override
+  String get deleteTaskTitle => 'Delete Task?';
+
+  @override
+  String deleteTaskConfirmation(String taskName) {
+    return 'Are you sure you want to delete \"$taskName\"? This action cannot be undone.';
+  }
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get dragToReorder => 'Drag to reorder, toggle to show/hide';
+
+  @override
+  String get unsavedChangesTitle => 'Unsaved Changes';
+
+  @override
+  String get unsavedChangesMessage =>
+      'You have unsaved changes. Do you want to discard them?';
+
+  @override
+  String get dailyMissions => 'Daily Missions';
+
+  @override
+  String get activeTasks => 'Active';
+
+  @override
+  String get completedTasks => 'Completed';
+
+  @override
+  String get failedToLoadHomeData => 'Failed to load home data';
+
+  @override
+  String get failedToLoadInviteCode => 'Failed to load invite code';
+
+  @override
+  String get failedToUpdateName => 'Failed to update name';
+
+  @override
+  String joinMyHouseMessage(String code, String link) {
+    return 'Join my ErgoLife house! Use code: $code\n\n$link';
+  }
+
+  @override
+  String get joinMyHouseSubject => 'Join my ErgoLife house!';
+
+  @override
+  String get nameYourArena => 'Name Your Arena';
+
+  @override
+  String get nameArenaDescription =>
+      'Give your house a cool name before inviting friends!';
+
+  @override
+  String get nameArenaHint => 'e.g., \"The Warriors\" 💪';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get inviteFriends => 'Invite Friends';
+
+  @override
+  String inviteFriendsDescription(String name) {
+    return 'Share this code with friends to join \"$name\"';
+  }
+
+  @override
+  String get tapToCopy => 'Tap to copy';
+
+  @override
+  String get shareInviteLink => 'Share Invite Link';
+
+  @override
+  String get failedToLoadHouseInfo => 'Failed to load house info';
+
+  @override
+  String get failedToJoinHouse => 'Failed to join house';
+
+  @override
+  String get leavePersonalSpaceTitle => 'Leave Personal Space?';
+
+  @override
+  String leavePersonalSpaceMessage(String houseName) {
+    return 'You will leave your current Personal Space to join \"$houseName\". This action cannot be undone.';
+  }
+
+  @override
+  String get enterInviteCodeDescription =>
+      'Enter the invite code shared by your friend';
+
+  @override
+  String get previewHouse => 'Preview House';
+
+  @override
+  String createdBy(String ownerName) {
+    return 'Created by $ownerName';
+  }
+
+  @override
+  String memberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String helloUser(String userName) {
+    return 'Hello, $userName!';
+  }
+
+  @override
+  String get yourProgress => 'YOUR PROGRESS';
+
+  @override
+  String dayCount(int count) {
+    return '$count Day';
+  }
+
+  @override
+  String pointsCount(String count) {
+    return '$count pts';
+  }
+
+  @override
+  String hoursCount(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String minutesCount(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String get quickTasks => 'Quick Tasks';
+
+  @override
+  String activeTasksCount(int count) {
+    return '$count Active';
+  }
+
+  @override
+  String get enterDisplayName => 'Please enter a display name';
+
+  @override
+  String get chooseAvatar => 'Choose your avatar';
+
+  @override
+  String get pickForLeaderboard => 'Pick one for the leaderboard (optional)';
+
+  @override
+  String get onboardingSubtitle => 'How do you want to experience ErgoLife?';
+
+  @override
+  String get personalSpace => 'Personal Space';
+
+  @override
+  String get soloJourney => 'Solo journey';
+
+  @override
+  String get trackProgress => 'Track your progress';
+
+  @override
+  String get challengeLovedOnes => 'Challenge loved ones';
+
+  @override
+  String get friendlyCompetition => 'Friendly competition';
+
+  @override
+  String get climbLeaderboards => 'Climb leaderboards';
+
+  @override
+  String get haveInviteCode => 'Have an invite code?';
+
+  @override
+  String get createYourArena => 'Create Your Arena';
+
+  @override
+  String get giveArenaName => 'Give your family competition a name!';
+
+  @override
+  String get arenaNameHint => 'e.g. \"The Warriors\" 💪';
+
+  @override
+  String get enterJoinCodeMessage =>
+      'Enter the 6-digit code shared by your house admin.';
+
+  @override
+  String get inviteCodeLabel => 'Invite Code';
+
+  @override
+  String get joinBtn => 'Join';
+
+  @override
+  String get personalHouse => 'Personal House';
+
+  @override
+  String get teamHouse => 'Team House';
+
+  @override
+  String get todayPts => 'Today Pts';
+
+  @override
+  String get inviteMember => 'Invite Member';
+
+  @override
+  String get competeAndMotivate => 'Compete with friends & stay motivated';
+
+  @override
+  String get displayName => 'Display Name';
+
+  @override
+  String get enterDisplayNameHint => 'Enter your display name';
+
+  @override
+  String get displayNameEmptyError => 'Display name cannot be empty';
+
+  @override
+  String get displayNameMinLengthError =>
+      'Display name must be at least 2 characters';
+
+  @override
+  String get displayNameMaxLengthError =>
+      'Display name must be at most 30 characters';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get noEmail => 'No email';
+
+  @override
+  String get emailCannotBeChanged => 'Email cannot be changed';
+
+  @override
+  String get validationErrorTitle => 'Validation Error';
 }

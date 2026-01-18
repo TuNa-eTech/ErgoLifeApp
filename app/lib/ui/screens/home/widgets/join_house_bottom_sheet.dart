@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
+import 'package:ergo_life_app/l10n/app_localizations.dart';
 
 /// Bottom sheet for joining a house with invite code
 class JoinHouseBottomSheet extends StatefulWidget {
@@ -47,7 +48,7 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
   Future<void> _onPreview() async {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
-      setState(() => _error = 'Please enter an invite code');
+      setState(() => _error = AppLocalizations.of(context)!.enterInviteCode);
       return;
     }
 
@@ -62,13 +63,13 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
         _preview = preview;
         _isLoading = false;
         if (preview == null) {
-          _error = 'Invalid invite code';
+          _error = AppLocalizations.of(context)!.invalidInviteCode;
         }
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to load house info';
+        _error = AppLocalizations.of(context)!.failedToLoadHouseInfo;
       });
     }
   }
@@ -86,7 +87,11 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
         if (success == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Welcome to ${_preview?.name ?? 'the house'}! 🎉'),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.welcomeToHouse(_preview?.name ?? 'the house'),
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -95,7 +100,7 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to join house';
+        _error = AppLocalizations.of(context)!.failedToJoinHouse;
       });
     }
   }
@@ -103,11 +108,12 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
   Future<bool> _showLeaveConfirmDialog() async {
     return await ModernDialog.showConfirmation(
       context,
-      title: 'Leave Personal Space?',
-      message:
-          'You will leave your current Personal Space to join "${_preview?.name ?? 'this house'}". This action cannot be undone.',
-      confirmText: 'Join House',
-      cancelText: 'Cancel',
+      title: AppLocalizations.of(context)!.leavePersonalSpaceTitle,
+      message: AppLocalizations.of(
+        context,
+      )!.leavePersonalSpaceMessage(_preview?.name ?? 'this house'),
+      confirmText: AppLocalizations.of(context)!.joinHouseAction,
+      cancelText: AppLocalizations.of(context)!.cancel,
       isDestructive: false,
     );
   }
@@ -152,7 +158,7 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
 
                     // Title
                     Text(
-                      'Join a House',
+                      AppLocalizations.of(context)!.joinAHouse,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -163,7 +169,7 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Enter the invite code shared by your friend',
+                      AppLocalizations.of(context)!.enterInviteCodeDescription,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -259,12 +265,16 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.search, size: 20),
                                     SizedBox(width: 8),
-                                    Text('Preview House'),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.previewHouse,
+                                    ),
                                   ],
                                 ),
                         ),
@@ -297,13 +307,15 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                                     ),
                                   ),
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.check_circle, size: 20),
                                     SizedBox(width: 8),
                                     Text(
-                                      'Join House',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.joinHouseAction,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -368,7 +380,9 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                     if (_preview!.ownerName != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        'Created by ${_preview!.ownerName}',
+                        AppLocalizations.of(
+                          context,
+                        )!.createdBy(_preview!.ownerName ?? ''),
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark
@@ -396,7 +410,9 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                 const Icon(Icons.people, size: 16, color: AppColors.primary),
                 const SizedBox(width: 6),
                 Text(
-                  '${_preview!.memberCount} member${_preview!.memberCount > 1 ? 's' : ''}',
+                  AppLocalizations.of(
+                    context,
+                  )!.memberCount(_preview!.memberCount),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
