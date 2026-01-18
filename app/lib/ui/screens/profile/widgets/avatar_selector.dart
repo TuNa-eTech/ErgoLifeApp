@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 
 /// Avatar Selector Bottom Sheet
@@ -285,31 +286,24 @@ class _AvatarItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                AvatarSelector.getAvatarUrl(avatarId),
+              CachedNetworkImage(
+                imageUrl: AvatarSelector.getAvatarUrl(avatarId),
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                    child: Icon(
-                      Icons.person,
-                      size: 32,
-                      color: isDark ? Colors.white54 : Colors.grey.shade400,
-                    ),
-                  );
-                },
+                placeholder: (context, url) => const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                  child: Icon(
+                    Icons.person,
+                    size: 32,
+                    color: isDark ? Colors.white54 : Colors.grey.shade400,
+                  ),
+                ),
               ),
               if (isSelected)
                 Container(

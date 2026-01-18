@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -222,6 +221,7 @@ class ActiveSessionView extends StatelessWidget {
           _buildGlassButton(
             icon: Icons.keyboard_arrow_down,
             onTap: () => _handleBackButton(context),
+            isDark: isDark,
           ),
           _buildStatusIndicator(state.isPaused, isDark),
           _buildGlassButton(
@@ -233,6 +233,7 @@ class ActiveSessionView extends StatelessWidget {
                 context.read<SessionBloc>().add(const PauseSession());
               }
             },
+            isDark: isDark,
           ),
         ],
       ),
@@ -242,24 +243,22 @@ class ActiveSessionView extends StatelessWidget {
   Widget _buildGlassButton({
     required IconData icon,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-            ),
-            child: Icon(icon, color: Colors.grey[700], size: 22),
-          ),
-        ),
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.black.withValues(alpha: 0.05),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, size: 22),
+        color: isDark ? Colors.white : Colors.black87,
+        padding: EdgeInsets.zero,
       ),
     );
   }

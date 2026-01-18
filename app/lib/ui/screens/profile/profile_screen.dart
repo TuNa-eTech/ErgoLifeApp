@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
@@ -275,7 +276,7 @@ class _ProfileViewState extends State<ProfileView> {
               border: Border.all(color: AppColors.secondary, width: 2),
               image: user.avatarUrl != null
                   ? DecorationImage(
-                      image: NetworkImage(user.avatarUrl!),
+                      image: CachedNetworkImageProvider(user.avatarUrl!),
                       fit: BoxFit.cover,
                     )
                   : null,

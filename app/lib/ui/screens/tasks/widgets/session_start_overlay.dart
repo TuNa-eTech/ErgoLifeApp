@@ -343,19 +343,19 @@ class _SessionStartOverlayState extends State<SessionStartOverlay>
       child: Column(
         children: [
           // Quick actions
-          QuickActionsStrip(
-            isDark: isDark,
-            onFavoriteTap: () {
-              // TODO: Implement favorite toggle
-            },
-            onShareTap: () {
-              // TODO: Implement share
-            },
-            onStatsTap: () {
-              // TODO: Show detailed stats
-            },
-          ),
-          const SizedBox(height: 16),
+          // QuickActionsStrip(
+          //   isDark: isDark,
+          //   onFavoriteTap: () {
+          //     // TODO: Implement favorite toggle
+          //   },
+          //   onShareTap: () {
+          //     // TODO: Implement share
+          //   },
+          //   onStatsTap: () {
+          //     // TODO: Show detailed stats
+          //   },
+          // ),
+          // const SizedBox(height: 16),
           // Hero start button
           HeroStartButton(
             onTap: widget.onStart,

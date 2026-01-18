@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
@@ -246,7 +247,7 @@ class RankView extends StatelessWidget {
             border: Border.all(color: color, width: 3),
             image: user.photoUrl != null
                 ? DecorationImage(
-                    image: NetworkImage(user.photoUrl!),
+                    image: CachedNetworkImageProvider(user.photoUrl!),
                     fit: BoxFit.cover,
                   )
                 : null,
@@ -368,7 +369,7 @@ class RankView extends StatelessWidget {
               shape: BoxShape.circle,
               image: user.photoUrl != null
                   ? DecorationImage(
-                      image: NetworkImage(user.photoUrl!),
+                      image: CachedNetworkImageProvider(user.photoUrl!),
                       fit: BoxFit.cover,
                     )
                   : null,

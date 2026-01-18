@@ -20,20 +20,30 @@ enum AuthProvider {
 class AuthResponse extends Equatable {
   final String accessToken;
   final UserModel user;
+  final bool isNewUser;
 
-  const AuthResponse({required this.accessToken, required this.user});
+  const AuthResponse({
+    required this.accessToken,
+    required this.user,
+    required this.isNewUser,
+  });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       accessToken: json['accessToken'] as String,
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      isNewUser: json['isNewUser'] as bool? ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'accessToken': accessToken, 'user': user.toJson()};
+    return {
+      'accessToken': accessToken,
+      'user': user.toJson(),
+      'isNewUser': isNewUser,
+    };
   }
 
   @override
-  List<Object?> get props => [accessToken, user];
+  List<Object?> get props => [accessToken, user, isNewUser];
 }

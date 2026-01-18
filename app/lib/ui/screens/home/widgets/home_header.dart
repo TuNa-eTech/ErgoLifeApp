@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 
 /// Header widget for home screen
@@ -60,7 +61,7 @@ class HomeHeader extends StatelessWidget {
         child: avatarUrl != null
             ? CircleAvatar(
                 radius: 18,
-                backgroundImage: NetworkImage(avatarUrl!),
+                backgroundImage: CachedNetworkImageProvider(avatarUrl!),
               )
             : CircleAvatar(
                 radius: 18,

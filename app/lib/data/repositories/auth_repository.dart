@@ -38,7 +38,7 @@ class AuthRepository {
   }
 
   /// Sign in with Google
-  Future<Either<Failure, UserModel>> signInWithGoogle() async {
+  Future<Either<Failure, AuthResponse>> signInWithGoogle() async {
     try {
       AppLogger.info('Starting Google sign-in flow', 'AuthRepository');
 
@@ -79,7 +79,7 @@ class AuthRepository {
         'AuthRepository',
       );
 
-      return Right(authResponse.user);
+      return Right(authResponse);
     } on FirebaseAuthException catch (e) {
       AppLogger.error('Firebase auth error', e.message, null, 'AuthRepository');
       return Left(AuthFailure(message: e.message ?? 'Authentication failed'));
@@ -105,7 +105,7 @@ class AuthRepository {
   }
 
   /// Sign in with Apple
-  Future<Either<Failure, UserModel>> signInWithApple() async {
+  Future<Either<Failure, AuthResponse>> signInWithApple() async {
     try {
       AppLogger.info('Starting Apple sign-in flow', 'AuthRepository');
 
@@ -146,7 +146,7 @@ class AuthRepository {
         'AuthRepository',
       );
 
-      return Right(authResponse.user);
+      return Right(authResponse);
     } on FirebaseAuthException catch (e) {
       AppLogger.error('Firebase auth error', e.message, null, 'AuthRepository');
       return Left(AuthFailure(message: e.message ?? 'Authentication failed'));

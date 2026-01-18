@@ -1,5 +1,6 @@
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class LeaderboardPodium extends StatelessWidget {
   final List<LeaderboardEntry> podium;
@@ -100,7 +101,29 @@ class _PodiumItem extends StatelessWidget {
           decoration: BoxDecoration(shape: BoxShape.circle, color: stepColor),
           clipBehavior: Clip.antiAlias,
           child: entry.user.avatarUrl != null
-              ? Image.network(entry.user.avatarUrl!, fit: BoxFit.cover)
+              ? CachedNetworkImage(
+                  imageUrl: entry.user.avatarUrl!,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Center(
+                    child: Text(
+                      (entry.user.name ?? 'U').substring(0, 1).toUpperCase(),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
               : Center(
                   child: Text(
                     (entry.user.name ?? 'U').substring(0, 1).toUpperCase(),

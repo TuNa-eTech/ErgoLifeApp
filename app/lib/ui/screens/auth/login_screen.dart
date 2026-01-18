@@ -74,7 +74,10 @@ class _LoginScreenContentState extends State<_LoginScreenContent>
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          if (state.user.needsOnboarding) {
+          // Use isNewUser flag to determine if onboarding is needed
+          // This is more reliable than checking houseId since backend
+          // auto-creates a personal house for new users
+          if (state.isNewUser) {
             context.go(AppRouter.onboarding);
           } else {
             context.go(AppRouter.home);

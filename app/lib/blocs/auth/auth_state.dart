@@ -23,11 +23,16 @@ class AuthLoading extends AuthState {
 class AuthAuthenticated extends AuthState {
   final UserModel user;
   final String token;
+  final bool isNewUser;
 
-  const AuthAuthenticated({required this.user, required this.token});
+  const AuthAuthenticated({
+    required this.user,
+    required this.token,
+    this.isNewUser = false,
+  });
 
   @override
-  List<Object?> get props => [user, token];
+  List<Object?> get props => [user, token, isNewUser];
 }
 
 /// User is not authenticated

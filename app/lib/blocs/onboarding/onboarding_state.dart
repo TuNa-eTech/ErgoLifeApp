@@ -15,6 +15,12 @@ class OnboardingLoading extends OnboardingState {
   const OnboardingLoading();
 }
 
+/// Profile has been successfully updated
+/// User can now proceed to create/join a house
+class OnboardingProfileUpdated extends OnboardingState {
+  const OnboardingProfileUpdated();
+}
+
 class OnboardingSuccess extends OnboardingState {
   final String message;
 

@@ -69,10 +69,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthError(message: failure.message));
       },
-      (user) {
+      (authResponse) {
         final token = _authRepository.getStoredToken()!;
         AppLogger.success('Google sign-in successful', 'AuthBloc');
-        emit(AuthAuthenticated(user: user, token: token));
+        emit(
+          AuthAuthenticated(
+            user: authResponse.user,
+            token: token,
+            isNewUser: authResponse.isNewUser,
+          ),
+        );
       },
     );
   }
@@ -97,10 +103,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthError(message: failure.message));
       },
-      (user) {
+      (authResponse) {
         final token = _authRepository.getStoredToken()!;
         AppLogger.success('Apple sign-in successful', 'AuthBloc');
-        emit(AuthAuthenticated(user: user, token: token));
+        emit(
+          AuthAuthenticated(
+            user: authResponse.user,
+            token: token,
+            isNewUser: authResponse.isNewUser,
+          ),
+        );
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
 import 'package:ergo_life_app/blocs/profile/profile_event.dart';
 import 'package:ergo_life_app/blocs/profile/profile_state.dart';
@@ -284,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   border: Border.all(color: AppColors.secondary, width: 3),
                   image: avatarUrl != null
                       ? DecorationImage(
-                          image: NetworkImage(avatarUrl),
+                          image: CachedNetworkImageProvider(avatarUrl),
                           fit: BoxFit.cover,
                         )
                       : null,
