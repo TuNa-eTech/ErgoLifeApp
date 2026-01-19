@@ -25,9 +25,9 @@ WORKDIR /app
 # Install serve package globally
 RUN npm install -g serve
 
-# Copy built files from builder
-COPY --from=builder /app/dist ./dist
+# Copy built files from builder (React Router SPA mode outputs to build/client)
+COPY --from=builder /app/build/client ./dist
 
-EXPOSE 3002
-CMD ["serve", "-s", "dist", "-l", "3002"]
+EXPOSE 3003
+CMD ["serve", "-s", "dist", "-l", "3003"]
 

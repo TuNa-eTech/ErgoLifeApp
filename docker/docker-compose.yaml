@@ -26,14 +26,14 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-      target: development
+      target: production
     container_name: ergolife-backend
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ergolife}:${POSTGRES_PASSWORD:-ergolife123}@postgres:5432/${POSTGRES_DB:-ergolife_db}?schema=public
-      NODE_ENV: ${NODE_ENV:-development}
+      NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
@@ -50,10 +50,7 @@ services:
       start_period: 40s
     networks:
       - ergolife-network
-    volumes:
-      - ../backend:/app
-      - /app/node_modules
-    command: sh -c "yarn prisma:generate && yarn prisma:migrate && yarn start:dev"
+    command: sh -c "yarn prisma:migrate && node dist/src/main"
   landing-page:
     build:
       context: ../landing-page

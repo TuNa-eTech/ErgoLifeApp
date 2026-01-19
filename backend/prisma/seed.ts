@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { createUsers } from './seeds/create-users';
+// import { createUsers } from './seeds/create-users';
 import './seeds/seed-templates'; // Import to ensure it's compiled/included if needed, though we might run it separately or integrate logic here if we want a single command. 
 // Actually, looking at package.json, the original seed command was `ts-node prisma/seed.ts`. 
 // But the file I saw was `prisma/seeds/seed-templates.ts` which had a main() function. 
@@ -48,14 +48,14 @@ async function main() {
   // I will focus on my `createUsers`. 
   // I will just add `createUsers` call here.
 
-  try {
-    await createUsers();
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  } finally {
-    await prisma.$disconnect();
-  }
+  // try {
+  //   await createUsers();
+  // } catch (e) {
+  //   console.error(e);
+  //   process.exit(1);
+  // } finally {
+  //   await prisma.$disconnect();
+  // }
 }
 
 main();

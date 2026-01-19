@@ -1,6 +1,9 @@
 # Stage 1: Development
 FROM node:20-alpine AS development
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copy package files
@@ -35,8 +38,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json yarn.lock ./
 
-# Install only production dependencies
-RUN yarn install --frozen-lockfile --production
+# Install dependencies (without --production to ensure all deps are available)
+RUN yarn install --frozen-lockfile
 
 # Copy prisma schema and migrations
 COPY prisma ./prisma/
@@ -44,6 +47,9 @@ COPY prisma ./prisma/
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy Firebase credentials
+COPY ergolife-firebase-adminsdk.json ./
 
 # Expose port
 EXPOSE 3000
