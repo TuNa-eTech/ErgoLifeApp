@@ -79,12 +79,12 @@ services:
     build:
       context: ../cms
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://backend:3000/api}
     container_name: ergolife-cms
     restart: unless-stopped
     ports:
       - "${CMS_PORT:-5176}:3002"
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
     depends_on:
       backend:
         condition: service_healthy

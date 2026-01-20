@@ -68,11 +68,13 @@ Key variables:
 - `POSTGRES_PORT`: Host port for PostgreSQL (default: 5433)
 - `BACKEND_PORT`: Host port for backend API (default: 3000)
 - `CMS_PORT`: Host port for CMS application (default: 5176)
-- `VITE_API_BASE_URL`: API base URL for frontend services
+- `VITE_API_URL`: API URL for CMS (**set at build time**, must include `/api` path)
 - `ADMIN_USERNAME`: CMS admin username (default: admin) ⚠️ Change in production!
 - `ADMIN_PASSWORD`: CMS admin password (default: ErgoAdmin@2024) ⚠️ Change in production!
 - `JWT_SECRET`: Secret key for JWT tokens
 - `CORS_ORIGIN`: Allowed CORS origins
+
+**Note**: `VITE_API_URL` is used during CMS build. If you change it, you must rebuild: `docker compose up -d --build cms`
 
 ## Network
 
