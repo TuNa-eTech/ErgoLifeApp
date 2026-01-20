@@ -16,6 +16,7 @@ import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/blocs/house/house_state.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
+import 'package:ergo_life_app/data/models/user_model_extensions.dart';
 import 'package:ergo_life_app/ui/screens/profile/widgets/house_card.dart';
 import 'package:ergo_life_app/ui/common/common.dart';
 import 'package:ergo_life_app/ui/screens/stats/task_stats_screen.dart';
@@ -118,7 +119,7 @@ class _ProfileViewState extends State<ProfileView> {
           },
           builder: (context, state) {
             if (state is ProfileLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return _buildSkeletonState(context, isDark);
             }
 
             if (state is ProfileError) {
@@ -129,7 +130,7 @@ class _ProfileViewState extends State<ProfileView> {
               return _buildLoadedState(context, state, isDark);
             }
 
-            return const Center(child: CircularProgressIndicator());
+            return _buildSkeletonState(context, isDark);
           },
         ),
       ),
@@ -181,6 +182,32 @@ class _ProfileViewState extends State<ProfileView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSkeletonState(BuildContext context, bool isDark) {
+    return Column(
+      children: [
+        const ProfileHeaderSkeleton(),
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 40),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                children: [
+                  const StatsCardSkeleton(),
+                  const SizedBox(height: 20),
+                  const HouseCard(isLoading: true),
+                  const SizedBox(height: 20),
+                  _buildSettingsGroup(context, isDark),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -274,15 +301,17 @@ class _ProfileViewState extends State<ProfileView> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.secondary, width: 2),
-              image: user.avatarUrl != null
+              image: getUserAvatarUrl(user) != null
                   ? DecorationImage(
-                      image: CachedNetworkImageProvider(user.avatarUrl!),
+                      image: CachedNetworkImageProvider(
+                        getUserAvatarUrl(user)!,
+                      ),
                       fit: BoxFit.cover,
                     )
                   : null,
               color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
             ),
-            child: user.avatarUrl == null
+            child: getUserAvatarUrl(user) == null
                 ? Icon(
                     Icons.person,
                     size: 28,
@@ -319,7 +348,7 @@ class _ProfileViewState extends State<ProfileView> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -572,34 +601,17 @@ class _ProfileViewState extends State<ProfileView> {
   }
 }
 
-void _showLogoutDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.logout, color: Colors.red),
-          const SizedBox(width: 12),
-          Text(AppLocalizations.of(context)!.logout),
-        ],
-      ),
-      content: Text(AppLocalizations.of(context)!.logoutConfirmation),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(AppLocalizations.of(context)!.cancel),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(ctx);
-            context.read<AuthBloc>().add(const AuthSignOutRequested());
-          },
-          child: Text(
-            AppLocalizations.of(context)!.logout,
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
-      ],
-    ),
+Future<void> _showLogoutDialog(BuildContext context) async {
+  final confirmed = await ModernDialog.showConfirmation(
+    context,
+    title: AppLocalizations.of(context)!.logout,
+    message: AppLocalizations.of(context)!.logoutConfirmation,
+    confirmText: AppLocalizations.of(context)!.logout,
+    cancelText: AppLocalizations.of(context)!.cancel,
+    isDestructive: true,
   );
+
+  if (confirmed && context.mounted) {
+    context.read<AuthBloc>().add(const AuthSignOutRequested());
+  }
 }

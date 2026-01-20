@@ -12,6 +12,7 @@ import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ergo_life_app/core/utils/talker_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
+import 'package:ergo_life_app/data/models/user_model_extensions.dart';
 // Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
@@ -272,7 +273,7 @@ class HomeView extends StatelessWidget {
             title: HomeHeader(
               isDark: isDark,
               userName: state.firstName,
-              avatarUrl: state.user.avatarUrl,
+              avatarUrl: getUserAvatarUrl(state.user),
               onNotificationTap: () {
                 // TODO: Handle notification tap
               },

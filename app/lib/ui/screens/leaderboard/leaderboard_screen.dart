@@ -6,6 +6,7 @@ import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/ui/common/widgets/skeleton_loader.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/join_house_banner.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_error_view.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_podium.dart';
@@ -132,14 +133,14 @@ class _LeaderboardViewState extends State<LeaderboardView>
     return BlocBuilder<LeaderboardBloc, LeaderboardState>(
       builder: (context, state) {
         if (state is LeaderboardLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const LeaderboardScreenSkeleton();
         }
 
         if (state is LeaderboardLoaded) {
           // Verify we are showing the correct data for the requested scope
           // This prevents flashing old data from a different scope
           if (state.leaderboard.scope != scope) {
-            return const Center(child: CircularProgressIndicator());
+            return const LeaderboardScreenSkeleton();
           }
 
           return RefreshIndicator(

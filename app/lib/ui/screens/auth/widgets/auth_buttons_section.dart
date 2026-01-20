@@ -41,22 +41,6 @@ class AuthButtonsSection extends StatelessWidget {
         ).animate(animation),
         child: Column(
           children: [
-            // Google Sign In
-            SocialButton(
-              isDark: isDark,
-              icon: SvgPicture.asset(
-                'assets/icons/google-icon-logo.svg',
-                width: 20,
-                height: 20,
-              ),
-              label: l10n.continueWithGoogle,
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
-              },
-            ),
-
-            const SizedBox(height: 16),
-
             // Apple Sign In
             SocialButton(
               isDark: isDark,
@@ -72,6 +56,22 @@ class AuthButtonsSection extends StatelessWidget {
               label: l10n.continueWithApple,
               onPressed: () {
                 context.read<AuthBloc>().add(const AuthAppleSignInRequested());
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Google Sign In
+            SocialButton(
+              isDark: isDark,
+              icon: SvgPicture.asset(
+                'assets/icons/google-icon-logo.svg',
+                width: 20,
+                height: 20,
+              ),
+              label: l10n.continueWithGoogle,
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
               },
             ),
           ],

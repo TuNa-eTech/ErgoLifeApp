@@ -4,6 +4,7 @@ import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
+import 'package:ergo_life_app/ui/common/common.dart';
 
 /// Professional house card component for profile screen
 class HouseCard extends StatelessWidget {
@@ -360,17 +361,121 @@ class HouseCard extends StatelessWidget {
   Widget _buildLoadingSkeleton(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      height: 160,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row Skeleton
+          Row(
+            children: [
+              SkeletonLoader(
+                width: 36,
+                height: 36,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonLoader(
+                      width: 120,
+                      height: 18,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(height: 6),
+                    SkeletonLoader(
+                      width: 80,
+                      height: 12,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ],
+                ),
+              ),
+              SkeletonLoader(
+                width: 24,
+                height: 24,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Stats Block Skeleton
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : Colors.grey.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatSkeletonItem(),
+                Container(
+                  height: 30,
+                  width: 1,
+                  color: isDark ? Colors.white12 : Colors.black12,
+                ),
+                _buildStatSkeletonItem(),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Action Buttons Skeleton
+          Row(
+            children: [
+              Expanded(
+                child: SkeletonLoader(
+                  height: 44,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SkeletonLoader(
+                  height: 44,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatSkeletonItem() {
+    return Column(
+      children: [
+        SkeletonLoader(
+          width: 50,
+          height: 16,
+          borderRadius: BorderRadius.circular(4),
         ),
-      ),
+        const SizedBox(height: 4),
+        SkeletonLoader(
+          width: 40,
+          height: 12,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ],
     );
   }
 

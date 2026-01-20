@@ -47,11 +47,22 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
     Icons.local_laundry_service,
     Icons.shopping_cart,
     Icons.cleaning_services,
-    Icons.add_circle,
+    Icons.iron,
     Icons.directions_run,
     Icons.self_improvement,
     Icons.water_drop,
     Icons.kitchen,
+    Icons.directions_bike,
+    Icons.pool,
+    Icons.sports_soccer,
+    Icons.bed,
+    Icons.restaurant,
+    Icons.directions_walk,
+    Icons.stairs,
+    Icons.pets,
+    Icons.local_florist,
+    Icons.build,
+    Icons.music_note,
   ];
 
   // Icon name mapping for API
@@ -60,11 +71,22 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
     Icons.local_laundry_service: 'laundry',
     Icons.shopping_cart: 'shopping',
     Icons.cleaning_services: 'cleaning',
-    Icons.add_circle: 'add',
+    Icons.iron: 'ironing',
     Icons.directions_run: 'running',
     Icons.self_improvement: 'yoga',
     Icons.water_drop: 'water',
     Icons.kitchen: 'kitchen',
+    Icons.directions_bike: 'cycling',
+    Icons.pool: 'swimming',
+    Icons.sports_soccer: 'sports',
+    Icons.bed: 'rest',
+    Icons.restaurant: 'cooking',
+    Icons.directions_walk: 'walking',
+    Icons.stairs: 'stairs',
+    Icons.pets: 'pet_care',
+    Icons.local_florist: 'gardening',
+    Icons.build: 'diy',
+    Icons.music_note: 'dancing',
   };
 
   // METs options for intensity - labels are static strings, will be localized in UI
@@ -172,362 +194,333 @@ class _CreateTaskScreenContentState extends State<_CreateTaskScreenContent> {
       child: Scaffold(
         backgroundColor: bgColor,
         body: SafeArea(
-          child: Stack(
+          child: Column(
             children: [
-              Column(
-                children: [
-                  // Header
-                  _buildHeader(context, isDark, textColor),
+              // Header
+              _buildHeader(context, isDark, textColor),
 
-                  // Form Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              // Form Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.taskToEdit != null
+                            ? 'Edit Exercise'
+                            : AppLocalizations.of(context)!.createYourExercise,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                          letterSpacing: -1,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context)!.turnDailyChoresToWorkout,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Form Inputs
+                      _buildLabel(
+                        AppLocalizations.of(context)!.exerciseNameLabel,
+                      ),
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.exerciseNameHint,
+                          prefixIcon: Icon(
+                            Icons.fitness_center,
+                            color: AppColors.primary.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildLabel(
+                        AppLocalizations.of(context)!.realLifeTaskLabel,
+                      ),
+                      TextField(
+                        controller: _descController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.taskDescriptionHint,
+                          prefixIcon: Icon(
+                            Icons.cleaning_services,
+                            color: AppColors.purple.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      Row(
                         children: [
-                          const SizedBox(height: 16),
-                          Text(
-                            widget.taskToEdit != null
-                                ? 'Edit Exercise'
-                                : AppLocalizations.of(
-                                    context,
-                                  )!.createYourExercise,
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              height: 1.1,
-                              letterSpacing: -1,
-                              color: textColor,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildLabel('DURATION'),
+                                TextField(
+                                  controller: _durationController,
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (_) => setState(() {}),
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: '20',
+                                    suffixText: 'min',
+                                    suffixStyle: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.turnDailyChoresToWorkout,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-
-                          // Form Inputs
-                          _buildLabel(
-                            AppLocalizations.of(context)!.exerciseNameLabel,
-                          ),
-                          TextField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              hintText: AppLocalizations.of(
-                                context,
-                              )!.exerciseNameHint,
-                              prefixIcon: Icon(
-                                Icons.fitness_center,
-                                color: AppColors.primary.withOpacity(0.7),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          _buildLabel(
-                            AppLocalizations.of(context)!.realLifeTaskLabel,
-                          ),
-                          TextField(
-                            controller: _descController,
-                            decoration: InputDecoration(
-                              hintText: AppLocalizations.of(
-                                context,
-                              )!.taskDescriptionHint,
-                              prefixIcon: Icon(
-                                Icons.cleaning_services,
-                                color: AppColors.purple.withOpacity(0.7),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildLabel('DURATION'),
-                                    TextField(
-                                      controller: _durationController,
-                                      keyboardType: TextInputType.number,
-                                      onChanged: (_) => setState(() {}),
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: '20',
-                                        suffixText: 'min',
-                                        suffixStyle: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark
-                                              ? Colors.grey[400]
-                                              : Colors.grey[600],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildLabel('EST. REWARD'),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? Colors.white.withOpacity(0.05)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '$_estimatedPoints',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.secondary,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        'EP',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildLabel('EST. REWARD'),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                        horizontal: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? Colors.white.withOpacity(0.05)
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            '$_estimatedPoints',
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.secondary,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          const Text(
-                                            'EP',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.secondary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Intensity Selector
-                          _buildLabel(
-                            AppLocalizations.of(context)!.intensityLabel,
-                          ),
-                          SizedBox(
-                            height: 48,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _metsOptions.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
-                                final option = _metsOptions[index];
-                                final isSelected =
-                                    option.value == _selectedMets;
-                                return GestureDetector(
-                                  onTap: () => setState(
-                                    () => _selectedMets = option.value,
-                                  ),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : (isDark
-                                                ? Colors.white.withOpacity(0.05)
-                                                : Colors.white),
-                                      borderRadius: BorderRadius.circular(24),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : Colors.transparent,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      _getLocalizedIntensityLabel(
-                                        context,
-                                        option.labelKey,
-                                      ),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : (isDark
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[600]),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          _buildLabel(AppLocalizations.of(context)!.chooseIcon),
-                          SizedBox(
-                            height: 64,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _availableIcons.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
-                                final icon = _availableIcons[index];
-                                final isSelected = icon == _selectedIcon;
-                                return GestureDetector(
-                                  onTap: () =>
-                                      setState(() => _selectedIcon = icon),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 64,
-                                    height: 64,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : (isDark
-                                                ? Colors.white.withOpacity(0.05)
-                                                : Colors.white),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : Colors.transparent,
-                                        width: 2,
-                                      ),
-                                      boxShadow: isSelected
-                                          ? [
-                                              BoxShadow(
-                                                color: AppColors.primary
-                                                    .withOpacity(0.4),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ]
-                                          : [],
-                                    ),
-                                    child: Icon(
-                                      icon,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : (isDark
-                                                ? Colors.grey[500]
-                                                : Colors.grey[400]),
-                                      size: 28,
-                                    ),
-                                  ),
-                                );
-                              },
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
+                      const SizedBox(height: 24),
 
-              // Sticky Bottom Button
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        bgColor,
-                        bgColor.withOpacity(0.95),
-                        bgColor.withOpacity(0.0),
-                      ],
-                      stops: const [0.0, 0.4, 1.0],
-                    ),
-                  ),
-                  child: BlocBuilder<TaskBloc, TaskState>(
-                    builder: (context, state) {
-                      final isLoading = state is TaskCreating;
-                      return SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _createTask,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                            disabledBackgroundColor: AppColors.secondary
-                                .withOpacity(0.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 8,
-                            shadowColor: AppColors.secondary.withOpacity(0.4),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      widget.taskToEdit != null
-                                          ? Icons.check_circle
-                                          : Icons.add_circle,
-                                      size: 24,
-                                      color: Colors.white,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      widget.taskToEdit != null
-                                          ? 'Update Exercise'
-                                          : 'Create Exercise',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                      // Intensity Selector
+                      _buildLabel(AppLocalizations.of(context)!.intensityLabel),
+                      SizedBox(
+                        height: 48,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _metsOptions.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final option = _metsOptions[index];
+                            final isSelected = option.value == _selectedMets;
+                            return GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedMets = option.value),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
                                 ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark
+                                            ? Colors.white.withOpacity(0.05)
+                                            : Colors.white),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Text(
+                                  _getLocalizedIntensityLabel(
+                                    context,
+                                    option.labelKey,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : (isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600]),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildLabel(AppLocalizations.of(context)!.chooseIcon),
+                      SizedBox(
+                        height: 64,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _availableIcons.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final icon = _availableIcons[index];
+                            final isSelected = icon == _selectedIcon;
+                            return GestureDetector(
+                              onTap: () => setState(() => _selectedIcon = icon),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark
+                                            ? Colors.white.withOpacity(0.05)
+                                            : Colors.white),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withOpacity(0.4),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Icon(
+                                  icon,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (isDark
+                                            ? Colors.grey[500]
+                                            : Colors.grey[400]),
+                                  size: 28,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 50),
+                    ],
                   ),
                 ),
               ),
             ],
+          ),
+        ),
+        // Bottom Button
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: BlocBuilder<TaskBloc, TaskState>(
+              builder: (context, state) {
+                final isLoading = state is TaskCreating;
+                return SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _createTask,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      disabledBackgroundColor: AppColors.secondary.withOpacity(
+                        0.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 8,
+                      shadowColor: AppColors.secondary.withOpacity(0.4),
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                widget.taskToEdit != null
+                                    ? Icons.check_circle
+                                    : Icons.add_circle,
+                                size: 24,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.taskToEdit != null
+                                    ? 'Update Exercise'
+                                    : 'Create Exercise',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

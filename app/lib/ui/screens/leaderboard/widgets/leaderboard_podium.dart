@@ -1,4 +1,5 @@
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
+import 'package:ergo_life_app/data/models/user_model_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -100,9 +101,9 @@ class _PodiumItem extends StatelessWidget {
           height: avatarSize,
           decoration: BoxDecoration(shape: BoxShape.circle, color: stepColor),
           clipBehavior: Clip.antiAlias,
-          child: entry.user.avatarUrl != null
+          child: getUserAvatarUrl(entry.user) != null
               ? CachedNetworkImage(
-                  imageUrl: entry.user.avatarUrl!,
+                  imageUrl: getUserAvatarUrl(entry.user)!,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Center(
                     child: SizedBox(
