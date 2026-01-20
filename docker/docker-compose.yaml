@@ -38,6 +38,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ErgoAdmin@2024}
       FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-./ergolife-firebase-adminsdk.json}
     depends_on:
       postgres:

@@ -69,6 +69,8 @@ Key variables:
 - `BACKEND_PORT`: Host port for backend API (default: 3000)
 - `CMS_PORT`: Host port for CMS application (default: 5176)
 - `VITE_API_BASE_URL`: API base URL for frontend services
+- `ADMIN_USERNAME`: CMS admin username (default: admin) ⚠️ Change in production!
+- `ADMIN_PASSWORD`: CMS admin password (default: ErgoAdmin@2024) ⚠️ Change in production!
 - `JWT_SECRET`: Secret key for JWT tokens
 - `CORS_ORIGIN`: Allowed CORS origins
 
@@ -234,6 +236,18 @@ The backend service is configured to run in development mode with:
 - Landing Page: http://localhost:5175
 - CMS: http://localhost:5176
 - Adminer (DB Admin): http://localhost:5052
+
+### CMS Admin Access
+
+**Default Login Credentials:**
+- Username: `admin`
+- Password: `ErgoAdmin@2024`
+
+⚠️ **IMPORTANT**: Change these credentials before deploying to production!
+
+To change credentials, update `ADMIN_USERNAME` and `ADMIN_PASSWORD` in your `.env` file, then restart the backend service.
+
+For detailed information about CMS authentication and security best practices, see: `../cms/CMS_LOGIN.md`
 
 ---
 
