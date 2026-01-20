@@ -1,4 +1,8 @@
 import type { Route } from "./+types/home";
+import { Link } from "react-router";
+
+import { Navbar } from "~/components/Navbar";
+import { Footer } from "~/components/Footer";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,57 +19,7 @@ export default function Home() {
   return (
     <div className="bg-background-light text-navy antialiased min-h-screen flex flex-col font-body">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 w-full px-6 py-4">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="clay-card !rounded-2xl px-6 py-3 flex items-center justify-between border border-white/50 backdrop-blur-md bg-white/80">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-white">
-                <span className="material-symbols-outlined">fitness_center</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-navy">
-                ErgoLife
-              </span>
-            </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a
-                className="text-sm font-medium text-navy-light hover:text-primary transition-colors"
-                href="#"
-              >
-                Features
-              </a>
-              <a
-                className="text-sm font-medium text-navy-light hover:text-primary transition-colors"
-                href="#"
-              >
-                Rewards
-              </a>
-              <a
-                className="text-sm font-medium text-navy-light hover:text-primary transition-colors"
-                href="#"
-              >
-                Community
-              </a>
-              <a
-                className="text-sm font-medium text-navy-light hover:text-primary transition-colors"
-                href="#"
-              >
-                About
-              </a>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="hidden md:flex text-sm font-semibold text-navy hover:text-primary transition-colors px-4 py-2 cursor-pointer">
-                Log In
-              </button>
-              <button className="bg-primary hover:bg-primary-hover text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 cursor-pointer">
-                <span>Get App</span>
-                <span className="material-symbols-outlined text-[18px]">
-                  arrow_forward
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content: Bento Grid Layout */}
       <main className="flex-grow w-full px-6 py-6 md:py-10">
@@ -203,6 +157,7 @@ export default function Home() {
                     alt="Red sneaker shoe"
                     className="w-10 h-10 object-contain"
                     src="/images/reward-gear.png"
+                    // placeholder for generated assets
                   />
                   <span className="text-[10px] font-bold text-navy">Gear</span>
                 </div>
@@ -326,36 +281,7 @@ export default function Home() {
       </main>
 
       {/* Simple Footer */}
-      <footer className="w-full bg-white border-t border-gray-100 mt-auto">
-        <div className="mx-auto max-w-[1280px] px-6 py-8 md:py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
-                <span className="material-symbols-outlined text-sm">
-                  fitness_center
-                </span>
-              </div>
-              <span className="text-lg font-bold text-navy font-display">
-                ErgoLife
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm text-navy-light">
-              <a className="hover:text-primary transition-colors" href="#">
-                Privacy
-              </a>
-              <a className="hover:text-primary transition-colors" href="#">
-                Terms
-              </a>
-              <a className="hover:text-primary transition-colors" href="#">
-                Support
-              </a>
-            </div>
-            <div className="text-sm text-gray-400">
-              © 2023 ErgoLife Inc. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
