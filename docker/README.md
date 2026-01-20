@@ -6,6 +6,9 @@ This directory contains Docker configuration for running the ErgoLife applicatio
 
 - **postgres**: PostgreSQL 15 database
 - **backend**: NestJS backend API
+- **landing-page**: React landing page (Vite)
+- **cms**: React CMS application (Vite)
+- **adminer**: Database administration tool
 
 ## Quick Start
 
@@ -64,6 +67,8 @@ Key variables:
 - `POSTGRES_DB`: Database name (default: ergolife_db)
 - `POSTGRES_PORT`: Host port for PostgreSQL (default: 5433)
 - `BACKEND_PORT`: Host port for backend API (default: 3000)
+- `CMS_PORT`: Host port for CMS application (default: 5176)
+- `VITE_API_BASE_URL`: API base URL for frontend services
 - `JWT_SECRET`: Secret key for JWT tokens
 - `CORS_ORIGIN`: Allowed CORS origins
 
@@ -226,6 +231,9 @@ The backend service is configured to run in development mode with:
 - Backend API: http://localhost:3000
 - PostgreSQL: localhost:5433
 - API Documentation (Swagger): http://localhost:3000/api
+- Landing Page: http://localhost:5175
+- CMS: http://localhost:5176
+- Adminer (DB Admin): http://localhost:5052
 
 ---
 

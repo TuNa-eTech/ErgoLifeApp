@@ -7,7 +7,7 @@ class TermsOfServiceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: Replace with actual hosted URL
-    const url = 'https://ergolife.app/terms';
+    const url = 'https://ergolife-landing.e-tech.network/terms';
 
     return const SimpleWebViewScreen(url: url, title: 'Terms of Service');
   }

@@ -7,7 +7,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: Replace with actual hosted URL
-    const url = 'https://ergolife.app/privacy';
+    const url = 'https://ergolife-landing.e-tech.network/privacy';
 
     return const SimpleWebViewScreen(url: url, title: 'Privacy Policy');
   }
