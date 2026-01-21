@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
 import 'package:ergo_life_app/blocs/auth/auth_state.dart';
@@ -20,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  String _version = '...';
 
   @override
   void initState() {
@@ -47,8 +49,20 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
+    // Load app version
+    _loadVersion();
+
     // Check authentication status
     widget.authBloc.add(const AuthCheckRequested());
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _version = 'v${packageInfo.version}';
+      });
+    }
   }
 
   @override
@@ -146,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
           padding: const EdgeInsets.all(6),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(26),
-            child: Image.asset('assets/icons/app_icon.png', fit: BoxFit.cover),
+            child: Image.asset('assets/icons/app_icon.jpg', fit: BoxFit.cover),
           ),
         ),
 
@@ -219,7 +233,7 @@ class _SplashScreenState extends State<SplashScreen>
         : Colors.black.withValues(alpha: 0.3);
 
     return Text(
-      'v2.4.0',
+      _version,
       style: TextStyle(
         color: versionColor,
         fontSize: 11,

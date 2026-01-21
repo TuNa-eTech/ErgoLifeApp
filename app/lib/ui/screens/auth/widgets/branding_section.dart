@@ -47,7 +47,7 @@ class BrandingSection extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
-                  'assets/icons/app_icon.png',
+                  'assets/icons/app_icon.jpg',
                   fit: BoxFit.cover,
                 ),
               ),
