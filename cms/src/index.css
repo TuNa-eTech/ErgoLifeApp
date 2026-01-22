@@ -1,3 +1,8 @@
+/* Inter Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Material Icons for Task Templates */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 @import "tailwindcss";
 
 /* Custom Theme Tokens */
@@ -63,11 +68,7 @@ body {
   margin: 0;
 }
 
-/* Inter Font Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Material Icons for Task Templates */
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

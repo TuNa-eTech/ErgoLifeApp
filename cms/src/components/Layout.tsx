@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
   Dumbbell, 
+  Users,
+  Home,
   LogOut, 
   ChevronRight,
   Sparkles
@@ -21,6 +23,8 @@ export const Layout: React.FC = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: Users, label: 'Users', path: '/users' },
+    { icon: Home, label: 'Houses', path: '/houses' },
     { icon: Dumbbell, label: 'Task Templates', path: '/templates' },
   ];
 
