@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
@@ -35,10 +36,45 @@ class ActiveSessionScreen extends StatelessWidget {
   }
 }
 
-class ActiveSessionView extends StatelessWidget {
+class ActiveSessionView extends StatefulWidget {
   final TaskModel task;
 
   const ActiveSessionView({super.key, required this.task});
+
+  @override
+  State<ActiveSessionView> createState() => _ActiveSessionViewState();
+}
+
+class _ActiveSessionViewState extends State<ActiveSessionView> {
+  @override
+  void initState() {
+    super.initState();
+    _enableWakelock();
+  }
+
+  @override
+  void dispose() {
+    _disableWakelock();
+    super.dispose();
+  }
+
+  /// Enable wakelock to keep screen awake during session
+  Future<void> _enableWakelock() async {
+    try {
+      await WakelockPlus.enable();
+    } catch (e) {
+      // Silently fail - not critical if wakelock doesn't work
+    }
+  }
+
+  /// Disable wakelock when session ends
+  Future<void> _disableWakelock() async {
+    try {
+      await WakelockPlus.disable();
+    } catch (e) {
+      // Silently fail
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +83,8 @@ class ActiveSessionView extends StatelessWidget {
     return BlocConsumer<SessionBloc, SessionState>(
       listener: (context, state) {
         if (state is SessionCompleted) {
+          // Disable wakelock when session completes
+          _disableWakelock();
           _showCompletionDialog(context, state);
         } else if (state is SessionError) {
           _showErrorSnackBar(context, state.message);
@@ -68,11 +106,13 @@ class ActiveSessionView extends StatelessWidget {
           return Scaffold(
             backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
             body: SessionStartOverlay(
-              task: task,
+              task: widget.task,
               formattedTarget: state.formattedTarget,
               currentStreak: currentStreak,
               onStart: () {
-                context.read<SessionBloc>().add(StartSession(task: task));
+                context.read<SessionBloc>().add(
+                  StartSession(task: widget.task),
+                );
               },
               onCancel: () => Navigator.pop(context),
             ),
@@ -136,7 +176,7 @@ class ActiveSessionView extends StatelessWidget {
                     const SizedBox(height: 16),
                     // Task name
                     Text(
-                      task.exerciseName,
+                      widget.task.exerciseName,
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -151,9 +191,9 @@ class ActiveSessionView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     // Task description/category
-                    if (task.taskDescription != null)
+                    if (widget.task.taskDescription != null)
                       Text(
-                        task.taskDescription!.toUpperCase(),
+                        widget.task.taskDescription!.toUpperCase(),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -300,7 +340,7 @@ class ActiveSessionView extends StatelessWidget {
         ],
       ),
       child: Icon(
-        hasExceededTarget ? Icons.check_circle : task.icon,
+        hasExceededTarget ? Icons.check_circle : widget.task.icon,
         size: 36,
         color: Colors.white,
       ),
