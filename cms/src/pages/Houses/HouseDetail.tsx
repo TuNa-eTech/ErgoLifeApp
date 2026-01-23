@@ -63,7 +63,7 @@ export const HouseDetail: React.FC = () => {
                <h3 className="text-lg font-bold text-slate-900">Members ({house._count?.members || house.members?.length || 0})</h3>
            </div>
            
-           <div className="overflow-hidden">
+           <div className="overflow-hidden overflow-x-auto">
              <table className="w-full text-left text-sm">
                <thead className="bg-slate-50 border-b border-slate-200">
                  <tr>

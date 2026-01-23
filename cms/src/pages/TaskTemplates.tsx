@@ -69,14 +69,14 @@ export const TaskTemplates: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Task Templates</h1>
           <p className="text-slate-500 mt-1">Manage your exercise and activity library</p>
         </div>
         <Link
           to="/templates/new"
-          className="btn btn-primary"
+          className="btn btn-primary w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" />
           Create Template
@@ -84,7 +84,7 @@ export const TaskTemplates: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card p-5">
           <p className="text-sm font-medium text-slate-500">Total Templates</p>
           <p className="text-3xl font-bold text-slate-900 mt-1">{templates.length}</p>
@@ -118,7 +118,7 @@ export const TaskTemplates: React.FC = () => {
       </div>
 
       {/* Data Table */}
-      <div className="card overflow-hidden">
+      <div className="card overflow-hidden overflow-x-auto">
         <table className="table">
           <thead>
             <tr>

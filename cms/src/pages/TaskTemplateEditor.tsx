@@ -127,7 +127,7 @@ export const TaskTemplateEditor: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link 
             to="/templates" 
@@ -145,7 +145,7 @@ export const TaskTemplateEditor: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="btn btn-primary"
+          className="btn btn-primary w-full sm:w-auto"
         >
           {saving ? (
             <>
@@ -173,7 +173,7 @@ export const TaskTemplateEditor: React.FC = () => {
               </h3>
             </div>
             <div className="card-body">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Icon */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Material Icon Name</label>

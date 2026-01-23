@@ -1,5 +1,5 @@
-import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
@@ -8,18 +8,27 @@ import {
   Home,
   LogOut, 
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Menu,
+  X
 } from 'lucide-react';
 import clsx from 'clsx';
 
 export const Layout: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  // Close sidebar on route change (mobile)
+  React.useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -30,10 +39,23 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-72 bg-slate-900 flex flex-col fixed h-full">
+      <aside 
+        className={clsx(
+          "fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
         {/* Logo */}
-        <div className="p-6 border-b border-slate-800">
+        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
               <Sparkles className="w-5 h-5 text-white" />
@@ -43,10 +65,17 @@ export const Layout: React.FC = () => {
               <p className="text-xs text-slate-500">Admin Console</p>
             </div>
           </div>
+          {/* Mobile Close Button */}
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -94,14 +123,25 @@ export const Layout: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72">
+      <main className="flex-1 min-w-0 bg-slate-50">
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-slate-500">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span>System Online</span>
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-4 sm:px-8 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {/* Mobile Menu Trigger */}
+              <button 
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+
+              <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span>System Online</span>
+              </div>
             </div>
+            
             <div className="text-sm text-slate-500">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
@@ -114,7 +154,7 @@ export const Layout: React.FC = () => {
         </header>
 
         {/* Page Content */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           <Outlet />
         </div>
       </main>
