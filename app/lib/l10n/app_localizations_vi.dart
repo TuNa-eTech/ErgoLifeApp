@@ -96,10 +96,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get joinUsersWorldwide => 'Tham gia cùng 10K+ người dùng';
 
   @override
-  String get continueWithGoogle => 'Tiếp tục với Google';
+  String get continueWithGoogle => 'Đăng nhập với Google';
 
   @override
-  String get continueWithApple => 'Tiếp tục với Apple';
+  String get continueWithApple => 'Đăng nhập với Apple';
 
   @override
   String get termsPrivacyPolicy =>
@@ -123,6 +123,13 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get logoutConfirmation =>
       'Bạn có chắc chắn muốn đăng xuất? Bạn sẽ cần đăng nhập lại để truy cập tài khoản.';
+
+  @override
+  String get deleteAccount => 'Xóa Tài Khoản';
+
+  @override
+  String get deleteAccountConfirmation =>
+      'Điều này sẽ đăng xuất bạn khỏi tài khoản. Bạn có chắc chắn muốn tiếp tục?';
 
   @override
   String get welcomeBack => 'Chào mừng trở lại!';

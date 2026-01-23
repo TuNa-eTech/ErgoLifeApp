@@ -83,9 +83,9 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
               flag: '🇬🇧',
               isSelected: currentLocale == 'en',
               isDark: isDark,
-              onTap: () {
-                context.read<LocaleCubit>().setLocale(const Locale('en'));
-                Navigator.of(context).pop(true);
+              onTap: () async {
+                await context.read<LocaleCubit>().setLocale(const Locale('en'));
+                if (context.mounted) Navigator.of(context).pop(true);
               },
             ),
 
@@ -96,9 +96,9 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
               flag: '🇻🇳',
               isSelected: currentLocale == 'vi',
               isDark: isDark,
-              onTap: () {
-                context.read<LocaleCubit>().setLocale(const Locale('vi'));
-                Navigator.of(context).pop(true);
+              onTap: () async {
+                await context.read<LocaleCubit>().setLocale(const Locale('vi'));
+                if (context.mounted) Navigator.of(context).pop(true);
               },
             ),
 

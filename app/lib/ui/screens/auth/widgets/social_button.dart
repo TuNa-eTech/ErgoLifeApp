@@ -8,6 +8,8 @@ class SocialButton extends StatefulWidget {
   final String label;
   final bool isPrimary;
   final VoidCallback onPressed;
+  final Color? customBackgroundColor;
+  final Color? customTextColor;
 
   const SocialButton({
     super.key,
@@ -16,6 +18,8 @@ class SocialButton extends StatefulWidget {
     required this.label,
     this.isPrimary = false,
     required this.onPressed,
+    this.customBackgroundColor,
+    this.customTextColor,
   });
 
   @override
@@ -38,26 +42,24 @@ class _SocialButtonState extends State<SocialButton> {
         duration: const Duration(milliseconds: 150),
         height: 52,
         decoration: BoxDecoration(
-          color: widget.isPrimary
-              ? AppColors.primary
-              : (widget.isDark ? Colors.white.withOpacity(0.05) : Colors.white),
-          borderRadius: BorderRadius.circular(14),
-          border: widget.isPrimary
+          color:
+              widget.customBackgroundColor ??
+              (widget.isPrimary
+                  ? AppColors.primary
+                  : (widget.isDark
+                        ? Colors.white.withOpacity(0.05)
+                        : Colors.white)),
+          borderRadius: BorderRadius.circular(8),
+          border: widget.customBackgroundColor != null
               ? null
-              : Border.all(
-                  color: widget.isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.grey.shade200,
-                  width: 1.5,
-                ),
-          boxShadow: [
-            if (!widget.isDark && !_isPressed)
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
+              : (widget.isPrimary
+                    ? null
+                    : Border.all(
+                        color: widget.isDark
+                            ? Colors.white.withOpacity(0.1)
+                            : Colors.grey.shade200,
+                        width: 1.5,
+                      )),
         ),
         transform: Matrix4.identity()..scale(_isPressed ? 0.98 : 1.0),
         child: Padding(
@@ -72,11 +74,13 @@ class _SocialButtonState extends State<SocialButton> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: widget.isPrimary
-                      ? Colors.white
-                      : (widget.isDark
-                            ? Colors.white
-                            : AppColors.textMainLight),
+                  color:
+                      widget.customTextColor ??
+                      (widget.isPrimary
+                          ? Colors.white
+                          : (widget.isDark
+                                ? Colors.white
+                                : AppColors.textMainLight)),
                   letterSpacing: -0.2,
                 ),
               ),

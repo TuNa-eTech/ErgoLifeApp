@@ -525,6 +525,10 @@ class _ProfileViewState extends State<ProfileView> {
             isDestructive: true,
             showChevron: false,
           ),
+          _buildDivider(isDark),
+          // Delete Account - Small and subtle at the bottom
+          SizedBox(height: 30),
+          _buildDeleteAccountTile(context, isDark),
         ],
       ),
     );
@@ -599,6 +603,37 @@ class _ProfileViewState extends State<ProfileView> {
       color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
     );
   }
+
+  Widget _buildDeleteAccountTile(BuildContext context, bool isDark) {
+    return InkWell(
+      onTap: () => _showDeleteAccountDialog(context),
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.delete_outline,
+              size: 14,
+              color: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              AppLocalizations.of(context)!.deleteAccount,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 Future<void> _showLogoutDialog(BuildContext context) async {
@@ -607,6 +642,21 @@ Future<void> _showLogoutDialog(BuildContext context) async {
     title: AppLocalizations.of(context)!.logout,
     message: AppLocalizations.of(context)!.logoutConfirmation,
     confirmText: AppLocalizations.of(context)!.logout,
+    cancelText: AppLocalizations.of(context)!.cancel,
+    isDestructive: true,
+  );
+
+  if (confirmed && context.mounted) {
+    context.read<AuthBloc>().add(const AuthSignOutRequested());
+  }
+}
+
+Future<void> _showDeleteAccountDialog(BuildContext context) async {
+  final confirmed = await ModernDialog.showConfirmation(
+    context,
+    title: AppLocalizations.of(context)!.deleteAccount,
+    message: AppLocalizations.of(context)!.deleteAccountConfirmation,
+    confirmText: AppLocalizations.of(context)!.confirm,
     cancelText: AppLocalizations.of(context)!.cancel,
     isDestructive: true,
   );

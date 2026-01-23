@@ -44,12 +44,14 @@ class AuthButtonsSection extends StatelessWidget {
             // Apple Sign In
             SocialButton(
               isDark: isDark,
+              customBackgroundColor: Colors.black,
+              customTextColor: Colors.white,
               icon: SvgPicture.asset(
                 'assets/icons/apple-black-logo.svg',
                 width: 20,
                 height: 20,
-                colorFilter: ColorFilter.mode(
-                  isDark ? Colors.white : Colors.black,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
                   BlendMode.srcIn,
                 ),
               ),

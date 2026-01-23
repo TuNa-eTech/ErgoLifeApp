@@ -275,13 +275,13 @@ abstract class AppLocalizations {
   /// No description provided for @continueWithGoogle.
   ///
   /// In en, this message translates to:
-  /// **'Continue with Google'**
+  /// **'Sign in with Google'**
   String get continueWithGoogle;
 
   /// No description provided for @continueWithApple.
   ///
   /// In en, this message translates to:
-  /// **'Continue with Apple'**
+  /// **'Sign in with Apple'**
   String get continueWithApple;
 
   /// No description provided for @termsPrivacyPolicy.
@@ -325,6 +325,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to logout? You will need to sign in again to access your account.'**
   String get logoutConfirmation;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This will sign you out of your account. Are you sure you want to continue?'**
+  String get deleteAccountConfirmation;
 
   /// No description provided for @welcomeBack.
   ///

@@ -96,10 +96,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get joinUsersWorldwide => 'Join 10K+ users worldwide';
 
   @override
-  String get continueWithGoogle => 'Continue with Google';
+  String get continueWithGoogle => 'Sign in with Google';
 
   @override
-  String get continueWithApple => 'Continue with Apple';
+  String get continueWithApple => 'Sign in with Apple';
 
   @override
   String get termsPrivacyPolicy =>
@@ -123,6 +123,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get logoutConfirmation =>
       'Are you sure you want to logout? You will need to sign in again to access your account.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmation =>
+      'This will sign you out of your account. Are you sure you want to continue?';
 
   @override
   String get welcomeBack => 'Welcome back!';
