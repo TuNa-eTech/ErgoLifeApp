@@ -1,25 +1,11 @@
-
 import React, { useEffect, useState } from 'react';
 import { adminApi, type DashboardStats } from '../api/admin';
 import { Users, Home, Activity, Zap } from 'lucide-react';
-import clsx from 'clsx';
-
-const StatCard: React.FC<{
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-  color: string;
-}> = ({ title, value, icon: Icon, color }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-    <div className={clsx("p-4 rounded-xl", color)}>
-      <Icon className="w-6 h-6 text-white" />
-    </div>
-    <div>
-      <p className="text-sm font-medium text-slate-500">{title}</p>
-      <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
-    </div>
-  </div>
-);
+import { StatCard } from '../components/StatCard';
+import { UserGrowthChart } from './Dashboard/components/UserGrowthChart';
+import { ActivityOverviewChart } from './Dashboard/components/ActivityOverviewChart';
+import { HousePieChart } from './Dashboard/components/HousePieChart';
+import { RecentActivityList } from './Dashboard/components/RecentActivityList';
 
 export const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -49,6 +35,7 @@ export const Dashboard: React.FC = () => {
         <p className="text-slate-500">Welcome back to the admin console.</p>
       </div>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Users"
@@ -76,10 +63,14 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Placeholder for future Charts */}
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center py-20">
-        <p className="text-slate-400">Charts coming soon...</p>
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <UserGrowthChart />
+        <ActivityOverviewChart />
+        <HousePieChart />
+        <RecentActivityList />
       </div>
     </div>
   );
 };
+
