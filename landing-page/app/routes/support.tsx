@@ -2,6 +2,7 @@ import type { Route } from "./+types/support";
 import { Navbar } from "~/components/Navbar";
 import { Footer } from "~/components/Footer";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,6 +12,118 @@ export function meta({}: Route.MetaArgs) {
       content: "Get help and support for ErgoLife. Frequently asked questions and contact information.",
     },
   ];
+}
+
+const SUPPORT_EMAIL = "anhtu.it.se@gmail.com";
+
+function ContactForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailSubject = `[ErgoLife Support] ${subject}`;
+    const emailBody = `Name: ${name}
+Email: ${email}
+
+Subject: ${subject}
+
+Message:
+${message}`;
+    
+    const mailtoUrl = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    window.location.href = mailtoUrl;
+  };
+
+  return (
+    <div className="clay-card p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-hover rounded-xl flex items-center justify-center text-white">
+          <span className="material-symbols-outlined text-2xl">send</span>
+        </div>
+        <h3 className="text-xl font-bold text-navy">Send us a message</h3>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="name" className="block text-sm font-semibold text-navy mb-2">
+            Your Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder="John Doe"
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors bg-white text-navy placeholder:text-gray-400"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-semibold text-navy mb-2">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="john@example.com"
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors bg-white text-navy placeholder:text-gray-400"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="subject" className="block text-sm font-semibold text-navy mb-2">
+            Subject
+          </label>
+          <select
+            id="subject"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors bg-white text-navy"
+          >
+            <option value="">Select a topic...</option>
+            <option value="General Inquiry">General Inquiry</option>
+            <option value="Account Issue">Account Issue</option>
+            <option value="Bug Report">Bug Report</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="Billing Question">Billing Question</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="message" className="block text-sm font-semibold text-navy mb-2">
+            Message
+          </label>
+          <textarea
+            id="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
+            rows={4}
+            placeholder="How can we help you?"
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors bg-white text-navy placeholder:text-gray-400 resize-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full py-3 px-6 bg-gradient-to-r from-primary to-primary-hover text-white font-bold rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-xl">send</span>
+          Send Message
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default function Support() {
@@ -31,8 +144,9 @@ export default function Support() {
             </p>
           </div>
 
-          {/* Contact Cards */}
+          {/* Contact Section */}
           <div className="grid md:grid-cols-2 gap-6">
+            {/* Email Support Card */}
             <div className="clay-card p-8 flex flex-col items-center text-center hover:scale-[1.02] transition-transform duration-300">
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 text-primary">
                 <span className="material-symbols-outlined text-3xl">mail</span>
@@ -42,25 +156,15 @@ export default function Support() {
                 For general inquiries, account issues, or feedback. We usually respond within 24 hours.
               </p>
               <a 
-                href="mailto:support@ergolife.app" 
+                href="mailto:anhtu.it.se@gmail.com" 
                 className="text-primary font-bold hover:text-primary-hover transition-colors"
               >
-                support@ergolife.app
+                anhtu.it.se@gmail.com
               </a>
             </div>
 
-            <div className="clay-card p-8 flex flex-col items-center text-center hover:scale-[1.02] transition-transform duration-300">
-               <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600">
-                <span className="material-symbols-outlined text-3xl">chat</span>
-              </div>
-              <h3 className="text-xl font-bold text-navy mb-2">Live Chat</h3>
-              <p className="text-navy-light mb-6">
-                Available inside the mobile app for Premium users.
-              </p>
-              <span className="text-navy/60 font-medium">
-                Mon - Fri, 9am - 5pm EST
-              </span>
-            </div>
+            {/* Contact Form Card */}
+            <ContactForm />
           </div>
 
           {/* FAQ Section */}
