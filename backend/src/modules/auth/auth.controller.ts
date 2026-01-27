@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -11,6 +11,7 @@ import {
   AuthResponseDto,
   UserDto,
   LogoutResponseDto,
+  DeleteAccountResponseDto,
 } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -73,5 +74,25 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@CurrentUser() user: JwtPayload): Promise<LogoutResponseDto> {
     return this.authService.logout(user.sub);
+  }
+
+  @Delete('account')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Delete account',
+    description:
+      'Permanently delete user account and all associated data. This action cannot be undone.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Account deleted successfully',
+    type: DeleteAccountResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async deleteAccount(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<DeleteAccountResponseDto> {
+    return this.authService.deleteAccount(user.sub);
   }
 }

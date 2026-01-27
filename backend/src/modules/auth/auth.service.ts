@@ -165,6 +165,113 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
+  /**
+   * Delete user account and all associated data.
+   * This permanently removes the user from the system.
+   */
+  async deleteAccount(userId: string): Promise<{ message: string }> {
+    // Get user info including Firebase UID
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: {
+        house: {
+          include: {
+            members: { select: { id: true } },
+          },
+        },
+        housesOwned: {
+          include: {
+            members: { select: { id: true } },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const firebaseUid = user.firebaseUid;
+
+    // Use transaction to delete all data atomically
+    await this.prismaService.$transaction(async (tx) => {
+      // 1. Delete user's activities
+      await tx.activity.deleteMany({
+        where: { userId },
+      });
+
+      // 2. Delete user's custom tasks
+      await tx.customTask.deleteMany({
+        where: { userId },
+      });
+
+      // 3. Delete user's redemptions
+      await tx.redemption.deleteMany({
+        where: { userId },
+      });
+
+      // 4. Handle houses owned by user
+      for (const house of user.housesOwned) {
+        if (house.members.length <= 1) {
+          // User is the only member, delete house and related data
+          await tx.redemption.deleteMany({ where: { houseId: house.id } });
+          await tx.activity.deleteMany({ where: { houseId: house.id } });
+          await tx.reward.deleteMany({ where: { houseId: house.id } });
+          await tx.house.delete({ where: { id: house.id } });
+        } else {
+          // Transfer ownership to another member
+          const newOwner = house.members.find((m) => m.id !== userId);
+          if (newOwner) {
+            await tx.house.update({
+              where: { id: house.id },
+              data: { createdById: newOwner.id },
+            });
+          }
+        }
+      }
+
+      // 5. Delete rewards created by user (but not redeemed)
+      await tx.reward.deleteMany({
+        where: {
+          creatorId: userId,
+          redemptions: { none: {} },
+        },
+      });
+
+      // 6. Update rewards created by user that have been redeemed
+      // Keep them for history but mark as deleted (optional: set to system user)
+      // For simplicity, we keep them as-is since redemptions reference the reward
+
+      // 7. Remove user from current house (if not owner of that house)
+      if (user.houseId) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { houseId: null },
+        });
+      }
+
+      // 8. Delete user from database
+      await tx.user.delete({
+        where: { id: userId },
+      });
+    });
+
+    // 9. Delete user from Firebase Authentication
+    try {
+      await this.firebaseService.deleteUser(firebaseUid);
+    } catch (error) {
+      // Log but don't fail - user is already deleted from database
+      this.logger.error(
+        `Failed to delete Firebase user ${firebaseUid}, but database deletion succeeded`,
+        error,
+      );
+    }
+
+    this.logger.log(`Successfully deleted account for user: ${userId}`);
+
+    return { message: 'Account deleted successfully' };
+  }
+
   private mapProvider(provider: 'google.com' | 'apple.com'): AuthProvider {
     switch (provider) {
       case 'google.com':

@@ -103,4 +103,21 @@ export class FirebaseService implements OnModuleInit {
       provider,
     };
   }
+
+  /**
+   * Delete a user from Firebase Authentication.
+   * This permanently removes the user's Firebase account.
+   */
+  async deleteUser(firebaseUid: string): Promise<void> {
+    try {
+      await admin.auth().deleteUser(firebaseUid);
+      this.logger.log(`Successfully deleted Firebase user: ${firebaseUid}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete Firebase user: ${firebaseUid}`,
+        error,
+      );
+      throw error;
+    }
+  }
 }

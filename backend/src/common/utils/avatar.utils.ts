@@ -10,7 +10,7 @@
  * - avatarId 31-40: notionists (notion-style avatars)
  * - avatarId 41-50: big-smile (happy faces)
  * - avatarId 51-60: avataaars (classic cartoon style)
- * 
+ *
  * @param avatarId - Avatar ID (1-60)
  * @returns Avatar URL
  */

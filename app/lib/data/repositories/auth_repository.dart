@@ -207,6 +207,50 @@ class AuthRepository {
     }
   }
 
+  /// Delete account permanently
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      AppLogger.info('Deleting account', 'AuthRepository');
+
+      // Call backend delete account API
+      await _apiClient.delete(ApiConstants.deleteAccount);
+      AppLogger.info('Backend account deletion successful', 'AuthRepository');
+
+      // Sign out from Firebase
+      await _authService.signOut();
+
+      // Clear JWT token
+      await _storageService.clearAuthToken();
+
+      // Clear user profile cache
+      await _storageService.remove(AppConstants.keyUserProfile);
+
+      // Clear API client token
+      _apiClient.clearAuthToken();
+
+      AppLogger.success('Account deleted successfully', 'AuthRepository');
+      return const Right(null);
+    } on ServerException catch (e) {
+      AppLogger.error('Backend error', e.message, null, 'AuthRepository');
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error', e.message, null, 'AuthRepository');
+      return Left(
+        NetworkFailure(
+          message: 'Unable to connect. Please check your internet connection.',
+        ),
+      );
+    } catch (e) {
+      AppLogger.error(
+        'Unexpected error during account deletion',
+        e,
+        null,
+        'AuthRepository',
+      );
+      return Left(ServerFailure(message: 'Failed to delete account'));
+    }
+  }
+
   /// Get stored JWT token
   String? getStoredToken() {
     return _storageService.getAuthToken();

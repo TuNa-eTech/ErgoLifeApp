@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -8,7 +7,7 @@ export class AdminUsersService {
 
   async findAll(page: number = 1, limit: number = 20, search?: string) {
     const skip = (page - 1) * limit;
-    
+
     const where: any = {};
     if (search) {
       where.OR = [
@@ -46,8 +45,8 @@ export class AdminUsersService {
         housesOwned: true,
         house: true,
         _count: {
-            select: { activities: true, redemptions: true }
-        }
+          select: { activities: true, redemptions: true },
+        },
       },
     });
 

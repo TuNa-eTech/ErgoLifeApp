@@ -13,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleSignInRequested>(_onGoogleSignInRequested);
     on<AuthAppleSignInRequested>(_onAppleSignInRequested);
     on<AuthSignOutRequested>(_onSignOutRequested);
+    on<AuthDeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
   /// Handle authentication check request
@@ -129,5 +130,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     AppLogger.success('Sign-out successful', 'AuthBloc');
     emit(const AuthUnauthenticated());
+  }
+
+  /// Handle delete account request
+  Future<void> _onDeleteAccountRequested(
+    AuthDeleteAccountRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    AppLogger.info('Delete account requested', 'AuthBloc');
+    emit(const AuthLoading());
+
+    final result = await _authRepository.deleteAccount();
+
+    result.fold(
+      (failure) {
+        AppLogger.error(
+          'Delete account failed',
+          failure.message,
+          null,
+          'AuthBloc',
+        );
+        emit(AuthError(message: failure.message));
+      },
+      (_) {
+        AppLogger.success('Delete account successful', 'AuthBloc');
+        emit(const AuthUnauthenticated());
+      },
+    );
   }
 }

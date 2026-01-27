@@ -335,8 +335,20 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccountConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'This will sign you out of your account. Are you sure you want to continue?'**
+  /// **'This will permanently delete your account and all associated data including activities, tasks, rewards, and house membership. This action cannot be undone.'**
   String get deleteAccountConfirmation;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Warning: This action is irreversible'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deletingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting account...'**
+  String get deletingAccount;
 
   /// No description provided for @welcomeBack.
   ///

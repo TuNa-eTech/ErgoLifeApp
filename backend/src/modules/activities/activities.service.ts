@@ -171,7 +171,11 @@ export class ActivitiesService {
     // Parse week or use current
     const { weekStart, weekEnd, weekString } = this.getWeekBounds(query.week);
 
-    let members: { id: string; displayName: string | null; avatarId: number | null }[] = [];
+    let members: {
+      id: string;
+      displayName: string | null;
+      avatarId: number | null;
+    }[] = [];
 
     if (scope === 'house') {
       // Get user's house
@@ -326,15 +330,17 @@ export class ActivitiesService {
       });
       topTasks = topTasksRaw;
     } else {
-       // If filtering by task, we might want to return just that task as the "top task"
-       topTasks = [{
-           taskName: taskName,
-           _count: agg._count,
-           _sum: { 
-             pointsEarned: agg._sum.pointsEarned || 0,
-             durationSeconds: agg._sum.durationSeconds || 0
-           }
-       }];
+      // If filtering by task, we might want to return just that task as the "top task"
+      topTasks = [
+        {
+          taskName: taskName,
+          _count: agg._count,
+          _sum: {
+            pointsEarned: agg._sum.pointsEarned || 0,
+            durationSeconds: agg._sum.durationSeconds || 0,
+          },
+        },
+      ];
     }
 
     // Estimate calories: Duration(min) × METs × 3.5 × Weight(kg) / 200

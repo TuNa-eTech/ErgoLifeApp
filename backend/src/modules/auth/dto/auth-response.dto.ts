@@ -78,3 +78,8 @@ export class LogoutResponseDto {
   @ApiProperty({ example: 'Logged out successfully' })
   message: string;
 }
+
+export class DeleteAccountResponseDto {
+  @ApiProperty({ example: 'Account deleted successfully' })
+  message: string;
+}

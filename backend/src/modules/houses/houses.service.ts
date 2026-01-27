@@ -270,7 +270,8 @@ export class HousesService {
       if (!currentHouse?.isPersonal) {
         throw new ConflictException({
           code: 'ALREADY_IN_HOUSE',
-          message: 'You are already a member of another house. Leave currently to join new one.',
+          message:
+            'You are already a member of another house. Leave currently to join new one.',
         });
       }
     }

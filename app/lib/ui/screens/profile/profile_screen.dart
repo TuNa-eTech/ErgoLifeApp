@@ -656,12 +656,12 @@ Future<void> _showDeleteAccountDialog(BuildContext context) async {
     context,
     title: AppLocalizations.of(context)!.deleteAccount,
     message: AppLocalizations.of(context)!.deleteAccountConfirmation,
-    confirmText: AppLocalizations.of(context)!.confirm,
+    confirmText: AppLocalizations.of(context)!.deleteAccount,
     cancelText: AppLocalizations.of(context)!.cancel,
     isDestructive: true,
   );
 
   if (confirmed && context.mounted) {
-    context.read<AuthBloc>().add(const AuthSignOutRequested());
+    context.read<AuthBloc>().add(const AuthDeleteAccountRequested());
   }
 }

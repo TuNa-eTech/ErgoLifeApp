@@ -129,7 +129,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get deleteAccountConfirmation =>
-      'Điều này sẽ đăng xuất bạn khỏi tài khoản. Bạn có chắc chắn muốn tiếp tục?';
+      'Hành động này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan bao gồm hoạt động, nhiệm vụ, phần thưởng và thành viên nhà. Hành động này không thể hoàn tác.';
+
+  @override
+  String get deleteAccountWarning =>
+      '⚠️ Cảnh báo: Hành động này không thể hoàn tác';
+
+  @override
+  String get deletingAccount => 'Đang xóa tài khoản...';
 
   @override
   String get welcomeBack => 'Chào mừng trở lại!';

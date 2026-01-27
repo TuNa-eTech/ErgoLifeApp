@@ -7,6 +7,7 @@ class ApiConstants {
   static const String socialLogin = '/auth/social-login';
   static const String authMe = '/auth/me';
   static const String logout = '/auth/logout';
+  static const String deleteAccount = '/auth/account';
 
   // User Endpoints
   static const String usersMe = '/users/me';

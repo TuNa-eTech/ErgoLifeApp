@@ -129,7 +129,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountConfirmation =>
-      'This will sign you out of your account. Are you sure you want to continue?';
+      'This will permanently delete your account and all associated data including activities, tasks, rewards, and house membership. This action cannot be undone.';
+
+  @override
+  String get deleteAccountWarning => '⚠️ Warning: This action is irreversible';
+
+  @override
+  String get deletingAccount => 'Deleting account...';
 
   @override
   String get welcomeBack => 'Welcome back!';
