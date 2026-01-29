@@ -22,7 +22,18 @@ import 'package:ergo_life_app/ui/screens/onboarding/widgets/success_dialog.dart'
 class OnboardingScreen extends StatefulWidget {
   final OnboardingBloc onboardingBloc;
 
-  const OnboardingScreen({super.key, required this.onboardingBloc});
+  /// Initial name from Apple/Google Sign-In (if available)
+  final String? initialName;
+
+  /// Email from Apple/Google Sign-In (used as fallback for name)
+  final String? email;
+
+  const OnboardingScreen({
+    super.key,
+    required this.onboardingBloc,
+    this.initialName,
+    this.email,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -59,6 +70,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _onboardingBloc = widget.onboardingBloc;
     _selectedAvatarId =
         DateTime.now().millisecondsSinceEpoch % totalAvatars + 1;
+
+    // Pre-fill name from Sign-In data (Apple/Google)
+    _prefillName();
+
     _nameController.addListener(() {
       setState(() => _isNameValid = _nameController.text.trim().isNotEmpty);
     });
@@ -67,6 +82,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         () => _isHouseNameValid = _houseNameController.text.trim().isNotEmpty,
       );
     });
+  }
+
+  /// Pre-fills the name field from Sign-In data.
+  /// Priority: initialName > email local part
+  void _prefillName() {
+    String? prefillValue;
+
+    // Try to use the display name from Sign-In
+    if (widget.initialName != null && widget.initialName!.trim().isNotEmpty) {
+      prefillValue = widget.initialName!.trim();
+    }
+    // Fallback: extract local part from email (part before @)
+    else if (widget.email != null && widget.email!.contains('@')) {
+      prefillValue = widget.email!.split('@').first;
+    }
+
+    if (prefillValue != null && prefillValue.isNotEmpty) {
+      _nameController.text = prefillValue;
+      _isNameValid = true;
+    }
   }
 
   @override

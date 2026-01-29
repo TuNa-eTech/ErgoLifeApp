@@ -78,7 +78,10 @@ class _LoginScreenContentState extends State<_LoginScreenContent>
           // This is more reliable than checking houseId since backend
           // auto-creates a personal house for new users
           if (state.isNewUser) {
-            context.go(AppRouter.onboarding);
+            context.go(
+              AppRouter.onboarding,
+              extra: {'name': state.user.name, 'email': state.user.email},
+            );
           } else {
             context.go(AppRouter.home);
           }

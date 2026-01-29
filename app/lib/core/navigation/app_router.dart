@@ -185,9 +185,18 @@ class AppRouter {
       GoRoute(
         path: onboarding,
         name: 'onboarding',
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: OnboardingScreen(onboardingBloc: sl<OnboardingBloc>()),
-        ),
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final initialName = extra?['name'] as String?;
+          final email = extra?['email'] as String?;
+          return NoTransitionPage(
+            child: OnboardingScreen(
+              onboardingBloc: sl<OnboardingBloc>(),
+              initialName: initialName,
+              email: email,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: login,
