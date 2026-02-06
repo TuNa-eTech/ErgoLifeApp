@@ -25,6 +25,37 @@ enum RedemptionStatus {
   EXPIRED   // Hết hạn (future feature)
 }
 
+enum NotificationType {
+  // Activity & Streaks
+  STREAK_REMINDER
+  STREAK_LOST
+  STREAK_MILESTONE
+  ACTIVITY_COMPLETED
+  
+  // House & Social
+  HOUSE_INVITE
+  MEMBER_JOINED
+  LEADERBOARD_CHANGE
+  HOUSE_ACTIVITY
+  
+  // Rewards
+  NEW_REWARD
+  ENOUGH_POINTS
+  REDEMPTION_APPROVED
+  REDEMPTION_REJECTED
+  
+  // System
+  WELCOME
+  APP_UPDATE
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 // ===========================================
 // MODELS
 // ===========================================
@@ -56,6 +87,11 @@ model User {
   lastActivityDate DateTime? @map("last_activity_date")
   streakFreezeCount Int      @default(0) @map("streak_freeze_count") // 0-2
   
+  // Personalized notification timing
+  preferredReminderTime  DateTime? @map("preferred_reminder_time") // Learned from activity patterns
+  lastReminderSentAt     DateTime? @map("last_reminder_sent_at")
+  activityTimePattern    Json?     @map("activity_time_pattern")    // Store hourly activity distribution
+  
   // Timestamps
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
@@ -66,7 +102,9 @@ model User {
   redemptions  Redemption[]
   housesOwned  House[]      @relation("HouseOwner")
   customTasks  CustomTask[]
+  notifications Notification[]
 
+  @@index([preferredReminderTime])
   @@map("users")
 }
 
@@ -253,4 +291,42 @@ model Redemption {
   @@index([userId, redeemedAt])
   @@index([houseId, redeemedAt])
   @@map("redemptions")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  
+  // Recipient
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Content
+  type      NotificationType
+  priority  NotificationPriority @default(MEDIUM)
+  title     String
+  body      String
+  imageUrl  String?  @map("image_url")
+  
+  // Metadata (JSON for flexibility)
+  data      Json?    // { houseId, activityId, rewardId, etc. }
+  
+  // Actions (deep linking)
+  actionUrl String?  @map("action_url") // ergolife://house/123
+  
+  // Status
+  isRead    Boolean  @default(false) @map("is_read")
+  isSent    Boolean  @default(false) @map("is_sent")
+  sentAt    DateTime? @map("sent_at")
+  readAt    DateTime? @map("read_at")
+  
+  // Scheduling
+  scheduledFor DateTime? @map("scheduled_for") // For future notifications
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([userId, isRead, createdAt])
+  @@index([userId, type])
+  @@index([isSent, scheduledFor]) // For scheduled job processing
+  @@map("notifications")
 }

@@ -27,6 +27,8 @@ import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/profile/profile_bloc.dart';
+import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
+import 'package:ergo_life_app/blocs/notification/notification_event.dart';
 
 // House screens
 import 'package:ergo_life_app/ui/screens/house/invite_members_screen.dart';
@@ -38,6 +40,11 @@ import 'package:ergo_life_app/ui/screens/house/create_house_screen.dart';
 import 'package:ergo_life_app/ui/screens/tasks/manage_tasks_screen.dart';
 import 'package:ergo_life_app/ui/screens/legal/terms_of_service_screen.dart';
 import 'package:ergo_life_app/ui/screens/legal/privacy_policy_screen.dart';
+
+// Notifications
+import 'package:ergo_life_app/ui/screens/notifications/notification_center_screen.dart';
+
+import '../../blocs/notification/notification_event.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -65,6 +72,9 @@ class AppRouter {
   // Legal routes
   static const String termsOfService = '/terms';
   static const String privacyPolicy = '/privacy';
+
+  // Notification routes
+  static const String notifications = '/notifications';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -274,6 +284,17 @@ class AppRouter {
         pageBuilder: (context, state) => const MaterialPage(
           fullscreenDialog: true,
           child: PrivacyPolicyScreen(),
+        ),
+      ),
+      GoRoute(
+        path: notifications,
+        name: 'notifications',
+        pageBuilder: (context, state) => MaterialPage(
+          child: BlocProvider(
+            create: (_) =>
+                sl<NotificationBloc>()..add(const LoadNotifications()),
+            child: const NotificationCenterScreen(),
+          ),
         ),
       ),
     ],

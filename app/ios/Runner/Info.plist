@@ -61,5 +61,13 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Background modes for FCM -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<!-- Firebase messaging auto-initialization -->
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
 </dict>
 </plist>

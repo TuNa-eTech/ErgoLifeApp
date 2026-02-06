@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/ui/widgets/notification_badge.dart';
 import 'dart:ui';
 
 class ViralBottomNavBar extends StatefulWidget {
@@ -211,15 +212,27 @@ class _ViralBottomNavBarState extends State<ViralBottomNavBar>
                           ]
                         : null,
                   ),
-                  child: Icon(
-                    isSelected ? activeIcon : icon,
-                    color: isSelected
-                        ? Colors.white
-                        : (isDark
-                              ? AppColors.textSubDark
-                              : AppColors.textSubLight),
-                    size: 26,
-                  ),
+                  child: index == 3
+                      ? NotificationBadge(
+                          child: Icon(
+                            isSelected ? activeIcon : icon,
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark
+                                      ? AppColors.textSubDark
+                                      : AppColors.textSubLight),
+                            size: 26,
+                          ),
+                        )
+                      : Icon(
+                          isSelected ? activeIcon : icon,
+                          color: isSelected
+                              ? Colors.white
+                              : (isDark
+                                    ? AppColors.textSubDark
+                                    : AppColors.textSubLight),
+                          size: 26,
+                        ),
                 ),
               ),
               const SizedBox(height: 2),

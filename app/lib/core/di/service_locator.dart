@@ -11,6 +11,12 @@ import 'package:ergo_life_app/core/config/app_config.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:ergo_life_app/core/utils/talker_config.dart';
 
+// Core - Services
+import 'package:ergo_life_app/core/services/local_notification_service.dart';
+import 'package:ergo_life_app/core/services/fcm_service.dart';
+import 'package:ergo_life_app/core/services/background_message_handler.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 // Data - Services
 import 'package:ergo_life_app/data/services/auth_service.dart';
 import 'package:ergo_life_app/data/services/storage_service.dart';
@@ -23,6 +29,7 @@ import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 import 'package:ergo_life_app/data/repositories/house_repository.dart';
 import 'package:ergo_life_app/data/repositories/task_repository.dart';
 import 'package:ergo_life_app/data/repositories/reward_repository.dart';
+import 'package:ergo_life_app/data/repositories/notification_repository.dart';
 
 // BLoCs/Cubits
 import 'package:ergo_life_app/blocs/user/user_cubit.dart';
@@ -37,6 +44,7 @@ import 'package:ergo_life_app/blocs/onboarding/onboarding_bloc.dart';
 import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
+import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -81,6 +89,24 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<StorageService>(() => StorageService(sl()));
 
+  // Register LocalNotificationService (sync)
+  sl.registerLazySingleton<LocalNotificationService>(
+    () => LocalNotificationService(),
+  );
+
+  // Register FcmService asynchronously
+  sl.registerSingletonAsync<FcmService>(() async {
+    final fcmService = FcmService(
+      localNotificationService: sl(),
+      apiClient: sl(),
+    );
+    // Initialize FCM and register background message handler
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await fcmService.initialize();
+    AppLogger.success('FCM service initialized', 'ServiceLocator');
+    return fcmService;
+  });
+
   // ===== Data - Repositories =====
   sl.registerLazySingleton<UserRepository>(() => UserRepository(sl(), sl()));
   sl.registerLazySingleton<SessionRepository>(() => SessionRepository(sl()));
@@ -88,6 +114,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<HouseRepository>(() => HouseRepository(sl()));
   sl.registerLazySingleton<TaskRepository>(() => TaskRepository(sl()));
   sl.registerLazySingleton<RewardRepository>(() => RewardRepository(sl()));
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepository(sl()),
+  );
 
   // AuthRepository depends on async AuthService, so must wait for it
   sl.registerSingletonWithDependencies<AuthRepository>(
@@ -160,4 +189,7 @@ Future<void> setupServiceLocator() async {
 
   // ManageTasksBloc - factory for independent instances
   sl.registerFactory(() => ManageTasksBloc(taskRepository: sl()));
+
+  // NotificationBloc - factory for fresh data each time
+  sl.registerFactory<NotificationBloc>(() => NotificationBloc(sl()));
 }

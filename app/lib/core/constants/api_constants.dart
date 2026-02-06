@@ -41,6 +41,13 @@ class ApiConstants {
   // Task Templates Endpoints
   static const String taskTemplates = '/task-templates';
 
+  // Notification Endpoints
+  static const String notifications = '/notifications';
+  static const String notificationsReadAll = '/notifications/read-all';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static String notificationById(String id) => '/notifications/$id';
+  static String notificationMarkAsRead(String id) => '/notifications/$id/read';
+
   // Headers
   static const String headerAuth = 'Authorization';
   static const String headerContentType = 'Content-Type';

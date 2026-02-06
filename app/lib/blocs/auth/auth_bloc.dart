@@ -3,6 +3,8 @@ import 'package:ergo_life_app/blocs/auth/auth_event.dart';
 import 'package:ergo_life_app/blocs/auth/auth_state.dart';
 import 'package:ergo_life_app/data/repositories/auth_repository.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
+import 'package:ergo_life_app/core/services/fcm_service.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
 
 /// BLoC for managing authentication state
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -70,7 +72,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthError(message: failure.message));
       },
-      (authResponse) {
+      (authResponse) async {
         final token = _authRepository.getStoredToken()!;
         AppLogger.success('Google sign-in successful', 'AuthBloc');
         emit(
@@ -80,6 +82,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             isNewUser: authResponse.isNewUser,
           ),
         );
+
+        // Re-register FCM token for new user
+        try {
+          final fcmService = sl<FcmService>();
+          await fcmService.refreshAndUpdateToken();
+        } catch (e) {
+          AppLogger.error(
+            'Failed to refresh FCM token after login: $e',
+            'AuthBloc',
+          );
+        }
       },
     );
   }
@@ -104,7 +117,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(AuthError(message: failure.message));
       },
-      (authResponse) {
+      (authResponse) async {
         final token = _authRepository.getStoredToken()!;
         AppLogger.success('Apple sign-in successful', 'AuthBloc');
         emit(
@@ -114,6 +127,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             isNewUser: authResponse.isNewUser,
           ),
         );
+
+        // Re-register FCM token for new user
+        try {
+          final fcmService = sl<FcmService>();
+          await fcmService.refreshAndUpdateToken();
+        } catch (e) {
+          AppLogger.error(
+            'Failed to refresh FCM token after login: $e',
+            'AuthBloc',
+          );
+        }
       },
     );
   }
@@ -125,6 +149,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     AppLogger.info('Sign-out requested', 'AuthBloc');
     emit(const AuthLoading());
+
+    // Clear FCM token first (don't block logout if this fails)
+    try {
+      final fcmService = sl<FcmService>();
+      await fcmService.clearToken();
+    } catch (e) {
+      AppLogger.error('Failed to clear FCM token on logout: $e', 'AuthBloc');
+    }
 
     await _authRepository.signOut();
 
