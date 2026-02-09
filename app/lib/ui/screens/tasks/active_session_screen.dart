@@ -45,17 +45,29 @@ class ActiveSessionView extends StatefulWidget {
   State<ActiveSessionView> createState() => _ActiveSessionViewState();
 }
 
-class _ActiveSessionViewState extends State<ActiveSessionView> {
+class _ActiveSessionViewState extends State<ActiveSessionView>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _enableWakelock();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _disableWakelock();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Recalculate elapsed time from wall-clock after returning
+      // from background
+      context.read<SessionBloc>().add(const RefreshTimer());
+    }
   }
 
   /// Enable wakelock to keep screen awake during session

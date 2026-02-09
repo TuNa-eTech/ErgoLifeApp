@@ -29,7 +29,10 @@ class NotificationRepository {
       );
 
       final data = _apiClient.unwrapResponse(response.data);
-      final notifications = (data as List)
+      final notificationsList = data is List
+          ? data
+          : (data as Map<String, dynamic>)['notifications'] as List? ?? [];
+      final notifications = notificationsList
           .map(
             (json) => NotificationModel.fromJson(json as Map<String, dynamic>),
           )

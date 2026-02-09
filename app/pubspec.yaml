@@ -65,6 +65,7 @@ dependencies:
   cached_network_image: ^3.4.1
   package_info_plus: ^9.0.0
   wakelock_plus: ^1.4.0
+  live_activities: ^2.4.3
 
 dev_dependencies:
   flutter_test:

@@ -63,3 +63,8 @@ class CompleteSession extends SessionEvent {
 class CancelSession extends SessionEvent {
   const CancelSession();
 }
+
+/// Force refresh timer when app resumes from background
+class RefreshTimer extends SessionEvent {
+  const RefreshTimer();
+}

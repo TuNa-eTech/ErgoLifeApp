@@ -13,6 +13,7 @@ import 'package:ergo_life_app/core/utils/talker_config.dart';
 
 // Core - Services
 import 'package:ergo_life_app/core/services/local_notification_service.dart';
+import 'package:ergo_life_app/core/services/live_activity_service.dart';
 import 'package:ergo_life_app/core/services/fcm_service.dart';
 import 'package:ergo_life_app/core/services/background_message_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -63,6 +64,9 @@ Future<void> setupServiceLocator() async {
   // ===== Core =====
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton<ApiClient>(() => ApiClient());
+
+  // ===== Core - Services =====
+  sl.registerLazySingleton<LiveActivityService>(() => LiveActivityService());
 
   // ===== Data - Services =====
   // Register AuthService asynchronously to wait for Google Sign-In initialization
@@ -146,7 +150,9 @@ Future<void> setupServiceLocator() async {
 
   // SessionBloc - factory to ensure fresh instance for each session
   // Previous singleton approach caused "Cannot add events after close" error
-  sl.registerFactory<SessionBloc>(() => SessionBloc(activityRepository: sl()));
+  sl.registerFactory<SessionBloc>(
+    () => SessionBloc(activityRepository: sl(), liveActivityService: sl()),
+  );
 
   // LeaderboardBloc - factory for fresh data each time
   sl.registerFactory<LeaderboardBloc>(
@@ -190,6 +196,6 @@ Future<void> setupServiceLocator() async {
   // ManageTasksBloc - factory for independent instances
   sl.registerFactory(() => ManageTasksBloc(taskRepository: sl()));
 
-  // NotificationBloc - factory for fresh data each time
-  sl.registerFactory<NotificationBloc>(() => NotificationBloc(sl()));
+  // NotificationBloc - lazy singleton for global notification badge
+  sl.registerLazySingleton<NotificationBloc>(() => NotificationBloc(sl()));
 }

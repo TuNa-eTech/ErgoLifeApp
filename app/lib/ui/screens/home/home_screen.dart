@@ -275,7 +275,7 @@ class HomeView extends StatelessWidget {
               userName: state.firstName,
               avatarUrl: getUserAvatarUrl(state.user),
               onNotificationTap: () {
-                // TODO: Handle notification tap
+                context.push(AppRouter.notifications);
               },
               onAvatarLongPress: () {
                 Navigator.of(context).push(

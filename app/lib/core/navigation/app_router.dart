@@ -44,8 +44,6 @@ import 'package:ergo_life_app/ui/screens/legal/privacy_policy_screen.dart';
 // Notifications
 import 'package:ergo_life_app/ui/screens/notifications/notification_center_screen.dart';
 
-import '../../blocs/notification/notification_event.dart';
-
 class AppRouter {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
@@ -290,9 +288,8 @@ class AppRouter {
         path: notifications,
         name: 'notifications',
         pageBuilder: (context, state) => MaterialPage(
-          child: BlocProvider(
-            create: (_) =>
-                sl<NotificationBloc>()..add(const LoadNotifications()),
+          child: BlocProvider.value(
+            value: sl<NotificationBloc>()..add(const LoadNotifications()),
             child: const NotificationCenterScreen(),
           ),
         ),

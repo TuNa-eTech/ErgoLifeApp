@@ -69,5 +69,8 @@
 	<!-- Firebase messaging auto-initialization -->
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<true/>
+	<!-- Live Activities support -->
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>

@@ -71,7 +71,7 @@ class FcmService {
     return settings;
   }
 
-  /// Get FCM token and register with backend
+  /// Get FCM token during init (token will be sent to backend after login)
   Future<void> _registerToken() async {
     try {
       final token = await _fcm.getToken();
@@ -81,7 +81,9 @@ class FcmService {
           'FCM Token obtained: ${token.substring(0, 20)}...',
           'FcmService',
         );
-        await _updateBackendToken(token);
+        // Don't send to backend here - user may not be
+        // authenticated yet. Token is sent after login via
+        // refreshAndUpdateToken() in AuthBloc.
       } else {
         AppLogger.warning('FCM token is null', 'FcmService');
       }
@@ -93,7 +95,7 @@ class FcmService {
   /// Update FCM token in backend
   Future<void> _updateBackendToken(String token) async {
     try {
-      await _apiClient.patch(
+      await _apiClient.put(
         ApiConstants.usersFcmToken,
         data: {'fcmToken': token},
       );
