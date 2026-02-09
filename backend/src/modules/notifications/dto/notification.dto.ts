@@ -1,4 +1,5 @@
 import { IsEnum, IsString, IsOptional, IsBoolean, IsObject, IsNumber, Min, Max } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { NotificationType, NotificationPriority } from '@prisma/client';
 
@@ -51,12 +52,14 @@ export class CreateNotificationDto {
 
 export class GetNotificationsDto {
   @ApiPropertyOptional({ description: 'Page number', default: 1 })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @IsOptional()
   page?: number = 1;
 
   @ApiPropertyOptional({ description: 'Items per page', default: 20 })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -64,6 +67,7 @@ export class GetNotificationsDto {
   limit?: number = 20;
 
   @ApiPropertyOptional({ description: 'Filter unread only', default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   @IsOptional()
   unreadOnly?: boolean = false;
