@@ -4,6 +4,7 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { StreakReminderService } from './streak-reminder.service';
 import { ActivityPatternService } from './activity-pattern.service';
+import { LeaderboardNotificationService } from './leaderboard-notification.service';
 
 @Module({
   imports: [ScheduleModule.forRoot()],
@@ -12,6 +13,7 @@ import { ActivityPatternService } from './activity-pattern.service';
     NotificationsService,
     StreakReminderService,
     ActivityPatternService,
+    LeaderboardNotificationService,
   ],
   exports: [NotificationsService],
 })

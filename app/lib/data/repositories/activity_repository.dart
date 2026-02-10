@@ -141,9 +141,11 @@ class ActivityRepository {
     }
   }
 
-  /// Get leaderboard for a specific week
+  /// Get leaderboard for a specific month
   Future<Either<Failure, LeaderboardResponse>> getLeaderboard({
-    String? week,
+    int limit = 10,
+    int? month,
+    int? year,
     LeaderboardScope scope = LeaderboardScope.house,
   }) async {
     try {
@@ -152,8 +154,12 @@ class ActivityRepository {
         'ActivityRepository',
       );
 
-      final queryParams = <String, dynamic>{'scope': scope.name};
-      if (week != null) queryParams['week'] = week;
+      final queryParams = <String, dynamic>{
+        'scope': scope.name,
+        'limit': limit,
+      };
+      if (month != null) queryParams['month'] = month;
+      if (year != null) queryParams['year'] = year;
 
       final response = await _apiClient.get(
         ApiConstants.activitiesLeaderboard,
@@ -242,11 +248,12 @@ class ActivityRepository {
   LeaderboardResponse getMockLeaderboard({
     LeaderboardScope scope = LeaderboardScope.house,
   }) {
+    final now = DateTime.now();
     return LeaderboardResponse(
       scope: scope,
-      week: '2025-W51',
-      weekStart: DateTime(2025, 12, 16),
-      weekEnd: DateTime(2025, 12, 22),
+      month: '${now.year}-${now.month.toString().padLeft(2, '0')}',
+      monthStart: DateTime(now.year, now.month, 1),
+      monthEnd: DateTime(now.year, now.month + 1, 0),
       houseName: scope == LeaderboardScope.house ? 'My House' : null,
       rankings: _mockRankings,
       myRanking: null,

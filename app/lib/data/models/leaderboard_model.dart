@@ -93,9 +93,9 @@ class MyRanking extends Equatable {
 /// Complete leaderboard response
 class LeaderboardResponse extends Equatable {
   final LeaderboardScope scope;
-  final String week;
-  final DateTime weekStart;
-  final DateTime weekEnd;
+  final String month;
+  final DateTime monthStart;
+  final DateTime monthEnd;
   final String? houseName;
   final List<LeaderboardEntry> rankings;
   final MyRanking? myRanking;
@@ -103,9 +103,9 @@ class LeaderboardResponse extends Equatable {
 
   const LeaderboardResponse({
     required this.scope,
-    required this.week,
-    required this.weekStart,
-    required this.weekEnd,
+    required this.month,
+    required this.monthStart,
+    required this.monthEnd,
     this.houseName,
     required this.rankings,
     this.myRanking,
@@ -115,12 +115,12 @@ class LeaderboardResponse extends Equatable {
   factory LeaderboardResponse.fromJson(Map<String, dynamic> json) {
     return LeaderboardResponse(
       scope: LeaderboardScope.fromString(json['scope'] as String?),
-      week: json['week'] as String? ?? 'current',
-      weekStart: json['weekStart'] != null
-          ? DateTime.parse(json['weekStart'] as String)
+      month: json['month'] as String? ?? 'current',
+      monthStart: json['monthStart'] != null
+          ? DateTime.parse(json['monthStart'] as String)
           : DateTime.now(),
-      weekEnd: json['weekEnd'] != null
-          ? DateTime.parse(json['weekEnd'] as String)
+      monthEnd: json['monthEnd'] != null
+          ? DateTime.parse(json['monthEnd'] as String)
           : DateTime.now(),
       houseName: json['houseName'] as String?,
       rankings:
@@ -159,9 +159,9 @@ class LeaderboardResponse extends Equatable {
   @override
   List<Object?> get props => [
     scope,
-    week,
-    weekStart,
-    weekEnd,
+    month,
+    monthStart,
+    monthEnd,
     houseName,
     rankings,
     myRanking,

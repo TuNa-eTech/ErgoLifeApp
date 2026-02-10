@@ -9,7 +9,8 @@ import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   final ActivityRepository _activityRepository;
 
-  String? _currentWeek;
+  int? _currentMonth;
+  int? _currentYear;
   LeaderboardScope? _currentScope;
 
   LeaderboardBloc({required ActivityRepository activityRepository})
@@ -27,7 +28,8 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     AppLogger.info('Loading leaderboard...', 'LeaderboardBloc');
     emit(const LeaderboardLoading());
 
-    _currentWeek = event.week;
+    _currentMonth = event.month;
+    _currentYear = event.year;
     if (event.scope != null) {
       _currentScope = event.scope;
     }
@@ -36,7 +38,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     final scope = _currentScope ?? LeaderboardScope.house;
 
     final result = await _activityRepository.getLeaderboard(
-      week: event.week,
+      limit: 10,
+      month: event.month,
+      year: event.year,
       scope: scope,
     );
 
@@ -73,13 +77,19 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     );
   }
 
-  /// Refresh leaderboard (same week)
+  /// Refresh leaderboard (same month)
   Future<void> _onRefreshLeaderboard(
     RefreshLeaderboard event,
     Emitter<LeaderboardState> emit,
   ) async {
     AppLogger.info('Refreshing leaderboard...', 'LeaderboardBloc');
-    add(LoadLeaderboard(week: _currentWeek, scope: _currentScope));
+    add(
+      LoadLeaderboard(
+        month: _currentMonth,
+        year: _currentYear,
+        scope: _currentScope,
+      ),
+    );
   }
 
   /// Get current user ID from storage

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
@@ -17,14 +18,67 @@ class RankScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LeaderboardBloc>.value(
-      value: leaderboardBloc..add(const LoadLeaderboard()),
+      value: leaderboardBloc,
       child: const RankView(),
     );
   }
 }
 
-class RankView extends StatelessWidget {
+class RankView extends StatefulWidget {
   const RankView({super.key});
+
+  @override
+  State<RankView> createState() => _RankViewState();
+}
+
+class _RankViewState extends State<RankView> {
+  late DateTime _selectedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
+
+    // Initial load for current month
+    _loadLeaderboard();
+  }
+
+  void _loadLeaderboard() {
+    context.read<LeaderboardBloc>().add(
+      LoadLeaderboard(month: _selectedMonth.month, year: _selectedMonth.year),
+    );
+  }
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+    });
+    _loadLeaderboard();
+  }
+
+  void _goToNextMonth() {
+    final now = DateTime.now();
+    final nextMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+
+    // Don't allow going past current month
+    if (nextMonth.isAfter(DateTime(now.year, now.month + 1))) {
+      return;
+    }
+
+    setState(() {
+      _selectedMonth = nextMonth;
+    });
+    _loadLeaderboard();
+  }
+
+  bool get _isCurrentMonth {
+    final now = DateTime.now();
+    return _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+  }
+
+  String get _monthLabel {
+    return DateFormat.yMMMM().format(_selectedMonth);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +98,7 @@ class RankView extends StatelessWidget {
                 action: SnackBarAction(
                   label: 'Retry',
                   textColor: Colors.white,
-                  onPressed: () => context.read<LeaderboardBloc>().add(
-                    const LoadLeaderboard(),
-                  ),
+                  onPressed: _loadLeaderboard,
                 ),
               ),
             );
@@ -108,8 +160,7 @@ class RankView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () =>
-                  context.read<LeaderboardBloc>().add(const LoadLeaderboard()),
+              onPressed: _loadLeaderboard,
               icon: const Icon(Icons.refresh),
               label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
@@ -151,58 +202,93 @@ class RankView extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 8),
+      child: Column(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'COMPETITION',
-                style: TextStyle(
-                  fontSize: 12,
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.bold,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'COMPETITION',
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'This Month',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
+                    ),
+                  ),
+                ],
+              ),
+              // Invite Members Button
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.person_add, color: Colors.white),
+                  tooltip: 'Invite Members',
+                  onPressed: () {
+                    context.push(AppRouter.inviteMembers);
+                  },
                 ),
               ),
-              const SizedBox(height: 4),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Month selector
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: _goToPreviousMonth,
+                tooltip: 'Previous month',
+              ),
               Text(
-                'This Week',
+                _monthLabel,
                 style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   color: isDark
                       ? AppColors.textMainDark
                       : AppColors.textMainLight,
                 ),
               ),
-            ],
-          ),
-          // Invite Members Button
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.secondary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+              IconButton(
+                icon: Icon(
+                  Icons.chevron_right,
+                  color: _isCurrentMonth
+                      ? (isDark ? Colors.grey.shade700 : Colors.grey.shade300)
+                      : null,
                 ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.person_add, color: Colors.white),
-              tooltip: 'Invite Members',
-              onPressed: () {
-                // Navigate to invite screen
-                context.push(AppRouter.inviteMembers);
-              },
-            ),
+                onPressed: _isCurrentMonth ? null : _goToNextMonth,
+                tooltip: 'Next month',
+              ),
+            ],
           ),
         ],
       ),

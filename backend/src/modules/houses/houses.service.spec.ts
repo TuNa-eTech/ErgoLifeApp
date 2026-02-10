@@ -1,11 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HousesService } from './houses.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('HousesService', () => {
   let service: HousesService;
   let prismaService: PrismaService;
+  let notificationsService: NotificationsService;
+
+  const mockNotificationsService = {
+    createNotification: jest.fn().mockResolvedValue({}),
+    sendBulkNotifications: jest.fn().mockResolvedValue(undefined),
+  };
 
   const mockHouse = {
     id: 'house-uuid-123',
@@ -58,11 +65,20 @@ describe('HousesService', () => {
             ),
           },
         },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
+        },
       ],
     }).compile();
 
     service = module.get<HousesService>(HousesService);
     prismaService = module.get<PrismaService>(PrismaService);
+    notificationsService = module.get<NotificationsService>(NotificationsService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('create', () => {

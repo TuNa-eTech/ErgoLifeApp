@@ -63,7 +63,7 @@ class LocalNotificationService {
   /// Create high-priority notification channel for Android 8.0+
   Future<void> _createAndroidNotificationChannel() async {
     const channel = AndroidNotificationChannel(
-      'ergolife_high_priority',
+      'ergolife_notifications',
       'ErgoLife Notifications',
       description:
           'Important notifications about your streaks, houses, and rewards',
@@ -94,7 +94,7 @@ class LocalNotificationService {
   }) async {
     try {
       const androidDetails = AndroidNotificationDetails(
-        'ergolife_high_priority',
+        'ergolife_notifications',
         'ErgoLife Notifications',
         channelDescription:
             'Important notifications about your streaks, houses, and rewards',

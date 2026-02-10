@@ -1,9 +1,12 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationPriority } from '@prisma/client';
 import {
   CreateActivityDto,
   CreateActivityResponseDto,
@@ -18,7 +21,12 @@ import {
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(ActivitiesService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(
     userId: string,
@@ -73,6 +81,20 @@ export class ActivitiesService {
 
     // Update streak AFTER successful activity creation
     const streakUpdate = await this.updateStreakAfterActivity(userId);
+
+    // Send notifications (fire-and-forget, don't block response)
+    this.sendActivityNotifications(
+      userId,
+      user.houseId!,
+      taskName,
+      pointsEarned,
+      durationSeconds,
+      streakUpdate,
+    ).catch((err) =>
+      this.logger.error(
+        `Failed to send activity notifications: ${err.message}`,
+      ),
+    );
 
     return {
       activity: {
@@ -166,10 +188,13 @@ export class ActivitiesService {
     userId: string,
     query: GetLeaderboardQueryDto,
   ): Promise<LeaderboardResponseDto> {
-    const { scope = 'house' } = query;
+    const { scope = 'house', limit = 10 } = query;
 
-    // Parse week or use current
-    const { weekStart, weekEnd, weekString } = this.getWeekBounds(query.week);
+    // Use month-based date range
+    const { monthStart, monthEnd, monthString } = this.getMonthBounds(
+      query.year,
+      query.month,
+    );
 
     let members: {
       id: string;
@@ -197,24 +222,20 @@ export class ActivitiesService {
         select: { id: true, displayName: true, avatarId: true },
       });
     } else {
-      // GLOBAL SCOPE
-      // For performance, we should ideally use a raw query or better aggregation,
-      // but for now we'll find top active users in the period.
-      // 1. Get IDs of users with activities in this period
+      // GLOBAL SCOPE — get top active users in the period
       const activeUserIds = await this.prisma.activity.groupBy({
         by: ['userId'],
         where: {
           completedAt: {
-            gte: weekStart,
-            lte: weekEnd,
+            gte: monthStart,
+            lte: monthEnd,
           },
         },
         _sum: { pointsEarned: true },
         orderBy: { _sum: { pointsEarned: 'desc' } },
-        take: 50, // Limit to top 50 for global
+        take: limit,
       });
 
-      // 2. Fetch user details for these IDs
       const users = await this.prisma.user.findMany({
         where: { id: { in: activeUserIds.map((u) => u.userId) } },
         select: { id: true, displayName: true, avatarId: true },
@@ -224,15 +245,14 @@ export class ActivitiesService {
     }
 
     // Get activity aggregates for each member
-    // optimization: for global, we already have sum from groupBy, but let's consistency check
     const rankings = await Promise.all(
       members.map(async (member) => {
         const agg = await this.prisma.activity.aggregate({
           where: {
             userId: member.id,
             completedAt: {
-              gte: weekStart,
-              lte: weekEnd,
+              gte: monthStart,
+              lte: monthEnd,
             },
           },
           _sum: { pointsEarned: true },
@@ -251,18 +271,18 @@ export class ActivitiesService {
       }),
     );
 
-    // Sort by points descending and add rank
+    // Sort by points descending, apply limit, and add rank
     rankings.sort((a, b) => b.weeklyPoints - a.weeklyPoints);
-    const rankedResults = rankings.map((r, idx) => ({
+    const rankedResults = rankings.slice(0, limit).map((r, idx) => ({
       rank: idx + 1,
       ...r,
     }));
 
     return {
       scope,
-      week: weekString,
-      weekStart: weekStart.toISOString(),
-      weekEnd: weekEnd.toISOString(),
+      month: monthString,
+      monthStart: monthStart.toISOString(),
+      monthEnd: monthEnd.toISOString(),
       rankings: rankedResults,
     };
   }
@@ -405,6 +425,25 @@ export class ActivitiesService {
     const weekString = `${year}-W${String(weekNum).padStart(2, '0')}`;
 
     return { weekStart, weekEnd, weekString };
+  }
+
+  private getMonthBounds(
+    yearInput?: number,
+    monthInput?: number,
+  ): {
+    monthStart: Date;
+    monthEnd: Date;
+    monthString: string;
+  } {
+    const now = new Date();
+    const year = yearInput ?? now.getFullYear();
+    const month = monthInput ?? now.getMonth() + 1; // 1-based
+
+    const monthStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
+    const monthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    const monthString = `${year}-${String(month).padStart(2, '0')}`;
+
+    return { monthStart, monthEnd, monthString };
   }
 
   private getDateOfISOWeek(week: number, year: number): Date {
@@ -576,5 +615,158 @@ export class ActivitiesService {
       message,
       info,
     };
+  }
+
+  /// Milestone thresholds for streak notifications
+  private readonly STREAK_MILESTONES = [7, 14, 21, 30, 50, 100, 365];
+
+  /// Milestone messages in Vietnamese
+  private getStreakMilestoneMessage(streak: number): {
+    title: string;
+    body: string;
+  } {
+    if (streak >= 365) {
+      return {
+        title: `🏆💎 ${streak} NGÀY! Huyền thoại!`,
+        body: 'Một năm kiên trì! Bạn là nguồn cảm hứng cho mọi người! 🌟',
+      };
+    }
+    if (streak >= 100) {
+      return {
+        title: `🏆🔥 ${streak} ngày! Không tưởng!`,
+        body: 'Ba chữ số rồi! Streak của bạn thật đáng ngưỡng mộ! 💯',
+      };
+    }
+    if (streak >= 50) {
+      return {
+        title: `🏆⭐ ${streak} ngày! Nửa trăm!`,
+        body: 'Bạn đã đi được nửa đường đến 100! Cố lên! 🚀',
+      };
+    }
+    if (streak >= 30) {
+      return {
+        title: `🏆🎉 ${streak} ngày! Một tháng!`,
+        body: 'Thói quen đã hình thành! Giữ vững nhé! 💪',
+      };
+    }
+    if (streak >= 21) {
+      return {
+        title: `🏆✨ ${streak} ngày! 3 tuần rồi!`,
+        body: 'Khoa học nói 21 ngày tạo thói quen — bạn làm được rồi! 🧠',
+      };
+    }
+    if (streak >= 14) {
+      return {
+        title: `🏆🌈 ${streak} ngày! 2 tuần!`,
+        body: 'Hai tuần liên tục! Bạn thật kiên định! 🎊',
+      };
+    }
+    return {
+      title: `🏆🌱 ${streak} ngày! 1 tuần!`,
+      body: 'Tuần đầu tiên hoàn thành! Tiếp tục nhé! 🎉',
+    };
+  }
+
+  /**
+   * Send all notifications after activity completion.
+   * Runs fire-and-forget to avoid blocking the API response.
+   */
+  private async sendActivityNotifications(
+    userId: string,
+    houseId: string,
+    taskName: string,
+    pointsEarned: number,
+    durationSeconds: number,
+    streakUpdate: {
+      previousStreak: number;
+      currentStreak: number;
+      longestStreak: number;
+      message: string;
+    },
+  ): Promise<void> {
+    const durationMinutes = Math.round(durationSeconds / 60);
+
+    // 1. ACTIVITY_COMPLETED — save to DB only (user is in-app)
+    await this.notificationsService.createNotification({
+      userId,
+      type: NotificationType.ACTIVITY_COMPLETED,
+      priority: NotificationPriority.LOW,
+      title: `✅ Hoàn thành ${taskName}!`,
+      body: `+${pointsEarned} points • ${durationMinutes} phút`,
+      data: { taskName, pointsEarned: String(pointsEarned) },
+      actionUrl: 'ergolife://tasks',
+      sendPush: false,
+    });
+
+    // 2. STREAK_MILESTONE — push notification for important milestones
+    if (this.STREAK_MILESTONES.includes(streakUpdate.currentStreak)) {
+      const milestone = this.getStreakMilestoneMessage(
+        streakUpdate.currentStreak,
+      );
+      await this.notificationsService.createNotification({
+        userId,
+        type: NotificationType.STREAK_MILESTONE,
+        priority: NotificationPriority.HIGH,
+        title: milestone.title,
+        body: milestone.body,
+        data: {
+          streak: String(streakUpdate.currentStreak),
+          longestStreak: String(streakUpdate.longestStreak),
+        },
+        actionUrl: 'ergolife://tasks',
+        sendPush: true,
+      });
+    }
+
+    // 3. STREAK_LOST — notify when a meaningful streak is broken
+    if (
+      streakUpdate.message === 'STREAK_RESET' &&
+      streakUpdate.previousStreak >= 3
+    ) {
+      await this.notificationsService.createNotification({
+        userId,
+        type: NotificationType.STREAK_LOST,
+        priority: NotificationPriority.HIGH,
+        title: `💔 Streak ${streakUpdate.previousStreak} ngày đã mất...`,
+        body: 'Đừng bỏ cuộc! Hãy xây dựng streak mới từ hôm nay! 💪',
+        data: {
+          previousStreak: String(streakUpdate.previousStreak),
+        },
+        actionUrl: 'ergolife://tasks',
+        sendPush: true,
+      });
+    }
+
+    // 4. HOUSE_ACTIVITY — notify house members (no push, feed only)
+    const houseMembers = await this.prisma.user.findMany({
+      where: { houseId, id: { not: userId } },
+      select: { id: true },
+    });
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { displayName: true },
+    });
+    const displayName = user?.displayName || 'Thành viên';
+
+    if (houseMembers.length > 0) {
+      await this.notificationsService.sendBulkNotifications(
+        houseMembers.map((m) => m.id),
+        {
+          type: NotificationType.HOUSE_ACTIVITY,
+          priority: NotificationPriority.LOW,
+          title: `🏃 ${displayName} vừa tập!`,
+          body: `${taskName} • +${pointsEarned} points`,
+          data: {
+            houseId,
+            userId,
+            taskName,
+            pointsEarned: String(pointsEarned),
+          },
+          actionUrl: 'ergolife://house',
+          sendPush: false,
+        },
+      );
+    }
   }
 }

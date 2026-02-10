@@ -92,6 +92,9 @@ model User {
   lastReminderSentAt     DateTime? @map("last_reminder_sent_at")
   activityTimePattern    Json?     @map("activity_time_pattern")    // Store hourly activity distribution
   
+  // Leaderboard tracking
+  leaderboardRank        Int?      @map("leaderboard_rank")
+  
   // Timestamps
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")

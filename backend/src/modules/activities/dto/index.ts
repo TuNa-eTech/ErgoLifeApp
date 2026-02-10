@@ -97,14 +97,6 @@ export class GetActivitiesQueryDto {
 
 export class GetLeaderboardQueryDto {
   @ApiPropertyOptional({
-    example: '2025-W51',
-    description: 'Week in YYYY-Www format (default: current week)',
-  })
-  @IsOptional()
-  @IsString()
-  week?: string;
-
-  @ApiPropertyOptional({
     example: 'house',
     enum: ['house', 'global'],
     default: 'house',
@@ -113,6 +105,39 @@ export class GetLeaderboardQueryDto {
   @IsOptional()
   @IsString()
   scope?: 'house' | 'global' = 'house';
+
+  @ApiPropertyOptional({
+    example: 10,
+    default: 10,
+    maximum: 50,
+    description: 'Max number of users to return',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  limit?: number = 10;
+
+  @ApiPropertyOptional({
+    example: 2026,
+    description: 'Year for monthly leaderboard (default: current year)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  year?: number;
+
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Month 1-12 for monthly leaderboard (default: current month)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  month?: number;
 }
 
 export class GetStatsQueryDto {
@@ -305,14 +330,14 @@ export class LeaderboardResponseDto {
   @ApiProperty({ example: 'house', enum: ['house', 'global'] })
   scope: 'house' | 'global';
 
-  @ApiProperty({ example: '2025-W51' })
-  week: string;
+  @ApiProperty({ example: '2026-02' })
+  month: string;
 
-  @ApiProperty({ example: '2025-12-16T00:00:00.000Z' })
-  weekStart: string;
+  @ApiProperty({ example: '2026-02-01T00:00:00.000Z' })
+  monthStart: string;
 
-  @ApiProperty({ example: '2025-12-22T23:59:59.999Z' })
-  weekEnd: string;
+  @ApiProperty({ example: '2026-02-28T23:59:59.999Z' })
+  monthEnd: string;
 
   @ApiProperty({ type: [LeaderboardEntryDto] })
   rankings: LeaderboardEntryDto[];

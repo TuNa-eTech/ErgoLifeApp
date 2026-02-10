@@ -64,12 +64,12 @@ export class ActivitiesController {
 
   @Get('leaderboard')
   @ApiOperation({
-    summary: 'Get weekly leaderboard',
-    description: 'Get weekly leaderboard for current house or global',
+    summary: 'Get monthly leaderboard',
+    description: 'Get monthly leaderboard for current house or global',
   })
   @ApiResponse({
     status: 200,
-    description: 'Weekly leaderboard',
+    description: 'Monthly leaderboard',
     type: LeaderboardResponseDto,
   })
   @ApiResponse({ status: 403, description: 'Not in a house (if scope=house)' })

@@ -20,6 +20,7 @@ import 'package:ergo_life_app/ui/screens/tasks/widgets/session_progress_bar.dart
 import 'package:ergo_life_app/ui/screens/tasks/widgets/compact_session_stats.dart';
 import 'package:ergo_life_app/ui/widgets/streak_milestone_dialog.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
+import 'package:ergo_life_app/core/services/local_notification_service.dart';
 
 /// Screen showing active exercise session - Redesigned for simplicity
 class ActiveSessionScreen extends StatelessWidget {
@@ -490,6 +491,20 @@ class _ActiveSessionViewState extends State<ActiveSessionView>
         barrierDismissible: false,
         builder: (ctx) =>
             StreakMilestoneDialog(streakDays: streakInfo.currentStreak),
+      );
+    }
+
+    // Show local notification with streak info
+    if (streakInfo != null && streakInfo.info != null) {
+      final title = streakInfo.usedFreeze
+          ? '🛡️ Streak Freeze Used'
+          : streakInfo.wasReset
+          ? '🔄 Streak Reset'
+          : '🔥 Streak: ${streakInfo.currentStreak} Days!';
+      sl<LocalNotificationService>().show(
+        id: 200,
+        title: title,
+        body: streakInfo.info!,
       );
     }
 

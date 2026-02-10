@@ -1,9 +1,12 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationPriority } from '@prisma/client';
 import {
   CreateHouseDto,
   HouseDto,
@@ -32,7 +35,12 @@ function generateShortCode(length: number = INVITE_CODE_LENGTH): string {
 
 @Injectable()
 export class HousesService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(HousesService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(
     userId: string,
@@ -328,6 +336,38 @@ export class HousesService {
 
     if (!updatedHouse) {
       throw new Error('Failed to fetch updated house');
+    }
+
+    // Send MEMBER_JOINED notification to existing members
+    const joiner = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { displayName: true },
+    });
+    const displayName = joiner?.displayName || 'Thành viên mới';
+
+    const existingMemberIds = updatedHouse.members
+      .filter((m) => m.id !== userId)
+      .map((m) => m.id);
+
+    if (existingMemberIds.length > 0) {
+      this.notificationsService
+        .sendBulkNotifications(existingMemberIds, {
+          type: NotificationType.MEMBER_JOINED,
+          priority: NotificationPriority.MEDIUM,
+          title: `👋 ${displayName} đã gia nhập!`,
+          body: `${displayName} vừa tham gia house ${updatedHouse.name}`,
+          data: {
+            memberId: userId,
+            houseId: updatedHouse.id,
+          },
+          actionUrl: 'ergolife://house',
+          sendPush: true,
+        })
+        .catch((err) =>
+          this.logger.error(
+            `Failed to send MEMBER_JOINED notifications: ${err.message}`,
+          ),
+        );
     }
 
     return this.mapToHouseDto(updatedHouse);

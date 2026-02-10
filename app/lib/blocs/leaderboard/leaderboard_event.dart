@@ -9,15 +9,16 @@ abstract class LeaderboardEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Load leaderboard for current or specific week
+/// Load leaderboard for current or specific month
 class LoadLeaderboard extends LeaderboardEvent {
-  final String? week;
+  final int? month;
+  final int? year;
   final LeaderboardScope? scope;
 
-  const LoadLeaderboard({this.week, this.scope});
+  const LoadLeaderboard({this.month, this.year, this.scope});
 
   @override
-  List<Object?> get props => [week, scope];
+  List<Object?> get props => [month, year, scope];
 }
 
 /// Refresh leaderboard (pull-to-refresh)

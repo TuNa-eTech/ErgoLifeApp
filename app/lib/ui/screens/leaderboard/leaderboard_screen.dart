@@ -13,6 +13,7 @@ import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_podium.
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_ranking_item.dart';
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class LeaderboardScreen extends StatelessWidget {
   final LeaderboardBloc leaderboardBloc;
@@ -38,6 +39,7 @@ class LeaderboardView extends StatefulWidget {
 class _LeaderboardViewState extends State<LeaderboardView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late DateTime _selectedMonth;
 
   @override
   void initState() {
@@ -45,10 +47,10 @@ class _LeaderboardViewState extends State<LeaderboardView>
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
 
-    // Initial load - start with Global
-    context.read<LeaderboardBloc>().add(
-      const LoadLeaderboard(scope: LeaderboardScope.global),
-    );
+    _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
+
+    // Initial load - start with Global for current month
+    _loadLeaderboard(LeaderboardScope.global);
   }
 
   @override
@@ -66,27 +68,83 @@ class _LeaderboardViewState extends State<LeaderboardView>
         ? LeaderboardScope.global
         : LeaderboardScope.house;
 
-    context.read<LeaderboardBloc>().add(LoadLeaderboard(scope: scope));
+    _loadLeaderboard(scope);
+  }
+
+  void _loadLeaderboard(LeaderboardScope scope) {
+    context.read<LeaderboardBloc>().add(
+      LoadLeaderboard(
+        scope: scope,
+        month: _selectedMonth.month,
+        year: _selectedMonth.year,
+      ),
+    );
+  }
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+    });
+    final scope = _tabController.index == 0
+        ? LeaderboardScope.global
+        : LeaderboardScope.house;
+    _loadLeaderboard(scope);
+  }
+
+  void _goToNextMonth() {
+    final now = DateTime.now();
+    final nextMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+
+    // Don't allow going past current month
+    if (nextMonth.isAfter(DateTime(now.year, now.month + 1))) {
+      return;
+    }
+
+    setState(() {
+      _selectedMonth = nextMonth;
+    });
+    final scope = _tabController.index == 0
+        ? LeaderboardScope.global
+        : LeaderboardScope.house;
+    _loadLeaderboard(scope);
+  }
+
+  bool get _isCurrentMonth {
+    final now = DateTime.now();
+    return _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+  }
+
+  String get _monthLabel {
+    return DateFormat.yMMMM().format(_selectedMonth);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.leaderboard),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: AppLocalizations.of(context)!.globalLeaderboard),
-            Tab(text: AppLocalizations.of(context)!.houseLeaderboard),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(88),
+          child: Column(
+            children: [
+              _buildMonthSelector(isDark),
+              TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(text: AppLocalizations.of(context)!.globalLeaderboard),
+                  Tab(text: AppLocalizations.of(context)!.houseLeaderboard),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        physics:
-            const NeverScrollableScrollPhysics(), // Disable swipe to avoid accidental refresh triggers
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           _buildLeaderboardTab(context, LeaderboardScope.global),
           _buildLeaderboardTab(context, LeaderboardScope.house),
@@ -95,19 +153,50 @@ class _LeaderboardViewState extends State<LeaderboardView>
     );
   }
 
+  /// Month selector row with prev/next arrows
+  Widget _buildMonthSelector(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _goToPreviousMonth,
+            tooltip: 'Previous month',
+          ),
+          Text(
+            _monthLabel,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.chevron_right,
+              color: _isCurrentMonth
+                  ? (isDark ? Colors.grey.shade700 : Colors.grey.shade300)
+                  : null,
+            ),
+            onPressed: _isCurrentMonth ? null : _goToNextMonth,
+            tooltip: 'Next month',
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLeaderboardTab(BuildContext context, LeaderboardScope scope) {
     return BlocConsumer<HouseBloc, HouseState>(
       listener: (context, houseState) {
-        // Reload if house state changes and we are on the relevant tab
         if (!mounted) return;
         if (houseState is HouseLoaded && scope == LeaderboardScope.house) {
-          context.read<LeaderboardBloc>().add(
-            const LoadLeaderboard(scope: LeaderboardScope.house),
-          );
+          _loadLeaderboard(LeaderboardScope.house);
         }
       },
       builder: (context, houseState) {
-        // Check special case: House Tab but User is in Personal House
         if (scope == LeaderboardScope.house &&
             houseState is HouseLoaded &&
             houseState.house.isPersonal) {
@@ -137,8 +226,6 @@ class _LeaderboardViewState extends State<LeaderboardView>
         }
 
         if (state is LeaderboardLoaded) {
-          // Verify we are showing the correct data for the requested scope
-          // This prevents flashing old data from a different scope
           if (state.leaderboard.scope != scope) {
             return const LeaderboardScreenSkeleton();
           }
