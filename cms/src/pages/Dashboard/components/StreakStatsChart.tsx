@@ -12,10 +12,10 @@ import { ChartCard } from '../../../components/ChartCard';
 import { ChartSkeleton } from '../../../components/Skeletons';
 import { ErrorState } from '../../../components/ErrorState';
 import { EmptyState } from '../../../components/EmptyState';
-import { adminApi, type ActivityStatsItem } from '../../../api/admin';
+import { adminApi, type StreakStats } from '../../../api/admin';
 
-export const ActivityOverviewChart: React.FC = () => {
-  const [data, setData] = useState<ActivityStatsItem[]>([]);
+export const StreakStatsChart: React.FC = () => {
+  const [data, setData] = useState<StreakStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -23,8 +23,8 @@ export const ActivityOverviewChart: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      const response = await adminApi.getActivityStats(7);
-      setData(response.data?.data || []);
+      const response = await adminApi.getStreakStats();
+      setData(response.data?.data || null);
     } catch {
       setError(true);
     } finally {
@@ -37,23 +37,27 @@ export const ActivityOverviewChart: React.FC = () => {
   const renderContent = () => {
     if (loading) return <ChartSkeleton />;
     if (error) return <ErrorState onRetry={fetchData} />;
-    if (data.every((d) => d.count === 0)) return <EmptyState message="No activities completed yet" />;
+    if (!data) return <EmptyState message="No streak data available" />;
 
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart data={data.distribution} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.4} />
-          <XAxis dataKey="date" axisLine={false} tickLine={false} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { weekday: 'short' })} />
+          <XAxis dataKey="range" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} />
-          <Tooltip cursor={{fill: 'transparent'}} labelFormatter={(d) => new Date(d as string).toLocaleDateString()} />
-          <Bar dataKey="count" name="Completed" fill="#10B981" radius={[4, 4, 0, 0]} />
+          <Tooltip cursor={{fill: 'transparent'}} />
+          <Bar dataKey="count" name="Users" fill="#F59E0B" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
   };
 
+  const subtitle = data
+    ? `Avg: ${data.avgStreak} days · Max: ${data.maxStreak} days`
+    : 'Streak distribution overview';
+
   return (
-    <ChartCard title="Activity Overview" subtitle="Activities completed (Last 7 days)">
+    <ChartCard title="Streak Distribution" subtitle={subtitle}>
       {renderContent()}
     </ChartCard>
   );
