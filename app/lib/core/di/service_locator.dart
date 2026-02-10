@@ -145,6 +145,7 @@ Future<void> setupServiceLocator() async {
       activityRepository: sl(),
       houseRepository: sl(),
       taskRepository: sl(),
+      userRepository: sl(),
     ),
   );
 

@@ -6,6 +6,8 @@ import 'package:ergo_life_app/blocs/auth/auth_bloc.dart';
 import 'package:ergo_life_app/blocs/auth/auth_event.dart';
 import 'package:ergo_life_app/blocs/auth/auth_state.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/data/services/storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   final AuthBloc authBloc;
@@ -81,7 +83,12 @@ class _SplashScreenState extends State<SplashScreen>
         if (state is AuthAuthenticated) {
           context.go(AppRouter.home);
         } else if (state is AuthUnauthenticated) {
-          context.go(AppRouter.login);
+          final hasSeenWelcome = sl<StorageService>().getHasSeenWelcome();
+          if (hasSeenWelcome) {
+            context.go(AppRouter.login);
+          } else {
+            context.go(AppRouter.welcome);
+          }
         }
       },
       child: Scaffold(

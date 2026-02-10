@@ -6,6 +6,7 @@ class StorageService {
 
   // Storage keys
   static const String keyAuthToken = 'auth_token';
+  static const String keyHasSeenWelcome = 'has_seen_welcome';
 
   StorageService(this._prefs);
 
@@ -114,5 +115,17 @@ class StorageService {
   /// Check if auth token exists
   bool hasAuthToken() {
     return containsKey(keyAuthToken);
+  }
+
+  // ===== Welcome Screen Methods =====
+
+  /// Mark welcome screen as seen
+  Future<bool> setHasSeenWelcome() async {
+    return await saveBool(keyHasSeenWelcome, true);
+  }
+
+  /// Check if user has seen the welcome screen
+  bool getHasSeenWelcome() {
+    return getBool(keyHasSeenWelcome) ?? false;
   }
 }

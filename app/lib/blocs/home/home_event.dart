@@ -17,3 +17,8 @@ class LoadHomeData extends HomeEvent {
 class RefreshHomeData extends HomeEvent {
   const RefreshHomeData();
 }
+
+/// Purchase a Streak Freeze (costs 500 EP)
+class PurchaseStreakFreeze extends HomeEvent {
+  const PurchaseStreakFreeze();
+}

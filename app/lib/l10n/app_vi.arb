@@ -327,5 +327,18 @@
     "emailLabel": "Email",
     "noEmail": "Không có email",
     "emailCannotBeChanged": "Email không thể thay đổi",
-    "validationErrorTitle": "Lỗi xác thực"
+    "validationErrorTitle": "Lỗi xác thực",
+
+    "welcomeTitle1": "Biến việc nhà\nthành bài tập 💪",
+    "welcomeDesc1": "Mọi hoạt động đều giúp bạn nhận Ergo Points. Lau nhà, dắt chó, tập yoga — tất cả đều tính!",
+    "welcomeTitle2": "Theo dõi với\nBộ đếm thông minh ⏱️",
+    "welcomeDesc2": "Bắt đầu phiên tập, tập trung và xem điểm tích lũy theo thời gian thực.",
+    "welcomeTitle3": "Thi đấu cùng\nGia đình & Bạn bè 🏆",
+    "welcomeDesc3": "Tạo một House, mời đội của bạn và cùng nhau leo bảng xếp hạng.",
+    "welcomeTitle4": "Duy trì Chuỗi,\nNhận Phần thưởng 🔥",
+    "welcomeDesc4": "Kiên trì để giữ chuỗi ngày và mở khóa các phần thưởng hấp dẫn.",
+    "getStarted": "Bắt đầu ngay",
+
+    "streakFreezePurchased": "Đã mua Streak Freeze! 🛡️",
+    "streakFreezePurchaseFailed": "Không thể mua Streak Freeze"
 }

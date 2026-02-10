@@ -471,5 +471,18 @@
     "noEmail": "No email",
     "emailCannotBeChanged": "Email cannot be changed",
     "validationErrorTitle": "Validation Error",
-    "save": "Save"
+    "save": "Save",
+
+    "welcomeTitle1": "Turn Chores into\nWorkouts 💪",
+    "welcomeDesc1": "Every activity earns you Ergo Points. Mop the floor, walk the dog, do yoga — it all counts!",
+    "welcomeTitle2": "Track with a\nSmart Timer ⏱️",
+    "welcomeDesc2": "Start a session, stay focused, and watch your points pile up in real time.",
+    "welcomeTitle3": "Compete with\nFamily & Friends 🏆",
+    "welcomeDesc3": "Create a House, invite your crew, and race up the leaderboard together.",
+    "welcomeTitle4": "Build Streaks,\nEarn Rewards 🔥",
+    "welcomeDesc4": "Stay consistent to keep your streak alive and unlock awesome rewards.",
+    "getStarted": "Get Started",
+
+    "streakFreezePurchased": "Streak Freeze purchased! 🛡️",
+    "streakFreezePurchaseFailed": "Failed to purchase Streak Freeze"
 }

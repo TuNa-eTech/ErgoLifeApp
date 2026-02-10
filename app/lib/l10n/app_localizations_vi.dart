@@ -946,4 +946,41 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get validationErrorTitle => 'Lỗi xác thực';
+
+  @override
+  String get welcomeTitle1 => 'Biến việc nhà\nthành bài tập 💪';
+
+  @override
+  String get welcomeDesc1 =>
+      'Mọi hoạt động đều giúp bạn nhận Ergo Points. Lau nhà, dắt chó, tập yoga — tất cả đều tính!';
+
+  @override
+  String get welcomeTitle2 => 'Theo dõi với\nBộ đếm thông minh ⏱️';
+
+  @override
+  String get welcomeDesc2 =>
+      'Bắt đầu phiên tập, tập trung và xem điểm tích lũy theo thời gian thực.';
+
+  @override
+  String get welcomeTitle3 => 'Thi đấu cùng\nGia đình & Bạn bè 🏆';
+
+  @override
+  String get welcomeDesc3 =>
+      'Tạo một House, mời đội của bạn và cùng nhau leo bảng xếp hạng.';
+
+  @override
+  String get welcomeTitle4 => 'Duy trì Chuỗi,\nNhận Phần thưởng 🔥';
+
+  @override
+  String get welcomeDesc4 =>
+      'Kiên trì để giữ chuỗi ngày và mở khóa các phần thưởng hấp dẫn.';
+
+  @override
+  String get getStarted => 'Bắt đầu ngay';
+
+  @override
+  String get streakFreezePurchased => 'Đã mua Streak Freeze! 🛡️';
+
+  @override
+  String get streakFreezePurchaseFailed => 'Không thể mua Streak Freeze';
 }

@@ -10,6 +10,7 @@ import 'package:ergo_life_app/ui/screens/tasks/active_session_screen.dart';
 import 'package:ergo_life_app/ui/screens/main/main_shell_screen.dart';
 import 'package:ergo_life_app/ui/screens/splash/splash_screen.dart';
 import 'package:ergo_life_app/ui/screens/onboarding/onboarding_screen.dart';
+import 'package:ergo_life_app/ui/screens/welcome/welcome_screen.dart';
 import 'package:ergo_life_app/ui/screens/auth/login_screen.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/leaderboard_screen.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
@@ -46,6 +47,7 @@ import 'package:ergo_life_app/ui/screens/notifications/notification_center_scree
 
 class AppRouter {
   static const String splash = '/splash';
+  static const String welcome = '/welcome';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String home = '/';
@@ -205,6 +207,12 @@ class AppRouter {
             ),
           );
         },
+      ),
+      GoRoute(
+        path: welcome,
+        name: 'welcome',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: WelcomeScreen()),
       ),
       GoRoute(
         path: login,

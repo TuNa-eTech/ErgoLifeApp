@@ -83,3 +83,27 @@ class HomeError extends HomeState {
   @override
   List<Object?> get props => [message];
 }
+
+/// Streak Freeze purchased successfully
+class StreakFreezePurchased extends HomeState {
+  final int newBalance;
+  final int newFreezeCount;
+
+  const StreakFreezePurchased({
+    required this.newBalance,
+    required this.newFreezeCount,
+  });
+
+  @override
+  List<Object?> get props => [newBalance, newFreezeCount];
+}
+
+/// Streak Freeze purchase failed
+class StreakFreezeFailed extends HomeState {
+  final String message;
+
+  const StreakFreezeFailed({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}

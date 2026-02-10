@@ -7,6 +7,7 @@ import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/data/repositories/auth_repository.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 import 'package:ergo_life_app/data/repositories/house_repository.dart';
+import 'package:ergo_life_app/data/repositories/user_repository.dart';
 import 'package:ergo_life_app/data/repositories/task_repository.dart';
 
 /// BLoC for managing home screen state
@@ -15,19 +16,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final ActivityRepository _activityRepository;
   final HouseRepository _houseRepository;
   final TaskRepository _taskRepository;
+  final UserRepository _userRepository;
 
   HomeBloc({
     required AuthRepository authRepository,
     required ActivityRepository activityRepository,
     required HouseRepository houseRepository,
     required TaskRepository taskRepository,
+    required UserRepository userRepository,
   }) : _authRepository = authRepository,
        _activityRepository = activityRepository,
        _houseRepository = houseRepository,
        _taskRepository = taskRepository,
+       _userRepository = userRepository,
        super(const HomeInitial()) {
     on<LoadHomeData>(_onLoadHomeData);
     on<RefreshHomeData>(_onRefreshHomeData);
+    on<PurchaseStreakFreeze>(_onPurchaseStreakFreeze);
   }
 
   /// Load all home screen data
@@ -48,6 +53,49 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     AppLogger.info('Refreshing home data...', 'HomeBloc');
     // Don't emit loading state to avoid UI flash
     await _loadData(emit);
+  }
+
+  /// Handle streak freeze purchase
+  Future<void> _onPurchaseStreakFreeze(
+    PurchaseStreakFreeze event,
+    Emitter<HomeState> emit,
+  ) async {
+    // Save current state to restore after transient states
+    final previousState = state;
+
+    final result = await _userRepository.purchaseStreakFreeze();
+    result.fold(
+      (failure) {
+        emit(StreakFreezeFailed(message: failure.message));
+        // Restore previous loaded state
+        if (previousState is HomeLoaded) {
+          emit(previousState);
+        }
+      },
+      (data) {
+        final newBalance = data['newBalance'] as int? ?? 0;
+        final newFreezeCount = data['streakFreezeCount'] as int? ?? 0;
+
+        emit(
+          StreakFreezePurchased(
+            newBalance: newBalance,
+            newFreezeCount: newFreezeCount,
+          ),
+        );
+
+        // Update the loaded state with new values
+        if (previousState is HomeLoaded) {
+          emit(
+            previousState.copyWith(
+              user: previousState.user.copyWith(
+                walletBalance: newBalance,
+                streakFreezeCount: newFreezeCount,
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   Future<void> _loadData(Emitter<HomeState> emit) async {

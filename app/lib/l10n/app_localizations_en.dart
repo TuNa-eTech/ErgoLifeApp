@@ -945,4 +945,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validationErrorTitle => 'Validation Error';
+
+  @override
+  String get welcomeTitle1 => 'Turn Chores into\nWorkouts 💪';
+
+  @override
+  String get welcomeDesc1 =>
+      'Every activity earns you Ergo Points. Mop the floor, walk the dog, do yoga — it all counts!';
+
+  @override
+  String get welcomeTitle2 => 'Track with a\nSmart Timer ⏱️';
+
+  @override
+  String get welcomeDesc2 =>
+      'Start a session, stay focused, and watch your points pile up in real time.';
+
+  @override
+  String get welcomeTitle3 => 'Compete with\nFamily & Friends 🏆';
+
+  @override
+  String get welcomeDesc3 =>
+      'Create a House, invite your crew, and race up the leaderboard together.';
+
+  @override
+  String get welcomeTitle4 => 'Build Streaks,\nEarn Rewards 🔥';
+
+  @override
+  String get welcomeDesc4 =>
+      'Stay consistent to keep your streak alive and unlock awesome rewards.';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get streakFreezePurchased => 'Streak Freeze purchased! 🛡️';
+
+  @override
+  String get streakFreezePurchaseFailed => 'Failed to purchase Streak Freeze';
 }

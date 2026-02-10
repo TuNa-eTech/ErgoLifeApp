@@ -1861,6 +1861,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Validation Error'**
   String get validationErrorTitle;
+
+  /// No description provided for @welcomeTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Chores into\nWorkouts 💪'**
+  String get welcomeTitle1;
+
+  /// No description provided for @welcomeDesc1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every activity earns you Ergo Points. Mop the floor, walk the dog, do yoga — it all counts!'**
+  String get welcomeDesc1;
+
+  /// No description provided for @welcomeTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Track with a\nSmart Timer ⏱️'**
+  String get welcomeTitle2;
+
+  /// No description provided for @welcomeDesc2.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a session, stay focused, and watch your points pile up in real time.'**
+  String get welcomeDesc2;
+
+  /// No description provided for @welcomeTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Compete with\nFamily & Friends 🏆'**
+  String get welcomeTitle3;
+
+  /// No description provided for @welcomeDesc3.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a House, invite your crew, and race up the leaderboard together.'**
+  String get welcomeDesc3;
+
+  /// No description provided for @welcomeTitle4.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Streaks,\nEarn Rewards 🔥'**
+  String get welcomeTitle4;
+
+  /// No description provided for @welcomeDesc4.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay consistent to keep your streak alive and unlock awesome rewards.'**
+  String get welcomeDesc4;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @streakFreezePurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak Freeze purchased! 🛡️'**
+  String get streakFreezePurchased;
+
+  /// No description provided for @streakFreezePurchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to purchase Streak Freeze'**
+  String get streakFreezePurchaseFailed;
 }
 
 class _AppLocalizationsDelegate
