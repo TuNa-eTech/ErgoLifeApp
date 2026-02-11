@@ -135,6 +135,18 @@ Response khi bị limit:
 | **Redemptions** | | | |
 | GET | `/redemptions` | Lịch sử đổi thưởng | ✅ |
 | PUT | `/redemptions/:id/use` | Đánh dấu đã sử dụng | ✅ |
+| | | | |
+| **Notifications** | | | |
+| GET | `/notifications` | Danh sách thông báo (phân trang) | ✅ |
+| GET | `/notifications/unread-count` | Số thông báo chưa đọc | ✅ |
+| PATCH | `/notifications/:id/read` | Đánh dấu đã đọc | ✅ |
+| PATCH | `/notifications/read-all` | Đánh dấu tất cả đã đọc | ✅ |
+| DELETE | `/notifications/:id` | Xóa thông báo | ✅ |
+| | | | |
+| **Gifts** | | | |
+| GET | `/gifts/catalog` | Danh sách quà + balance + thành viên | ✅ |
+| POST | `/gifts/send` | Gửi quà tặng (trừ EP, locale) | ✅ |
+| GET | `/gifts/history` | Lịch sử gửi/nhận quà (phân trang) | ✅ |
 
 ---
 

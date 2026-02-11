@@ -143,15 +143,29 @@ Authorization: Bearer <access_token>
 | POST | `/gifts/send` | Gửi quà tặng (trừ EP từ sender) | ✅ |
 | GET | `/gifts/history` | Lịch sử gửi/nhận quà (phân trang) | ✅ |
 
+### GET `/gifts/catalog` — Query Params
+
+| Param | Type | Default | Mô tả |
+|-------|------|---------|--------|
+| `locale` | string | `vi` | Ngôn ngữ cho tên/mô tả quà (fallback: `en`) |
+
 ### POST `/gifts/send` — Request Body
 
 ```json
 {
   "giftRewardId": "uuid",
   "receiverId": "uuid",
-  "message": "Cảm ơn em! (tuỳ chọn, tối đa 100 ký tự)"
+  "message": "Cảm ơn em! (tuỳ chọn, tối đa 100 ký tự)",
+  "locale": "vi"
 }
 ```
+
+| Field | Type | Required | Mô tả |
+|-------|------|----------|--------|
+| `giftRewardId` | UUID | ✅ | ID quà tặng |
+| `receiverId` | UUID | ✅ | ID người nhận |
+| `message` | string | ❌ | Lời nhắn (tối đa 100 ký tự) |
+| `locale` | string | ❌ | Ngôn ngữ cho reward name snapshot (default: `vi`) |
 
 ### GET `/gifts/history` — Query Params
 

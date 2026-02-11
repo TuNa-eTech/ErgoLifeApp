@@ -95,17 +95,22 @@ VD: Rửa bát (METs 2.5), 20 phút = 20 × 2.5 × 10 = **500 EP**
 ### Gift Catalog (App-managed)
 - 20 quà tặng tượng trưng được seed sẵn
 - 4 categories: Praise, Privilege, Experience, Motivation
-- Đa ngôn ngữ EN/VI
+- **Đa ngôn ngữ EN/VI** — tên quà hiển thị theo locale app (fallback EN)
 - Chi phí EP giảm từ sender balance
+- Optimistic UI update sau khi gửi (không flash loading skeleton)
 
 ### Gửi quà
-- Chọn quà → chọn thành viên nhà → gửi lời nhắn (tuỳ chọn)
-- EP bị trừ từ sender
+- Chọn quà → chọn thành viên nhà (có **avatar**) → gửi lời nhắn (tuỳ chọn)
+- **Member picker** hiển thị avatar 3D của từng thành viên
+- **Send button** có loading indicator, chống double-tap
+- EP bị trừ từ sender (balance check atomic trong Prisma transaction)
 - **GIFT_RECEIVED** push notification cho receiver
+- Reward name snapshot lưu theo **locale của sender**
 
 ### Lịch sử
 - Tab All / Sent / Received
 - Hiển thị: quà, người gửi → người nhận, lời nhắn, EP, thời gian
+- **Infinite scroll** pagination (20 items/page)
 
 ---
 
