@@ -48,6 +48,11 @@ class ApiConstants {
   static String notificationById(String id) => '/notifications/$id';
   static String notificationMarkAsRead(String id) => '/notifications/$id/read';
 
+  // Gift Endpoints
+  static const String giftsCatalog = '/gifts/catalog';
+  static const String giftsSend = '/gifts/send';
+  static const String giftsHistory = '/gifts/history';
+
   // Headers
   static const String headerAuth = 'Authorization';
   static const String headerContentType = 'Content-Type';

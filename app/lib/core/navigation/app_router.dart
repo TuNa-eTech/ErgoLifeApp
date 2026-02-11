@@ -45,6 +45,12 @@ import 'package:ergo_life_app/ui/screens/legal/privacy_policy_screen.dart';
 // Notifications
 import 'package:ergo_life_app/ui/screens/notifications/notification_center_screen.dart';
 
+// Gifts
+import 'package:ergo_life_app/blocs/gifts/gifts_bloc.dart';
+import 'package:ergo_life_app/blocs/gifts/gifts_event.dart';
+import 'package:ergo_life_app/ui/screens/gifts/gifts_screen.dart';
+import 'package:ergo_life_app/ui/screens/gifts/gift_history_screen.dart';
+
 class AppRouter {
   static const String splash = '/splash';
   static const String welcome = '/welcome';
@@ -75,6 +81,10 @@ class AppRouter {
 
   // Notification routes
   static const String notifications = '/notifications';
+
+  // Gift routes
+  static const String gifts = '/gifts';
+  static const String giftHistory = '/gifts/history';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -299,6 +309,27 @@ class AppRouter {
           child: BlocProvider.value(
             value: sl<NotificationBloc>()..add(const LoadNotifications()),
             child: const NotificationCenterScreen(),
+          ),
+        ),
+      ),
+      // Gift routes
+      GoRoute(
+        path: gifts,
+        name: 'gifts',
+        pageBuilder: (context, state) => MaterialPage(
+          child: BlocProvider(
+            create: (_) => sl<GiftsBloc>()..add(const LoadGiftCatalog()),
+            child: const GiftsScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: giftHistory,
+        name: 'giftHistory',
+        pageBuilder: (context, state) => MaterialPage(
+          child: BlocProvider(
+            create: (_) => sl<GiftsBloc>()..add(const LoadGiftHistory()),
+            child: const GiftHistoryScreen(),
           ),
         ),
       ),

@@ -12,6 +12,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { TaskTemplatesModule } from './modules/task-templates/task-templates.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { GiftsModule } from './modules/gifts/gifts.module';
 import { HealthModule } from './health/health.module';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
 
@@ -31,6 +32,7 @@ import { LoggingMiddleware } from './common/middleware/logging.middleware';
     TaskTemplatesModule,
     AdminModule,
     NotificationsModule,
+    GiftsModule,
   ],
 })
 export class AppModule implements NestModule {

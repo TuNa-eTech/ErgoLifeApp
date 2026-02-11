@@ -25,6 +25,13 @@ enum RedemptionStatus {
   EXPIRED   // Hết hạn (future feature)
 }
 
+enum GiftRewardCategory {
+  PRAISE        // Lời khen & Công nhận
+  PRIVILEGE     // Đặc quyền gia đình
+  EXPERIENCE    // Trải nghiệm vui
+  MOTIVATION    // Động viên & Tinh thần
+}
+
 enum NotificationType {
   // Activity & Streaks
   STREAK_REMINDER
@@ -43,6 +50,9 @@ enum NotificationType {
   ENOUGH_POINTS
   REDEMPTION_APPROVED
   REDEMPTION_REJECTED
+  
+  // Gifts
+  GIFT_RECEIVED
   
   // System
   WELCOME
@@ -100,12 +110,14 @@ model User {
   updatedAt    DateTime     @updatedAt @map("updated_at")
   
   // Relations
-  activities   Activity[]
-  rewards      Reward[]     @relation("RewardCreator")
-  redemptions  Redemption[]
-  housesOwned  House[]      @relation("HouseOwner")
-  customTasks  CustomTask[]
+  activities    Activity[]
+  rewards       Reward[]          @relation("RewardCreator")
+  redemptions   Redemption[]
+  housesOwned   House[]           @relation("HouseOwner")
+  customTasks   CustomTask[]
   notifications Notification[]
+  giftsSent     GiftTransaction[] @relation("GiftsSent")
+  giftsReceived GiftTransaction[] @relation("GiftsReceived")
 
   @@index([preferredReminderTime])
   @@map("users")
@@ -206,10 +218,11 @@ model House {
   updatedAt   DateTime @updatedAt @map("updated_at")
   
   // Relations
-  members     User[]   @relation("HouseMembers")
-  activities  Activity[]
-  rewards     Reward[]
-  redemptions Redemption[]
+  members          User[]            @relation("HouseMembers")
+  activities       Activity[]
+  rewards          Reward[]
+  redemptions      Redemption[]
+  giftTransactions GiftTransaction[]
 
   @@map("houses")
 }
@@ -332,4 +345,67 @@ model Notification {
   @@index([userId, type])
   @@index([isSent, scheduledFor]) // For scheduled job processing
   @@map("notifications")
+}
+
+// ===========================================
+// GIFT REWARDS (App-managed, seeded)
+// ===========================================
+
+model GiftReward {
+  id        String              @id @default(uuid())
+  key       String              @unique
+  category  GiftRewardCategory
+  icon      String
+  cost      Int
+  sortOrder Int                 @default(0) @map("sort_order")
+  isActive  Boolean             @default(true) @map("is_active")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  translations GiftRewardTranslation[]
+  transactions GiftTransaction[]
+
+  @@index([isActive, sortOrder])
+  @@map("gift_rewards")
+}
+
+model GiftRewardTranslation {
+  id          String     @id @default(uuid())
+  rewardId    String     @map("reward_id")
+  reward      GiftReward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?
+
+  @@unique([rewardId, locale])
+  @@map("gift_reward_translations")
+}
+
+model GiftTransaction {
+  id          String     @id @default(uuid())
+
+  // Participants
+  senderId    String     @map("sender_id")
+  sender      User       @relation("GiftsSent", fields: [senderId], references: [id])
+  receiverId  String     @map("receiver_id")
+  receiver    User       @relation("GiftsReceived", fields: [receiverId], references: [id])
+  houseId     String     @map("house_id")
+  house       House      @relation(fields: [houseId], references: [id])
+  rewardId    String     @map("reward_id")
+  reward      GiftReward @relation(fields: [rewardId], references: [id])
+
+  // Snapshot at time of gift
+  rewardName  String     @map("reward_name")
+  rewardIcon  String     @map("reward_icon")
+  pointsSpent Int        @map("points_spent")
+  message     String?    @db.VarChar(100)
+
+  // Timestamps
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([senderId, createdAt(sort: Desc)])
+  @@index([receiverId, createdAt(sort: Desc)])
+  @@index([houseId, createdAt(sort: Desc)])
+  @@map("gift_transactions")
 }

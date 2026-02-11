@@ -31,6 +31,7 @@ import 'package:ergo_life_app/data/repositories/house_repository.dart';
 import 'package:ergo_life_app/data/repositories/task_repository.dart';
 import 'package:ergo_life_app/data/repositories/reward_repository.dart';
 import 'package:ergo_life_app/data/repositories/notification_repository.dart';
+import 'package:ergo_life_app/data/repositories/gift_repository.dart';
 
 // BLoCs/Cubits
 import 'package:ergo_life_app/blocs/user/user_cubit.dart';
@@ -46,6 +47,7 @@ import 'package:ergo_life_app/blocs/rewards/rewards_bloc.dart';
 import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
+import 'package:ergo_life_app/blocs/gifts/gifts_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -121,6 +123,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<NotificationRepository>(
     () => NotificationRepository(sl()),
   );
+  sl.registerLazySingleton<GiftRepository>(() => GiftRepository(sl()));
 
   // AuthRepository depends on async AuthService, so must wait for it
   sl.registerSingletonWithDependencies<AuthRepository>(
@@ -199,4 +202,7 @@ Future<void> setupServiceLocator() async {
 
   // NotificationBloc - lazy singleton for global notification badge
   sl.registerLazySingleton<NotificationBloc>(() => NotificationBloc(sl()));
+
+  // GiftsBloc - factory for fresh instances
+  sl.registerFactory<GiftsBloc>(() => GiftsBloc(giftRepository: sl()));
 }
