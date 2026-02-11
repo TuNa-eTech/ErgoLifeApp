@@ -52,7 +52,7 @@ services:
       start_period: 40s
     networks:
       - ergolife-network
-    command: sh -c "yarn prisma:migrate && node dist/src/main"
+    command: sh -c "npx prisma migrate deploy && node dist/src/main"
   landing-page:
     build:
       context: ../landing-page
