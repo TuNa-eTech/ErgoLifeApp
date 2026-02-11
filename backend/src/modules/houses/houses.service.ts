@@ -250,6 +250,7 @@ export class HousesService {
   }
 
   async join(userId: string, inviteCode: string): Promise<HouseDto> {
+    const normalizedCode = inviteCode.toUpperCase();
     // Check if user is already in a house
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -262,7 +263,7 @@ export class HousesService {
 
     if (user?.houseId) {
       // Check if trying to join own house
-      if (user.house?.inviteCode === inviteCode) {
+      if (user.house?.inviteCode === normalizedCode) {
         throw new ConflictException({
           code: 'ALREADY_MEMBER',
           message: 'You are already a member of this house',
@@ -286,7 +287,7 @@ export class HousesService {
 
     // Find house by invite code
     const house = await this.prisma.house.findUnique({
-      where: { inviteCode },
+      where: { inviteCode: normalizedCode },
       include: {
         members: {
           select: {
@@ -463,8 +464,9 @@ export class HousesService {
   }
 
   async preview(inviteCode: string): Promise<HousePreviewDto> {
+    const normalizedCode = inviteCode.toUpperCase();
     const house = await this.prisma.house.findUnique({
-      where: { inviteCode },
+      where: { inviteCode: normalizedCode },
       include: {
         members: {
           select: { avatarId: true },

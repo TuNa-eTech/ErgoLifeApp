@@ -185,12 +185,15 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                                 : AppColors.textMainLight,
                           ),
                           maxLength: 6,
-                          keyboardType: TextInputType.number,
+                          textCapitalization: TextCapitalization.characters,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[A-Za-z0-9]'),
+                            ),
+                            UpperCaseTextFormatter(),
                           ],
                           decoration: InputDecoration(
-                            hintText: '000000',
+                            hintText: 'ABC123',
                             hintStyle: TextStyle(
                               color: isDark
                                   ? Colors.grey.shade700
@@ -283,7 +286,7 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
                             const SizedBox(height: 12),
                             Text(
                               '• You can only be in one house at a time\n'
-                              '• Maximum 4 members per house\n'
+                              '• Maximum 20 members per house\n'
                               '• Compete with housemates on the leaderboard!',
                               style: TextStyle(
                                 color: isDark
@@ -336,9 +339,23 @@ class _JoinHouseScreenState extends State<JoinHouseScreen> {
   }
 
   void _joinHouse(BuildContext context) {
-    final code = _codeController.text.trim();
+    final code = _codeController.text.trim().toUpperCase();
     if (code.length == 6) {
       context.read<HouseBloc>().add(JoinHouse(inviteCode: code));
     }
+  }
+}
+
+/// Formatter that converts text input to uppercase
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
   }
 }

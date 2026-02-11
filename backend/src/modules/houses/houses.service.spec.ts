@@ -134,7 +134,7 @@ describe('HousesService', () => {
         .mockResolvedValue({ houseId: null } as any);
       jest.spyOn(prismaService.house, 'findUnique').mockResolvedValue({
         ...mockHouse,
-        members: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
+        members: Array.from({ length: 20 }, (_, i) => ({ id: `${i + 1}` })),
       } as any);
 
       // Act & Assert

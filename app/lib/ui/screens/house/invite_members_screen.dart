@@ -222,7 +222,7 @@ class InviteMembersView extends StatelessWidget {
                 Text(
                   '1. Share this code with your friends\n'
                   '2. They can enter it when joining a house\n'
-                  '3. Maximum 4 members per house',
+                  '3. Maximum 20 members per house',
                   style: TextStyle(
                     color: isDark
                         ? AppColors.textSubDark

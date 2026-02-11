@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
@@ -46,7 +47,7 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
   }
 
   Future<void> _onPreview() async {
-    final code = _codeController.text.trim();
+    final code = _codeController.text.trim().toUpperCase();
     if (code.isEmpty) {
       setState(() => _error = AppLocalizations.of(context)!.enterInviteCode);
       return;
@@ -81,7 +82,9 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
     setState(() => _isLoading = true);
 
     try {
-      final success = await widget.onJoin?.call(_codeController.text.trim());
+      final success = await widget.onJoin?.call(
+        _codeController.text.trim().toUpperCase(),
+      );
       if (mounted) {
         Navigator.of(context).pop();
         if (success == true) {
@@ -201,6 +204,12 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                         focusNode: _codeFocusNode,
                         textAlign: TextAlign.center,
                         textCapitalization: TextCapitalization.characters,
+                        maxLength: 6,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[A-Za-z0-9]'),
+                          ),
+                        ],
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -210,12 +219,13 @@ class _JoinHouseBottomSheetState extends State<JoinHouseBottomSheet> {
                               : AppColors.textMainLight,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'ABCD1234',
+                          hintText: 'ABC123',
                           hintStyle: TextStyle(
                             color: Colors.grey.shade400,
                             letterSpacing: 4,
                           ),
                           border: InputBorder.none,
+                          counterText: '',
                           contentPadding: const EdgeInsets.all(20),
                         ),
                         onChanged: (_) {
