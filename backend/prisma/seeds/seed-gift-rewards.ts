@@ -222,7 +222,7 @@ async function main() {
   for (let i = 0; i < giftRewards.length; i++) {
     const reward = giftRewards[i];
 
-    await prisma.giftReward.upsert({
+    const upserted = await prisma.giftReward.upsert({
       where: { key: reward.key },
       update: {
         category: reward.category,
@@ -241,6 +241,25 @@ async function main() {
         },
       },
     });
+
+    // Update translations on re-seed
+    for (const t of reward.translations) {
+      await prisma.giftRewardTranslation.upsert({
+        where: {
+          rewardId_locale: {
+            rewardId: upserted.id,
+            locale: t.locale,
+          },
+        },
+        update: { name: t.name, description: t.description },
+        create: {
+          rewardId: upserted.id,
+          locale: t.locale,
+          name: t.name,
+          description: t.description,
+        },
+      });
+    }
 
     console.log(`  ✓ ${reward.translations[0].name} (${reward.icon} ${reward.cost} EP)`);
   }

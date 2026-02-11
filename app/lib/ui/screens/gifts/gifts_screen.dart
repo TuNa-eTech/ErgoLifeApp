@@ -9,6 +9,8 @@ import 'package:ergo_life_app/data/models/gift_reward_model.dart';
 import 'package:ergo_life_app/data/models/house_member_model.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/core/navigation/app_router.dart';
+import 'package:ergo_life_app/ui/screens/onboarding/widgets/avatar_helpers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /// Main gift catalog screen.
 class GiftsScreen extends StatelessWidget {
@@ -102,7 +104,11 @@ class GiftsScreen extends StatelessWidget {
             return RefreshIndicator(
               color: AppColors.primary,
               onRefresh: () async {
-                context.read<GiftsBloc>().add(const LoadGiftCatalog());
+                context.read<GiftsBloc>().add(
+                  LoadGiftCatalog(
+                    locale: Localizations.localeOf(context).languageCode,
+                  ),
+                );
               },
               child: _GiftCatalogView(
                 isDark: isDark,
@@ -187,8 +193,11 @@ class GiftsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () =>
-                  context.read<GiftsBloc>().add(const LoadGiftCatalog()),
+              onPressed: () => context.read<GiftsBloc>().add(
+                LoadGiftCatalog(
+                  locale: Localizations.localeOf(context).languageCode,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -614,6 +623,7 @@ class _GiftRewardCard extends StatelessWidget {
       ),
       builder: (sheetContext) {
         HouseMemberModel? selectedMember;
+        bool isSending = false;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -755,6 +765,32 @@ class _GiftRewardCard extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                // Avatar
+                                ClipOval(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CachedNetworkImage(
+                                      imageUrl: getAvatarUrl(
+                                        member.avatarId ?? 1,
+                                      ),
+                                      fit: BoxFit.cover,
+                                      placeholder: (_, _) => Container(
+                                        color: isDark
+                                            ? Colors.grey.shade800
+                                            : Colors.grey.shade200,
+                                      ),
+                                      errorWidget: (_, _, _) => Icon(
+                                        Icons.person,
+                                        size: 16,
+                                        color: isDark
+                                            ? Colors.white54
+                                            : Colors.grey.shade400,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
                                 if (isSelected)
                                   Padding(
                                     padding: const EdgeInsets.only(right: 6),
@@ -831,48 +867,69 @@ class _GiftRewardCard extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     height: 52,
-                    child: ElevatedButton(
-                      onPressed: selectedMember != null
-                          ? () {
-                              bloc.add(
-                                SendGift(
-                                  giftRewardId: reward.id,
-                                  receiverId: selectedMember!.id,
-                                  message: messageController.text.isNotEmpty
-                                      ? messageController.text
-                                      : null,
-                                ),
-                              );
-                              Navigator.of(context).pop();
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: isDark
-                            ? Colors.grey.shade800
-                            : Colors.grey.shade200,
-                        disabledForegroundColor: isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.card_giftcard, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Send Gift · ${reward.cost} EP',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                    child: BlocListener<GiftsBloc, GiftsState>(
+                      listener: (context, listenState) {
+                        if (listenState is GiftSentSuccess ||
+                            listenState is GiftCatalogLoaded) {
+                          Navigator.of(context).pop();
+                        } else if (listenState is GiftsError) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: ElevatedButton(
+                        onPressed: selectedMember != null && !isSending
+                            ? () {
+                                setState(() => isSending = true);
+                                bloc.add(
+                                  SendGift(
+                                    giftRewardId: reward.id,
+                                    receiverId: selectedMember!.id,
+                                    message: messageController.text.isNotEmpty
+                                        ? messageController.text
+                                        : null,
+                                  ),
+                                );
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: isDark
+                              ? Colors.grey.shade800
+                              : Colors.grey.shade200,
+                          disabledForegroundColor: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ],
+                          elevation: 0,
+                        ),
+                        child: isSending
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.card_giftcard, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Send Gift · ${reward.cost} EP',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                   ),

@@ -98,6 +98,7 @@ class GiftRepository {
     required String giftRewardId,
     required String receiverId,
     String? message,
+    String locale = 'vi',
   }) async {
     try {
       final response = await _apiClient.post(
@@ -106,6 +107,7 @@ class GiftRepository {
           'giftRewardId': giftRewardId,
           'receiverId': receiverId,
           if (message != null && message.isNotEmpty) 'message': message,
+          'locale': locale,
         },
       );
       final data = response.data as Map<String, dynamic>;

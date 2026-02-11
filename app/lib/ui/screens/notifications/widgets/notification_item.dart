@@ -39,6 +39,8 @@ class NotificationItem extends StatelessWidget {
         return Icons.check_circle_outline_rounded;
       case NotificationType.redemptionRejected:
         return Icons.cancel_outlined;
+      case NotificationType.giftReceived:
+        return Icons.card_giftcard_rounded;
       case NotificationType.welcome:
         return Icons.waving_hand_rounded;
       case NotificationType.appUpdate:

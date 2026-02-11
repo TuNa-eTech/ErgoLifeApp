@@ -318,7 +318,12 @@ class AppRouter {
         name: 'gifts',
         pageBuilder: (context, state) => MaterialPage(
           child: BlocProvider(
-            create: (_) => sl<GiftsBloc>()..add(const LoadGiftCatalog()),
+            create: (_) => sl<GiftsBloc>()
+              ..add(
+                LoadGiftCatalog(
+                  locale: Localizations.localeOf(context).languageCode,
+                ),
+              ),
             child: const GiftsScreen(),
           ),
         ),

@@ -90,7 +90,9 @@ class HouseMember extends Equatable {
 
     return HouseMember(
       user: UserModel.fromJson(userData),
-      weeklyPoints: json['weeklyPoints'] as int? ?? 0,
+      // monthlyPoints from API maps to weeklyPoints for display
+      weeklyPoints:
+          json['monthlyPoints'] as int? ?? json['weeklyPoints'] as int? ?? 0,
       totalPoints: json['totalPoints'] as int? ?? 0,
       role: json['role'] as String? ?? 'member',
       joinedAt: json['joinedAt'] != null

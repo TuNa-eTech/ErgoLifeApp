@@ -38,6 +38,9 @@ enum NotificationType {
   redemptionApproved,
   redemptionRejected,
 
+  // Gifts
+  giftReceived,
+
   // System
   welcome,
   appUpdate;
@@ -45,10 +48,26 @@ enum NotificationType {
   String toJson() => name;
 
   static NotificationType fromJson(String json) {
+    // Backend sends UPPER_SNAKE_CASE (e.g. GIFT_RECEIVED),
+    // convert to camelCase for matching Dart enum names.
+    final camelCase = _snakeToCamel(json);
     return NotificationType.values.firstWhere(
-      (e) => e.name == json,
+      (e) => e.name == camelCase,
       orElse: () => NotificationType.welcome,
     );
+  }
+
+  /// Converts UPPER_SNAKE_CASE to camelCase.
+  static String _snakeToCamel(String input) {
+    final parts = input.toLowerCase().split('_');
+    if (parts.isEmpty) return input;
+    return parts.first +
+        parts
+            .skip(1)
+            .map(
+              (p) => p.isEmpty ? '' : '${p[0].toUpperCase()}${p.substring(1)}',
+            )
+            .join();
   }
 }
 

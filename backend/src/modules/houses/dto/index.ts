@@ -41,6 +41,12 @@ export class HouseMemberDto {
 
   @ApiPropertyOptional({ example: 2500 })
   walletBalance?: number;
+
+  @ApiPropertyOptional({
+    example: 1200,
+    description: 'Points earned this month from activities',
+  })
+  monthlyPoints?: number;
 }
 
 export class HouseDto {

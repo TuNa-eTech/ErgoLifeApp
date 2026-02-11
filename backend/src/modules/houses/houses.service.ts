@@ -406,13 +406,11 @@ export class HousesService {
     const houseId = user.house.id;
 
     await this.prisma.$transaction(async (tx) => {
-      // Remove user from current house and reset wallet logic if needed
-      // (For now keeping wallet reset logic as per original requirement when leaving a house)
+      // Remove user from current house
       await tx.user.update({
         where: { id: userId },
         data: {
           houseId: null,
-          walletBalance: 0,
         },
       });
 
@@ -489,7 +487,7 @@ export class HousesService {
     };
   }
 
-  private mapToHouseDto(house: {
+  private async mapToHouseDto(house: {
     id: string;
     name: string;
     inviteCode: string;
@@ -502,19 +500,42 @@ export class HousesService {
       avatarId: number | null;
       walletBalance?: number;
     }[];
-  }): HouseDto {
+  }): Promise<HouseDto> {
+    // Calculate monthly points for each member
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const membersWithPoints = await Promise.all(
+      house.members.map(async (m) => {
+        const agg = await this.prisma.activity.aggregate({
+          where: {
+            userId: m.id,
+            completedAt: {
+              gte: monthStart,
+              lte: monthEnd,
+            },
+          },
+          _sum: { pointsEarned: true },
+        });
+
+        return {
+          id: m.id,
+          displayName: m.displayName,
+          avatarId: m.avatarId,
+          walletBalance: m.walletBalance,
+          monthlyPoints: agg._sum.pointsEarned || 0,
+        };
+      }),
+    );
+
     return {
       id: house.id,
       name: house.name,
       inviteCode: house.inviteCode,
       isPersonal: house.isPersonal || false,
       createdBy: house.createdById,
-      members: house.members.map((m) => ({
-        id: m.id,
-        displayName: m.displayName,
-        avatarId: m.avatarId,
-        walletBalance: m.walletBalance,
-      })),
+      members: membersWithPoints,
       memberCount: house.members.length,
       createdAt: house.createdAt,
     };

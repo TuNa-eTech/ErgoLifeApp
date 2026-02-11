@@ -56,16 +56,18 @@ class GiftHistoryLoaded extends GiftsState {
   final int total;
   final bool hasMore;
   final String? filterType;
+  final int currentPage;
 
   const GiftHistoryLoaded({
     required this.gifts,
     required this.total,
     required this.hasMore,
     this.filterType,
+    this.currentPage = 1,
   });
 
   @override
-  List<Object?> get props => [gifts, total, hasMore, filterType];
+  List<Object?> get props => [gifts, total, hasMore, filterType, currentPage];
 }
 
 class GiftsError extends GiftsState {

@@ -99,9 +99,9 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
   }
 
   Widget _buildContent(BuildContext context, HouseModel house, bool isDark) {
-    // Sort members by wallet balance (descending) for leaderboard
+    // Sort members by monthly points (descending) for leaderboard
     final sortedMembers = List<HouseMember>.from(house.members ?? [])
-      ..sort((a, b) => b.user.walletBalance.compareTo(a.user.walletBalance));
+      ..sort((a, b) => b.weeklyPoints.compareTo(a.weeklyPoints));
 
     // Current user is the owner (for now, we can enhance this later)
     // In a real scenario, backend should tell us which member is current user
@@ -386,7 +386,7 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
             ),
           ),
 
-          // Balance
+          // Monthly Points
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -394,7 +394,7 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '${member.user.walletBalance}₫',
+              '${member.weeklyPoints} EP',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -504,8 +504,7 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
     final confirmed = await ModernDialog.showConfirmation(
       context,
       title: 'Leave House?',
-      message:
-          'Your wallet balance will be reset to 0. This action cannot be undone.',
+      message: 'You will be moved back to your personal house. Are you sure?',
       confirmText: 'Leave',
       cancelText: 'Cancel',
       isDestructive: true,

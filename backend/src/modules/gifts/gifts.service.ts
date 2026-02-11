@@ -158,11 +158,12 @@ export class GiftsService {
     }
 
     // 4. Validate gift reward exists
+    const snapshotLocale = dto.locale || 'vi';
     const giftReward = await this.prisma.giftReward.findUnique({
       where: { id: dto.giftRewardId },
       include: {
         translations: {
-          where: { locale: 'vi' },
+          where: { locale: snapshotLocale },
         },
       },
     });
@@ -171,7 +172,7 @@ export class GiftsService {
       throw new NotFoundException('Gift reward not found or inactive');
     }
 
-    // 5. Check balance
+    // 5. Check balance (preliminary — authoritative check inside transaction)
     if (sender.walletBalance < giftReward.cost) {
       throw new BadRequestException(
         `Insufficient balance. Need ${giftReward.cost} EP, have ${sender.walletBalance} EP`,
@@ -182,38 +183,51 @@ export class GiftsService {
     const rewardName =
       giftReward.translations[0]?.name || giftReward.key;
 
-    // 6. Transaction: deduct EP + create gift transaction
-    const previousBalance = sender.walletBalance;
+    // 6. Transaction: re-check balance + deduct EP + create gift
+    const { giftTransaction, previousBalance } =
+      await this.prisma.$transaction(async (tx) => {
+        // Re-read sender balance inside transaction for consistency
+        const freshSender = await tx.user.findUniqueOrThrow({
+          where: { id: userId },
+          select: { walletBalance: true },
+        });
 
-    const transaction = await this.prisma.$transaction(async (tx) => {
-      // Deduct points from sender
-      await tx.user.update({
-        where: { id: userId },
-        data: {
-          walletBalance: { decrement: giftReward.cost },
-        },
+        if (freshSender.walletBalance < giftReward.cost) {
+          throw new BadRequestException(
+            `Insufficient balance. Need ${giftReward.cost} EP, have ${freshSender.walletBalance} EP`,
+          );
+        }
+
+        const prevBalance = freshSender.walletBalance;
+
+        // Deduct points from sender
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            walletBalance: { decrement: giftReward.cost },
+          },
+        });
+
+        // Create gift transaction
+        const giftTx = await tx.giftTransaction.create({
+          data: {
+            senderId: userId,
+            receiverId: dto.receiverId,
+            houseId: sender.houseId,
+            rewardId: giftReward.id,
+            rewardName,
+            rewardIcon: giftReward.icon,
+            pointsSpent: giftReward.cost,
+            message: dto.message || null,
+          },
+          include: {
+            sender: { select: { displayName: true } },
+            receiver: { select: { displayName: true } },
+          },
+        });
+
+        return { giftTransaction: giftTx, previousBalance: prevBalance };
       });
-
-      // Create gift transaction
-      const giftTransaction = await tx.giftTransaction.create({
-        data: {
-          senderId: userId,
-          receiverId: dto.receiverId,
-          houseId: sender.houseId,
-          rewardId: giftReward.id,
-          rewardName,
-          rewardIcon: giftReward.icon,
-          pointsSpent: giftReward.cost,
-          message: dto.message || null,
-        },
-        include: {
-          sender: { select: { displayName: true } },
-          receiver: { select: { displayName: true } },
-        },
-      });
-
-      return giftTransaction;
-    });
 
     // 7. Send push notification to receiver (non-blocking)
     this.sendGiftNotification(
@@ -234,16 +248,16 @@ export class GiftsService {
 
     return {
       transaction: {
-        id: transaction.id,
-        senderId: transaction.senderId,
-        senderName: transaction.sender.displayName,
-        receiverId: transaction.receiverId,
-        receiverName: transaction.receiver.displayName,
-        rewardName: transaction.rewardName,
-        rewardIcon: transaction.rewardIcon,
-        pointsSpent: transaction.pointsSpent,
-        message: transaction.message,
-        createdAt: transaction.createdAt,
+        id: giftTransaction.id,
+        senderId: giftTransaction.senderId,
+        senderName: giftTransaction.sender.displayName,
+        receiverId: giftTransaction.receiverId,
+        receiverName: giftTransaction.receiver.displayName,
+        rewardName: giftTransaction.rewardName,
+        rewardIcon: giftTransaction.rewardIcon,
+        pointsSpent: giftTransaction.pointsSpent,
+        message: giftTransaction.message,
+        createdAt: giftTransaction.createdAt,
       },
       wallet: {
         previousBalance,

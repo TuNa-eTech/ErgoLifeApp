@@ -40,6 +40,14 @@ export class SendGiftDto {
   @IsString()
   @MaxLength(100)
   message?: string;
+
+  @ApiPropertyOptional({
+    example: 'vi',
+    description: 'Locale for the reward name snapshot (default: vi)',
+  })
+  @IsOptional()
+  @IsString()
+  locale?: string;
 }
 
 export class GetGiftHistoryQueryDto {

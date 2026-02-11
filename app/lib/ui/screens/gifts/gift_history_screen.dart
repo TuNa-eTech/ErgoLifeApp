@@ -18,19 +18,38 @@ class GiftHistoryScreen extends StatefulWidget {
 class _GiftHistoryScreenState extends State<GiftHistoryScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    // Load more when within 200px of the bottom.
+    if (currentScroll >= maxScroll - 200) {
+      final state = context.read<GiftsBloc>().state;
+      if (state is GiftHistoryLoaded && state.hasMore) {
+        context.read<GiftsBloc>().add(
+          LoadGiftHistory(type: state.filterType, page: state.currentPage + 1),
+        );
+      }
+    }
   }
 
   void _onTabChanged() {
@@ -113,12 +132,27 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
               },
               child: AnimationLimiter(
                 child: ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 16,
                   ),
-                  itemCount: state.gifts.length,
+                  itemCount: state.gifts.length + (state.hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
+                    // Loading indicator at the bottom.
+                    if (index >= state.gifts.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      );
+                    }
+
                     return AnimationConfiguration.staggeredList(
                       position: index,
                       duration: const Duration(milliseconds: 375),

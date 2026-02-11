@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_state.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_bloc.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_event.dart';
 import 'package:ergo_life_app/blocs/leaderboard/leaderboard_state.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
+import 'package:ergo_life_app/core/navigation/app_router.dart';
 import 'package:ergo_life_app/ui/common/widgets/skeleton_loader.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/join_house_banner.dart';
 import 'package:ergo_life_app/ui/screens/leaderboard/widgets/leaderboard_error_view.dart';
@@ -126,6 +128,33 @@ class _LeaderboardViewState extends State<LeaderboardView>
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.leaderboard),
         centerTitle: true,
+        actions: [
+          BlocBuilder<HouseBloc, HouseState>(
+            builder: (context, houseState) {
+              if (houseState is HouseLoaded && !houseState.house.isPersonal) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.card_giftcard,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    tooltip: 'Gift Shop',
+                    onPressed: () => context.push(AppRouter.gifts),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(88),
           child: Column(

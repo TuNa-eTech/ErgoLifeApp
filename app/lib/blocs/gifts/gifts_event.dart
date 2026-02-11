@@ -9,7 +9,13 @@ abstract class GiftsEvent extends Equatable {
 
 /// Load the gift catalog (rewards + balance + house members).
 class LoadGiftCatalog extends GiftsEvent {
-  const LoadGiftCatalog();
+  /// The locale code for translations (e.g. 'en', 'vi').
+  final String locale;
+
+  const LoadGiftCatalog({this.locale = 'vi'});
+
+  @override
+  List<Object?> get props => [locale];
 }
 
 /// Send a gift to a house member.
