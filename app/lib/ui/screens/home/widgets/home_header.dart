@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
+import 'package:ergo_life_app/ui/widgets/notification_badge.dart';
 
 /// Header widget for home screen
 /// Contains avatar, notification button, date and greeting
@@ -101,16 +102,18 @@ class HomeHeader extends StatelessWidget {
   }
 
   Widget _buildCompactNotificationButton() {
-    return IconButton(
-      onPressed: onNotificationTap,
-      icon: Icon(
-        Icons.notifications_none_rounded, // Cleaner icon
-        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-      ),
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
-      style: IconButton.styleFrom(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return NotificationBadge(
+      child: IconButton(
+        onPressed: onNotificationTap,
+        icon: Icon(
+          Icons.notifications_none_rounded,
+          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+        ),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        style: IconButton.styleFrom(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
       ),
     );
   }

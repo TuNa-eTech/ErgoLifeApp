@@ -62,13 +62,14 @@ class GiftRepository {
         '/gifts/catalog',
         queryParameters: {'locale': locale},
       );
-      final data = response.data as Map<String, dynamic>;
+      final data =
+          _apiClient.unwrapResponse(response.data) as Map<String, dynamic>;
 
-      final rewards = (data['rewards'] as List<dynamic>)
+      final rewards = (data['rewards'] as List<dynamic>? ?? <dynamic>[])
           .map((json) => GiftRewardModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      final members = (data['houseMembers'] as List<dynamic>)
+      final members = (data['houseMembers'] as List<dynamic>? ?? <dynamic>[])
           .map(
             (json) => HouseMemberModel.fromJson(json as Map<String, dynamic>),
           )
@@ -110,7 +111,8 @@ class GiftRepository {
           'locale': locale,
         },
       );
-      final data = response.data as Map<String, dynamic>;
+      final data =
+          _apiClient.unwrapResponse(response.data) as Map<String, dynamic>;
       final transactionJson = data['transaction'] as Map<String, dynamic>;
       final walletJson = data['wallet'] as Map<String, dynamic>;
 
@@ -148,7 +150,8 @@ class GiftRepository {
           'limit': limit,
         },
       );
-      final data = response.data as Map<String, dynamic>;
+      final data =
+          _apiClient.unwrapResponse(response.data) as Map<String, dynamic>;
 
       final gifts = (data['gifts'] as List<dynamic>)
           .map(
