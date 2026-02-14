@@ -4,7 +4,6 @@ import {
   Post,
   Patch,
   Delete,
-  Body,
   Param,
   Query,
   UseGuards,
@@ -13,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto, GetNotificationsDto, NotificationResponseDto } from './dto/notification.dto';
+import { GetNotificationsDto } from './dto/notification.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '@prisma/client';
+import { JwtPayload } from '../auth/auth.service';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
@@ -29,17 +28,17 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Get user notifications with pagination' })
   @ApiResponse({ status: 200, description: 'Returns paginated notifications' })
   async getNotifications(
-    @CurrentUser() user: User,
+    @CurrentUser() user: JwtPayload,
     @Query() dto: GetNotificationsDto,
   ) {
-    return this.notificationsService.getUserNotifications(user.id, dto);
+    return this.notificationsService.getUserNotifications(user.sub, dto);
   }
 
   @Get('unread-count')
   @ApiOperation({ summary: 'Get unread notification count' })
   @ApiResponse({ status: 200, description: 'Returns unread count' })
-  async getUnreadCount(@CurrentUser() user: User) {
-    const count = await this.notificationsService.getUnreadCount(user.id);
+  async getUnreadCount(@CurrentUser() user: JwtPayload) {
+    const count = await this.notificationsService.getUnreadCount(user.sub);
     return { count };
   }
 
@@ -47,18 +46,18 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiResponse({ status: 200, description: 'Notification marked as read' })
   async markAsRead(
-    @CurrentUser() user: User,
+    @CurrentUser() user: JwtPayload,
     @Param('id') notificationId: string,
   ) {
-    return this.notificationsService.markAsRead(notificationId, user.id);
+    return this.notificationsService.markAsRead(notificationId, user.sub);
   }
 
   @Patch('read-all')
   @ApiOperation({ summary: 'Mark all notifications as read' })
   @ApiResponse({ status: 200, description: 'All notifications marked as read' })
   @HttpCode(HttpStatus.OK)
-  async markAllAsRead(@CurrentUser() user: User) {
-    return this.notificationsService.markAllAsRead(user.id);
+  async markAllAsRead(@CurrentUser() user: JwtPayload) {
+    return this.notificationsService.markAllAsRead(user.sub);
   }
 
   @Delete(':id')
@@ -66,19 +65,19 @@ export class NotificationsController {
   @ApiResponse({ status: 204, description: 'Notification deleted' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteNotification(
-    @CurrentUser() user: User,
+    @CurrentUser() user: JwtPayload,
     @Param('id') notificationId: string,
   ) {
-    await this.notificationsService.deleteNotification(notificationId, user.id);
+    await this.notificationsService.deleteNotification(notificationId, user.sub);
   }
 
   // Admin endpoint for testing
   @Post('test')
   @ApiOperation({ summary: 'Create a test notification (for development)' })
   @ApiResponse({ status: 201, description: 'Test notification created' })
-  async createTestNotification(@CurrentUser() user: User) {
+  async createTestNotification(@CurrentUser() user: JwtPayload) {
     return this.notificationsService.createNotification({
-      userId: user.id,
+      userId: user.sub,
       type: 'WELCOME',
       title: '🎉 Welcome to ErgoLife!',
       body: 'Start your health journey today and build healthy habits.',
