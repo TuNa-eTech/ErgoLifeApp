@@ -265,11 +265,6 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     RefreshUnreadCount event,
     Emitter<NotificationState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! NotificationLoaded) {
-      return;
-    }
-
     final result = await _repository.getUnreadCount();
 
     result.fold(
@@ -280,7 +275,21 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         );
       },
       (count) {
-        emit(currentState.copyWith(unreadCount: count));
+        final currentState = state;
+        if (currentState is NotificationLoaded) {
+          emit(currentState.copyWith(unreadCount: count));
+        } else {
+          // Emit a lightweight loaded state with just the
+          // count so the badge can render immediately.
+          emit(
+            NotificationLoaded(
+              notifications: const [],
+              unreadCount: count,
+              hasMore: true,
+              currentPage: 0,
+            ),
+          );
+        }
         AppLogger.debug('Refreshed unread count: $count', 'NotificationBloc');
       },
     );

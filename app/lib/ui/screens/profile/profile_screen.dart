@@ -484,6 +484,14 @@ class _ProfileViewState extends State<ProfileView> {
             isDark,
           ),
           _buildDivider(isDark),
+          _buildSettingsTile(
+            context,
+            'Gift Shop',
+            Icons.card_giftcard_rounded,
+            () => context.push(AppRouter.gifts),
+            isDark,
+          ),
+          _buildDivider(isDark),
           BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
               final currentLanguage = locale.languageCode == 'vi'

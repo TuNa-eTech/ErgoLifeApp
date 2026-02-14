@@ -316,17 +316,21 @@ class AppRouter {
       GoRoute(
         path: gifts,
         name: 'gifts',
-        pageBuilder: (context, state) => MaterialPage(
-          child: BlocProvider(
-            create: (_) => sl<GiftsBloc>()
-              ..add(
-                LoadGiftCatalog(
-                  locale: Localizations.localeOf(context).languageCode,
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final preSelectedMemberId = extra?['preSelectedMemberId'] as String?;
+          return MaterialPage(
+            child: BlocProvider(
+              create: (_) => sl<GiftsBloc>()
+                ..add(
+                  LoadGiftCatalog(
+                    locale: Localizations.localeOf(context).languageCode,
+                  ),
                 ),
-              ),
-            child: const GiftsScreen(),
-          ),
-        ),
+              child: GiftsScreen(preSelectedMemberId: preSelectedMemberId),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: giftHistory,

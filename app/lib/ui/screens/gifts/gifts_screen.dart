@@ -14,7 +14,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 /// Main gift catalog screen.
 class GiftsScreen extends StatelessWidget {
-  const GiftsScreen({super.key});
+  /// Optional member ID to pre-select when sending a gift.
+  final String? preSelectedMemberId;
+
+  const GiftsScreen({super.key, this.preSelectedMemberId});
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +118,7 @@ class GiftsScreen extends StatelessWidget {
                 rewards: state.rewards,
                 userBalance: state.userBalance,
                 houseMembers: state.houseMembers,
+                preSelectedMemberId: preSelectedMemberId,
               ),
             );
           }
@@ -224,12 +228,14 @@ class _GiftCatalogView extends StatelessWidget {
   final List<GiftRewardModel> rewards;
   final int userBalance;
   final List<HouseMemberModel> houseMembers;
+  final String? preSelectedMemberId;
 
   const _GiftCatalogView({
     required this.isDark,
     required this.rewards,
     required this.userBalance,
     required this.houseMembers,
+    this.preSelectedMemberId,
   });
 
   @override
@@ -259,6 +265,7 @@ class _GiftCatalogView extends StatelessWidget {
                   rewards: entry.value,
                   userBalance: userBalance,
                   houseMembers: houseMembers,
+                  preSelectedMemberId: preSelectedMemberId,
                 ),
                 const SizedBox(height: 16),
               ],
@@ -390,6 +397,7 @@ class _CategorySection extends StatelessWidget {
   final List<GiftRewardModel> rewards;
   final int userBalance;
   final List<HouseMemberModel> houseMembers;
+  final String? preSelectedMemberId;
 
   const _CategorySection({
     required this.isDark,
@@ -397,6 +405,7 @@ class _CategorySection extends StatelessWidget {
     required this.rewards,
     required this.userBalance,
     required this.houseMembers,
+    this.preSelectedMemberId,
   });
 
   (String label, String emoji) get _categoryInfo {
@@ -459,6 +468,7 @@ class _CategorySection extends StatelessWidget {
               reward: reward,
               canAfford: userBalance >= reward.cost,
               houseMembers: houseMembers,
+              preSelectedMemberId: preSelectedMemberId,
             ),
           ),
         ),
@@ -473,12 +483,14 @@ class _GiftRewardCard extends StatelessWidget {
   final GiftRewardModel reward;
   final bool canAfford;
   final List<HouseMemberModel> houseMembers;
+  final String? preSelectedMemberId;
 
   const _GiftRewardCard({
     required this.isDark,
     required this.reward,
     required this.canAfford,
     required this.houseMembers,
+    this.preSelectedMemberId,
   });
 
   @override
@@ -614,6 +626,19 @@ class _GiftRewardCard extends StatelessWidget {
     final messageController = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Pre-select member by ID if provided,
+    // otherwise default to first member.
+    HouseMemberModel? selectedMember;
+    if (preSelectedMemberId != null && houseMembers.isNotEmpty) {
+      selectedMember = houseMembers.cast<HouseMemberModel?>().firstWhere(
+        (m) => m?.id == preSelectedMemberId,
+        orElse: () => houseMembers.first,
+      );
+    } else if (houseMembers.isNotEmpty) {
+      selectedMember = houseMembers.first;
+    }
+    bool isSending = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -622,9 +647,6 @@ class _GiftRewardCard extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
-        HouseMemberModel? selectedMember;
-        bool isSending = false;
-
         return StatefulBuilder(
           builder: (context, setState) {
             return Padding(
@@ -868,6 +890,7 @@ class _GiftRewardCard extends StatelessWidget {
                     width: double.infinity,
                     height: 52,
                     child: BlocListener<GiftsBloc, GiftsState>(
+                      bloc: bloc,
                       listener: (context, listenState) {
                         if (listenState is GiftSentSuccess ||
                             listenState is GiftCatalogLoaded) {

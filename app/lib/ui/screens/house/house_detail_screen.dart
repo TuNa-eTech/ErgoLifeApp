@@ -318,91 +318,109 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: isCurrentUser
-            ? AppColors.secondary.withValues(alpha: 0.1)
-            : (isDark ? AppColors.surfaceDark : Colors.white),
-        borderRadius: BorderRadius.circular(12),
-        border: isCurrentUser
-            ? Border.all(
-                color: AppColors.secondary.withValues(alpha: 0.4),
-                width: 2,
-              )
-            : Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : Colors.grey.shade200,
-              ),
-      ),
-      child: Row(
-        children: [
-          // Rank
-          SizedBox(width: 36, child: rankWidget),
-          const SizedBox(width: 12),
+    return GestureDetector(
+      onTap: isCurrentUser
+          ? null
+          : () => context.push(
+              AppRouter.gifts,
+              extra: {'preSelectedMemberId': member.user.id},
+            ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: isCurrentUser
+              ? AppColors.secondary.withValues(alpha: 0.1)
+              : (isDark ? AppColors.surfaceDark : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: isCurrentUser
+              ? Border.all(
+                  color: AppColors.secondary.withValues(alpha: 0.4),
+                  width: 2,
+                )
+              : Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.grey.shade200,
+                ),
+        ),
+        child: Row(
+          children: [
+            // Rank
+            SizedBox(width: 36, child: rankWidget),
+            const SizedBox(width: 12),
 
-          // Avatar
-          _buildAvatar(member.user, isOwner),
-          const SizedBox(width: 12),
+            // Avatar
+            _buildAvatar(member.user, isOwner),
+            const SizedBox(width: 12),
 
-          // Name
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (isOwner) ...[
-                      const Text('👑', style: TextStyle(fontSize: 14)),
-                      const SizedBox(width: 4),
-                    ],
-                    Expanded(
-                      child: Text(
-                        member.user.name ?? 'Anonymous',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: isDark
-                              ? AppColors.textMainDark
-                              : AppColors.textMainLight,
+            // Name
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (isOwner) ...[
+                        const Text('👑', style: TextStyle(fontSize: 14)),
+                        const SizedBox(width: 4),
+                      ],
+                      Expanded(
+                        child: Text(
+                          member.user.name ?? 'Anonymous',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: isDark
+                                ? AppColors.textMainDark
+                                : AppColors.textMainLight,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  if (isCurrentUser)
+                    Text(
+                      'You',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
-                if (isCurrentUser)
-                  Text(
-                    'You',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Monthly Points
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${member.weeklyPoints} EP',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppColors.primary,
+                ],
               ),
             ),
-          ),
-        ],
+
+            // Monthly Points
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${member.weeklyPoints} EP',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+
+            // Gift icon for non-current members
+            if (!isCurrentUser) ...[
+              const SizedBox(width: 8),
+              Icon(
+                Icons.card_giftcard_rounded,
+                size: 18,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -466,25 +484,37 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
 
-            // Leave button (Hidden if Personal House)
-            if (!house.isPersonal)
+            // Gift Shop button (only for shared houses)
+            if (!house.isPersonal) ...[
+              const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _showLeaveConfirmation(context),
-                  icon: Icon(
-                    Icons.logout_rounded,
-                    color: isDark ? Colors.red.shade300 : Colors.red,
-                  ),
-                  label: Text(
-                    'Leave',
-                    style: TextStyle(
-                      color: isDark ? Colors.red.shade300 : Colors.red,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push(AppRouter.gifts),
+                  icon: const Icon(Icons.card_giftcard_rounded),
+                  label: const Text('Gift Shop'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                ),
+              ),
+            ],
+
+            // Leave button (Hidden if Personal House)
+            if (!house.isPersonal) ...[
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: () => _showLeaveConfirmation(context),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.zero,
                     side: BorderSide(
                       color: isDark ? Colors.red.shade300 : Colors.red,
                     ),
@@ -492,8 +522,14 @@ class _HouseDetailScreenState extends State<HouseDetailScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  child: Icon(
+                    Icons.logout_rounded,
+                    color: isDark ? Colors.red.shade300 : Colors.red,
+                    size: 20,
+                  ),
                 ),
               ),
+            ],
           ],
         ),
       ),
