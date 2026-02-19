@@ -40,25 +40,43 @@ class SessionActive extends SessionState {
   final int targetSeconds;
   final bool isPaused;
 
+  /// Current heart rate from HealthKit in bpm, or null.
+  final double? currentHeartRate;
+
+  /// Real calories burned from HealthKit, or null.
+  final double? realCaloriesBurned;
+
+  /// User's body weight in kg (from HealthKit or default).
+  final double bodyWeight;
+
   const SessionActive({
     required this.task,
     required this.elapsedSeconds,
     required this.targetSeconds,
     this.isPaused = false,
+    this.currentHeartRate,
+    this.realCaloriesBurned,
+    this.bodyWeight = 65.0,
   });
+
+  /// Whether real health data from HealthKit is available.
+  bool get hasHealthData =>
+      currentHeartRate != null || realCaloriesBurned != null;
 
   /// Get formatted elapsed time as MM:SS
   String get formattedTime {
     final minutes = elapsedSeconds ~/ 60;
     final seconds = elapsedSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 
   /// Get formatted target time as MM:SS
   String get formattedTarget {
     final minutes = targetSeconds ~/ 60;
     final seconds = targetSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 
   /// Get progress percentage (0.0 to 1.0+)
@@ -67,19 +85,46 @@ class SessionActive extends SessionState {
     return elapsedSeconds / targetSeconds;
   }
 
-  /// Estimate calories burned (simplified formula)
-  /// Calories = (METs × 3.5 × bodyWeight in kg) / 200 × minutes
-  /// Using average 70kg body weight for estimation
+  /// Calories burned — uses real HealthKit data when
+  /// available, otherwise falls back to METs estimation.
+  ///
+  /// Formula: `(METs × 3.5 × bodyWeight) / 200 × minutes`
   int get estimatedCalories {
-    const avgBodyWeight = 65.0;
+    if (realCaloriesBurned != null) {
+      return realCaloriesBurned!.round();
+    }
     final minutes = elapsedSeconds / 60;
-    return ((task.metsValue * 3.5 * avgBodyWeight) / 200 * minutes).round();
+    return ((task.metsValue * 3.5 * bodyWeight) / 200 * minutes).round();
   }
 
-  /// Estimate points earned so far
+  /// EP multiplier based on current heart rate zone.
+  ///
+  /// Rewards genuine physical effort:
+  /// - Rest zone (<80 bpm): 0.8x
+  /// - Light (80–99 bpm): 1.0x
+  /// - Fat Burn (100–129 bpm): 1.2x
+  /// - Cardio (130+ bpm): 1.5x
+  double get heartRateMultiplier {
+    if (currentHeartRate == null) return 1.0;
+    if (currentHeartRate! < 80) return 0.8;
+    if (currentHeartRate! < 100) return 1.0;
+    if (currentHeartRate! < 130) return 1.2;
+    return 1.5;
+  }
+
+  /// HR zone label for display.
+  String get heartRateZone {
+    if (currentHeartRate == null) return '';
+    if (currentHeartRate! < 80) return 'REST';
+    if (currentHeartRate! < 100) return 'LIGHT';
+    if (currentHeartRate! < 130) return 'FAT BURN';
+    return 'CARDIO';
+  }
+
+  /// Estimate points earned so far, with HR bonus.
   int get estimatedPoints {
     final minutes = elapsedSeconds / 60;
-    return (minutes * task.metsValue * 10).round();
+    return (minutes * task.metsValue * 10 * heartRateMultiplier).round();
   }
 
   SessionActive copyWith({
@@ -87,17 +132,31 @@ class SessionActive extends SessionState {
     int? elapsedSeconds,
     int? targetSeconds,
     bool? isPaused,
+    double? currentHeartRate,
+    double? realCaloriesBurned,
+    double? bodyWeight,
   }) {
     return SessionActive(
       task: task ?? this.task,
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
       targetSeconds: targetSeconds ?? this.targetSeconds,
       isPaused: isPaused ?? this.isPaused,
+      currentHeartRate: currentHeartRate ?? this.currentHeartRate,
+      realCaloriesBurned: realCaloriesBurned ?? this.realCaloriesBurned,
+      bodyWeight: bodyWeight ?? this.bodyWeight,
     );
   }
 
   @override
-  List<Object?> get props => [task, elapsedSeconds, targetSeconds, isPaused];
+  List<Object?> get props => [
+    task,
+    elapsedSeconds,
+    targetSeconds,
+    isPaused,
+    currentHeartRate,
+    realCaloriesBurned,
+    bodyWeight,
+  ];
 }
 
 /// Session is being completed (API call in progress)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <uses-permission name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission name="android.permission.health.READ_STEPS" />
+    <uses-permission name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission name="android.permission.health.READ_WEIGHT" />
+    <uses-permission name="android.permission.health.WRITE_EXERCISE" />
+</permissions>

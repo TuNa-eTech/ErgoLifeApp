@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:ergo_life_app/data/models/health_data_model.dart';
 import 'package:ergo_life_app/data/models/user_model.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/data/models/house_model.dart';
@@ -29,11 +30,15 @@ class HomeLoaded extends HomeState {
   final HouseModel? house;
   final List<TaskModel> quickTasks;
 
+  /// Today's health summary from HealthKit, if connected.
+  final DailyHealthSummary? healthSummary;
+
   const HomeLoaded({
     required this.user,
     required this.stats,
     this.house,
     required this.quickTasks,
+    this.healthSummary,
   });
 
   /// Get greeting based on time of day
@@ -61,17 +66,19 @@ class HomeLoaded extends HomeState {
     WeeklyStats? stats,
     HouseModel? house,
     List<TaskModel>? quickTasks,
+    DailyHealthSummary? healthSummary,
   }) {
     return HomeLoaded(
       user: user ?? this.user,
       stats: stats ?? this.stats,
       house: house ?? this.house,
       quickTasks: quickTasks ?? this.quickTasks,
+      healthSummary: healthSummary ?? this.healthSummary,
     );
   }
 
   @override
-  List<Object?> get props => [user, stats, house, quickTasks];
+  List<Object?> get props => [user, stats, house, quickTasks, healthSummary];
 }
 
 /// Error state

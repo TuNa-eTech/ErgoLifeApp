@@ -1,32 +1,48 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:health/health.dart';
 import 'package:ergo_life_app/blocs/session/session_event.dart';
 import 'package:ergo_life_app/blocs/session/session_state.dart';
 import 'package:ergo_life_app/core/services/live_activity_service.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
+import 'package:ergo_life_app/data/repositories/health_repository.dart';
 
 /// BLoC for managing active exercise sessions with timer.
 ///
 /// Uses wall-clock `DateTime` instead of tick-counting so the
 /// elapsed time stays accurate even when the app is backgrounded.
+/// Polls HealthKit every 10s for heart rate and calories when
+/// a [HealthRepository] is provided.
 class SessionBloc extends Bloc<SessionEvent, SessionState> {
   final ActivityRepository _activityRepository;
   final LiveActivityService _liveActivityService;
+  final HealthRepository? _healthRepository;
 
   Timer? _timer;
 
-  /// Wall-clock time when the current running segment started.
+  /// Wall-clock time when the session was first started.
+  /// Used as the `start` parameter for health queries.
+  DateTime? _sessionStartTime;
+
+  /// Wall-clock time when the current running segment
+  /// started.
   DateTime? _segmentStartTime;
 
   /// Accumulated seconds from previous (paused) segments.
   int _accumulatedSeconds = 0;
 
+  /// Interval in seconds between health data polls.
+  static const _healthPollInterval = 10;
+
   SessionBloc({
     required ActivityRepository activityRepository,
     required LiveActivityService liveActivityService,
+    HealthRepository? healthRepository,
   }) : _activityRepository = activityRepository,
        _liveActivityService = liveActivityService,
+       _healthRepository = healthRepository,
        super(const SessionInactive()) {
     on<PrepareSession>(_onPrepareSession);
     on<StartSession>(_onStartSession);
@@ -38,9 +54,12 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     on<RefreshTimer>(_onRefreshTimer);
   }
 
-  /// Calculate the real elapsed seconds using wall-clock time.
+  /// Calculate the real elapsed seconds using wall-clock
+  /// time.
   int get _currentElapsedSeconds {
-    if (_segmentStartTime == null) return _accumulatedSeconds;
+    if (_segmentStartTime == null) {
+      return _accumulatedSeconds;
+    }
     final segmentSeconds = DateTime.now()
         .difference(_segmentStartTime!)
         .inSeconds;
@@ -76,7 +95,8 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     );
 
     _accumulatedSeconds = 0;
-    _segmentStartTime = DateTime.now();
+    _sessionStartTime = DateTime.now();
+    _segmentStartTime = _sessionStartTime;
     _startTimer();
 
     // Start iOS Live Activity
@@ -96,19 +116,81 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   }
 
   /// Timer tick — recalculate elapsed from wall-clock time.
-  void _onTimerTicked(TimerTicked event, Emitter<SessionState> emit) {
+  ///
+  /// Every [_healthPollInterval] seconds, also polls
+  /// HealthKit for heart rate and calories.
+  Future<void> _onTimerTicked(
+    TimerTicked event,
+    Emitter<SessionState> emit,
+  ) async {
     final currentState = state;
-    if (currentState is SessionActive && !currentState.isPaused) {
-      final elapsed = _currentElapsedSeconds;
-      emit(currentState.copyWith(elapsedSeconds: elapsed));
+    if (currentState is! SessionActive || currentState.isPaused) {
+      return;
+    }
 
-      // Update Live Activity every 5 seconds to reduce overhead
-      if (elapsed % 5 == 0) {
-        _liveActivityService.updateSessionActivity(
-          elapsedSeconds: elapsed,
-          isPaused: false,
+    final elapsed = _currentElapsedSeconds;
+    var newState = currentState.copyWith(elapsedSeconds: elapsed);
+
+    // Poll health data every N seconds
+    if (_healthRepository != null &&
+        _sessionStartTime != null &&
+        elapsed > 0 &&
+        elapsed % _healthPollInterval == 0) {
+      newState = await _pollHealthData(newState);
+    }
+
+    emit(newState);
+
+    // Update Live Activity every 5 seconds
+    if (elapsed % 5 == 0) {
+      _liveActivityService.updateSessionActivity(
+        elapsedSeconds: elapsed,
+        isPaused: false,
+      );
+    }
+  }
+
+  /// Polls HealthKit for latest HR and active calories.
+  ///
+  /// Returns an updated [SessionActive] state with health
+  /// data. Never throws — returns original state on failure.
+  Future<SessionActive> _pollHealthData(SessionActive currentState) async {
+    if (_healthRepository == null || _sessionStartTime == null) {
+      return currentState;
+    }
+
+    try {
+      final now = DateTime.now();
+
+      // Fetch HR (last 30s window for freshness)
+      final hrResult = await _healthRepository.getLatestHeartRate(
+        since: now.subtract(const Duration(seconds: 30)),
+      );
+
+      // Fetch cumulative calories since session start
+      final calResult = await _healthRepository.getSessionCalories(
+        start: _sessionStartTime!,
+        end: now,
+      );
+
+      final hr = hrResult.fold((_) => null, (v) => v);
+      final cal = calResult.fold((_) => null, (v) => v);
+
+      if (hr != null || cal != null) {
+        AppLogger.info(
+          'Health poll: HR=${hr?.toStringAsFixed(0)} bpm, '
+              'cal=${cal?.toStringAsFixed(1)} kcal',
+          'SessionBloc',
         );
       }
+
+      return currentState.copyWith(
+        currentHeartRate: hr ?? currentState.currentHeartRate,
+        realCaloriesBurned: cal ?? currentState.realCaloriesBurned,
+      );
+    } on Exception catch (e) {
+      AppLogger.error('Health poll failed: $e', 'SessionBloc');
+      return currentState;
     }
   }
 
@@ -163,7 +245,10 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     }
   }
 
-  /// Complete the session and submit to backend
+  /// Complete the session and submit to backend.
+  ///
+  /// Also aggregates final health data and writes a
+  /// workout to HealthKit when available.
   Future<void> _onCompleteSession(
     CompleteSession event,
     Emitter<SessionState> emit,
@@ -177,6 +262,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     AppLogger.info('Completing session...', 'SessionBloc');
 
     final totalSeconds = _currentElapsedSeconds;
+    final sessionStart = _sessionStartTime;
 
     _timer?.cancel();
     _timer = null;
@@ -189,11 +275,23 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
       SessionCompleting(task: currentState.task, totalSeconds: totalSeconds),
     );
 
+    // Aggregate final health data
+    await _writeWorkoutToHealthKit(
+      sessionStart: sessionStart,
+      totalSeconds: totalSeconds,
+      currentState: currentState,
+    );
+
     final result = await _activityRepository.createActivity(
       taskName: currentState.task.exerciseName,
       durationSeconds: totalSeconds,
       metsValue: currentState.task.metsValue,
       magicWipePercentage: event.magicWipePercentage,
+      avgHeartRate: currentState.currentHeartRate,
+      realCaloriesBurned: currentState.realCaloriesBurned?.toDouble(),
+      healthDataSource: currentState.hasHealthData
+          ? (Platform.isIOS ? 'healthkit' : 'health_connect')
+          : null,
     );
 
     result.fold(
@@ -228,6 +326,46 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
         );
       },
     );
+
+    _sessionStartTime = null;
+  }
+
+  /// Writes the completed session as a workout to HealthKit.
+  Future<void> _writeWorkoutToHealthKit({
+    required DateTime? sessionStart,
+    required int totalSeconds,
+    required SessionActive currentState,
+  }) async {
+    if (_healthRepository == null || sessionStart == null) {
+      return;
+    }
+
+    try {
+      final sessionEnd = sessionStart.add(Duration(seconds: totalSeconds));
+      final calories =
+          currentState.realCaloriesBurned?.toDouble() ??
+          currentState.estimatedCalories.toDouble();
+
+      final result = await _healthRepository.saveWorkout(
+        activityType: HealthWorkoutActivityType.FUNCTIONAL_STRENGTH_TRAINING,
+        start: sessionStart,
+        end: sessionEnd,
+        totalCalories: calories,
+      );
+
+      result.fold(
+        (failure) => AppLogger.warning(
+          'Could not write workout: $failure',
+          'SessionBloc',
+        ),
+        (success) => AppLogger.success(
+          'Workout written to HealthKit: $success',
+          'SessionBloc',
+        ),
+      );
+    } on Exception catch (e) {
+      AppLogger.error('Failed to write workout: $e', 'SessionBloc');
+    }
   }
 
   /// Cancel session without saving
@@ -237,6 +375,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     _timer?.cancel();
     _timer = null;
     _segmentStartTime = null;
+    _sessionStartTime = null;
     _accumulatedSeconds = 0;
 
     // End Live Activity on cancel
@@ -246,7 +385,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   }
 
   /// Start the internal timer — used for UI updates only.
-  /// The actual elapsed time is always calculated from wall-clock.
+  /// Actual elapsed time is always from wall-clock.
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(

@@ -47,12 +47,29 @@ class CompactSessionStat extends StatelessWidget {
   }
 }
 
-/// Compact stats row for active session
+/// Compact stats row for active session.
+///
+/// Displays duration, calories, and points during a
+/// session. When [currentHeartRate] is provided, a heart
+/// rate indicator is shown as a fourth stat.
 class CompactSessionStats extends StatelessWidget {
   final int durationMinutes;
   final int calories;
   final int points;
   final bool isDark;
+
+  /// Current heart rate in bpm from HealthKit, or null.
+  final double? currentHeartRate;
+
+  /// HR zone label (e.g. "FAT BURN", "CARDIO").
+  final String heartRateZone;
+
+  /// EP multiplier from HR zone (e.g. 1.2, 1.5).
+  final double heartRateMultiplier;
+
+  /// Whether calories come from HealthKit (true) or
+  /// from the METs estimation (false).
+  final bool hasHealthData;
 
   const CompactSessionStats({
     super.key,
@@ -60,7 +77,22 @@ class CompactSessionStats extends StatelessWidget {
     required this.calories,
     required this.points,
     required this.isDark,
+    this.currentHeartRate,
+    this.heartRateZone = '',
+    this.heartRateMultiplier = 1.0,
+    this.hasHealthData = false,
   });
+
+  Widget _buildDivider() {
+    return Container(
+      width: 1,
+      height: 36,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.black.withValues(alpha: 0.1),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +110,20 @@ class CompactSessionStats extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Heart rate (only when HealthKit data available)
+          if (currentHeartRate != null) ...[
+            CompactSessionStat(
+              icon: Icons.favorite,
+              value: '${currentHeartRate!.round()}',
+              label: heartRateZone.isNotEmpty ? heartRateZone : 'BPM',
+              color: _zoneColor(),
+              isDark: isDark,
+            ),
+            _buildDivider(),
+          ],
           CompactSessionStat(
             icon: Icons.timer_outlined,
             value: '$durationMinutes min',
@@ -87,38 +131,35 @@ class CompactSessionStats extends StatelessWidget {
             color: AppColors.primary,
             isDark: isDark,
           ),
-          Container(
-            width: 1,
-            height: 36,
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
+          _buildDivider(),
           CompactSessionStat(
             icon: Icons.local_fire_department,
             value: '$calories',
-            label: 'CALORIES',
+            label: hasHealthData ? 'KCAL ♥' : 'CALORIES',
             color: AppColors.secondary,
             isDark: isDark,
           ),
-          Container(
-            width: 1,
-            height: 36,
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
+          _buildDivider(),
           CompactSessionStat(
             icon: Icons.bolt,
             value: '$points',
-            label: 'POINTS',
+            label: heartRateMultiplier != 1.0
+                ? '${heartRateMultiplier}x EP'
+                : 'POINTS',
             color: Colors.amber,
             isDark: isDark,
           ),
         ],
       ),
     );
+  }
+
+  /// Color matching the current HR zone.
+  Color _zoneColor() {
+    if (currentHeartRate == null) return Colors.redAccent;
+    if (currentHeartRate! < 80) return Colors.blueGrey;
+    if (currentHeartRate! < 100) return Colors.green;
+    if (currentHeartRate! < 130) return Colors.orange;
+    return Colors.redAccent;
   }
 }

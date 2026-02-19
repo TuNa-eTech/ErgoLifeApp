@@ -87,11 +87,24 @@ class CreateActivityRequest {
   final double metsValue;
   final int magicWipePercentage;
 
+  /// Average heart rate during session, from HealthKit.
+  final double? avgHeartRate;
+
+  /// Real calories burned from HealthKit.
+  final double? realCaloriesBurned;
+
+  /// Source of health data: "healthkit", "health_connect",
+  /// or null.
+  final String? healthDataSource;
+
   const CreateActivityRequest({
     required this.taskName,
     required this.durationSeconds,
     required this.metsValue,
     required this.magicWipePercentage,
+    this.avgHeartRate,
+    this.realCaloriesBurned,
+    this.healthDataSource,
   });
 
   Map<String, dynamic> toJson() {
@@ -100,6 +113,9 @@ class CreateActivityRequest {
       'durationSeconds': durationSeconds,
       'metsValue': metsValue,
       'magicWipePercentage': magicWipePercentage,
+      if (avgHeartRate != null) 'avgHeartRate': avgHeartRate,
+      if (realCaloriesBurned != null) 'realCaloriesBurned': realCaloriesBurned,
+      if (healthDataSource != null) 'healthDataSource': healthDataSource,
     };
   }
 }

@@ -1,7 +1,7 @@
 name: ergo_life_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.3+1
+version: 1.0.4+1
 environment:
   sdk: ^3.10.1
 
@@ -66,6 +66,7 @@ dependencies:
   package_info_plus: ^9.0.0
   wakelock_plus: ^1.4.0
   live_activities: ^2.4.3
+  health: ^13.3.1
 
 dev_dependencies:
   flutter_test:

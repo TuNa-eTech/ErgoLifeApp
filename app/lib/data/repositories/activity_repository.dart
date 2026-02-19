@@ -21,6 +21,9 @@ class ActivityRepository {
     required int durationSeconds,
     required double metsValue,
     required int magicWipePercentage,
+    double? avgHeartRate,
+    double? realCaloriesBurned,
+    String? healthDataSource,
   }) async {
     try {
       AppLogger.info('Creating activity: $taskName', 'ActivityRepository');
@@ -32,6 +35,10 @@ class ActivityRepository {
           'durationSeconds': durationSeconds,
           'metsValue': metsValue,
           'magicWipePercentage': magicWipePercentage,
+          if (avgHeartRate != null) 'avgHeartRate': avgHeartRate,
+          if (realCaloriesBurned != null)
+            'realCaloriesBurned': realCaloriesBurned,
+          if (healthDataSource != null) 'healthDataSource': healthDataSource,
         },
       );
 

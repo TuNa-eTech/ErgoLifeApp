@@ -2,10 +2,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_event.dart';
 import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/core/utils/logger.dart';
+import 'package:ergo_life_app/data/models/health_data_model.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
 import 'package:ergo_life_app/data/repositories/auth_repository.dart';
 import 'package:ergo_life_app/data/repositories/activity_repository.dart';
+import 'package:ergo_life_app/data/repositories/health_repository.dart';
 import 'package:ergo_life_app/data/repositories/house_repository.dart';
 import 'package:ergo_life_app/data/repositories/user_repository.dart';
 import 'package:ergo_life_app/data/repositories/task_repository.dart';
@@ -17,6 +19,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HouseRepository _houseRepository;
   final TaskRepository _taskRepository;
   final UserRepository _userRepository;
+  final HealthRepository? _healthRepository;
 
   HomeBloc({
     required AuthRepository authRepository,
@@ -24,11 +27,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required HouseRepository houseRepository,
     required TaskRepository taskRepository,
     required UserRepository userRepository,
+    HealthRepository? healthRepository,
   }) : _authRepository = authRepository,
        _activityRepository = activityRepository,
        _houseRepository = houseRepository,
        _taskRepository = taskRepository,
        _userRepository = userRepository,
+       _healthRepository = healthRepository,
        super(const HomeInitial()) {
     on<LoadHomeData>(_onLoadHomeData);
     on<RefreshHomeData>(_onRefreshHomeData);
@@ -154,6 +159,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             return allTasks;
           });
 
+          // Fetch daily health summary (non-blocking)
+          DailyHealthSummary? healthSummary;
+          if (_healthRepository != null) {
+            final healthResult = await _healthRepository
+                .getDailyHealthSummary();
+            healthSummary = healthResult.fold((_) => null, (v) => v);
+          }
+
           AppLogger.success(
             'Home data loaded with ${quickTasks.length} tasks',
             'HomeBloc',
@@ -164,6 +177,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               stats: stats,
               house: house,
               quickTasks: quickTasks,
+              healthSummary: healthSummary,
             ),
           );
         },

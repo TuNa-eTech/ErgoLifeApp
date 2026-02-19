@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ergo_life_app/blocs/locale/locale_cubit.dart';
+import 'package:ergo_life_app/blocs/health/health_bloc.dart';
+import 'package:ergo_life_app/blocs/health/health_event.dart';
 import 'package:ergo_life_app/blocs/house/house_bloc.dart';
 import 'package:ergo_life_app/blocs/house/house_event.dart';
 import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
@@ -38,6 +40,9 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => LocaleCubit()),
+        BlocProvider(
+          create: (_) => sl<HealthBloc>()..add(const CheckHealthStatus()),
+        ),
         BlocProvider(create: (_) => sl<HouseBloc>()..add(const LoadHouse())),
         BlocProvider(
           create: (_) =>

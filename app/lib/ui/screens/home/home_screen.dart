@@ -7,7 +7,8 @@ import 'package:ergo_life_app/blocs/home/home_bloc.dart';
 import 'package:ergo_life_app/blocs/home/home_event.dart';
 import 'package:ergo_life_app/blocs/home/home_state.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
-import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart'; // [NEW]
+import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart';
+import 'package:ergo_life_app/ui/screens/home/widgets/health_summary_card.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
 import 'package:ergo_life_app/ui/widgets/streak_badge.dart';
 import 'package:ergo_life_app/ui/widgets/streak_freeze_shop_item.dart';
@@ -318,6 +319,14 @@ class HomeView extends StatelessWidget {
                   isDark: isDark,
                   stats: state.stats,
                   currentStreak: state.user.currentStreak,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Daily Health Summary
+                HealthSummaryCard(
+                  isDark: isDark,
+                  healthSummary: state.healthSummary,
                 ),
 
                 // Streak Badge (visible when streak > 0)

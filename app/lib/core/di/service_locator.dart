@@ -14,6 +14,7 @@ import 'package:ergo_life_app/core/utils/talker_config.dart';
 // Core - Services
 import 'package:ergo_life_app/core/services/local_notification_service.dart';
 import 'package:ergo_life_app/core/services/live_activity_service.dart';
+import 'package:ergo_life_app/core/services/health_service.dart';
 import 'package:ergo_life_app/core/services/fcm_service.dart';
 import 'package:ergo_life_app/core/services/background_message_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -32,6 +33,7 @@ import 'package:ergo_life_app/data/repositories/task_repository.dart';
 import 'package:ergo_life_app/data/repositories/reward_repository.dart';
 import 'package:ergo_life_app/data/repositories/notification_repository.dart';
 import 'package:ergo_life_app/data/repositories/gift_repository.dart';
+import 'package:ergo_life_app/data/repositories/health_repository.dart';
 
 // BLoCs/Cubits
 import 'package:ergo_life_app/blocs/user/user_cubit.dart';
@@ -48,6 +50,7 @@ import 'package:ergo_life_app/blocs/task/task_bloc.dart';
 import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
 import 'package:ergo_life_app/blocs/gifts/gifts_bloc.dart';
+import 'package:ergo_life_app/blocs/health/health_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -69,6 +72,7 @@ Future<void> setupServiceLocator() async {
 
   // ===== Core - Services =====
   sl.registerLazySingleton<LiveActivityService>(() => LiveActivityService());
+  sl.registerLazySingleton<HealthService>(() => HealthService());
 
   // ===== Data - Services =====
   // Register AuthService asynchronously to wait for Google Sign-In initialization
@@ -124,6 +128,7 @@ Future<void> setupServiceLocator() async {
     () => NotificationRepository(sl()),
   );
   sl.registerLazySingleton<GiftRepository>(() => GiftRepository(sl()));
+  sl.registerLazySingleton<HealthRepository>(() => HealthRepository(sl()));
 
   // AuthRepository depends on async AuthService, so must wait for it
   sl.registerSingletonWithDependencies<AuthRepository>(
@@ -149,13 +154,18 @@ Future<void> setupServiceLocator() async {
       houseRepository: sl(),
       taskRepository: sl(),
       userRepository: sl(),
+      healthRepository: sl(),
     ),
   );
 
   // SessionBloc - factory to ensure fresh instance for each session
   // Previous singleton approach caused "Cannot add events after close" error
   sl.registerFactory<SessionBloc>(
-    () => SessionBloc(activityRepository: sl(), liveActivityService: sl()),
+    () => SessionBloc(
+      activityRepository: sl(),
+      liveActivityService: sl(),
+      healthRepository: sl(),
+    ),
   );
 
   // LeaderboardBloc - factory for fresh data each time
@@ -202,6 +212,11 @@ Future<void> setupServiceLocator() async {
 
   // NotificationBloc - lazy singleton for global notification badge
   sl.registerLazySingleton<NotificationBloc>(() => NotificationBloc(sl()));
+
+  // HealthBloc - lazy singleton for global health state
+  sl.registerLazySingleton<HealthBloc>(
+    () => HealthBloc(healthRepository: sl(), prefs: sl()),
+  );
 
   // GiftsBloc - factory for fresh instances
   sl.registerFactory<GiftsBloc>(() => GiftsBloc(giftRepository: sl()));

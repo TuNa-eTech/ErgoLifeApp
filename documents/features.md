@@ -40,10 +40,13 @@
 
 ### 3.3. Active Session (Đếm giờ)
 - **Timer đếm tiến** (00:00 → ...)
-- Hiển thị: thời gian, calo ước tính, EP tích lũy
+- Hiển thị: thời gian, calo, EP tích lũy, **nhịp tim** (nếu có Apple Health)
+- **Real-time HealthKit polling** — HR + calories thực mỗi 10s
+- **HR zone badge** — REST / LIGHT / FAT BURN / CARDIO (đổi màu theo zone)
 - **Wakelock** — giữ màn hình sáng
 - Nút Pause / Finish dễ bấm
 - **iOS Live Activity** — hiển thị trên Dynamic Island
+- **Ghi Workout vào HealthKit** khi kết thúc session
 
 ### 3.4. Magic Wipe (Xác nhận)
 - Lớp phủ bụi che toàn màn hình
@@ -54,10 +57,19 @@
 ### 3.5. Tính điểm EP
 
 ```
-EP = (Thời gian phút) × METs × 10 × Bonus Multiplier
+EP = (Thời gian phút) × METs × 10 × HR Multiplier
 ```
 
-VD: Rửa bát (METs 2.5), 20 phút = 20 × 2.5 × 10 = **500 EP**
+| HR Zone | BPM | Multiplier |
+|---------|-----|------------|
+| REST | < 80 | 0.8x (penalty) |
+| LIGHT | 80–99 | 1.0x |
+| FAT BURN | 100–129 | 1.2x |
+| CARDIO | 130+ | 1.5x |
+
+VD: Rửa bát (METs 2.5), 20 phút, FAT BURN zone = 20 × 2.5 × 10 × 1.2 = **600 EP**
+
+> **Không có Apple Health:** HR Multiplier = 1.0x (tính EP cũ)
 
 ---
 
@@ -160,7 +172,35 @@ VD: Rửa bát (METs 2.5), 20 phút = 20 × 2.5 × 10 = **500 EP**
 
 ---
 
-## 10. 📊 CMS Dashboard (Admin)
+## 10. ❤️ Apple Health Integration
+
+### Kết nối
+- **Opt-in** — không bắt buộc, soft prompt khi bắt đầu session
+- Sử dụng package `health` v13.3.1 (HealthKit trên iOS)
+- Chiến lược **tối đa 3 lần nhắc**, sau đó không nhắc nữa
+
+### Real-time Session
+- Đọc **Heart Rate** + **Active Calories** từ Apple Watch mỗi 10s
+- HR zone badge đổi màu: xám (REST) → xanh (LIGHT) → cam (FAT BURN) → đỏ (CARDIO)
+- EP multiplier hiển thị trực tiếp (1.2x EP, 1.5x EP)
+- Calories label "KCAL ♥" khi dùng HealthKit data
+
+### Daily Health Dashboard (Home)
+- Card hiển thị **Steps / Active Calories / Resting HR** hôm nay
+- CTA "Connect Apple Health" khi chưa kết nối
+- Tự ẩn khi không có data
+
+### Workout Write
+- Tự ghi workout vào Apple Health khi hoàn thành session
+- Activity type: Functional Strength Training
+
+### Fallback
+- Không có Apple Watch → công thức METs cũ, HR = N/A
+- User từ chối → dùng app bình thường, option kết nối lại trong Settings
+
+---
+
+## 11. 📊 CMS Dashboard (Admin)
 
 - **Dashboard** — Tổng quan users, activities, streaks, houses
 - **Users** — Quản lý danh sách user
