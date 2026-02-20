@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { seedBadges } from './seeds/seed-badges';
 
 const prisma = new PrismaClient();
 
@@ -10,6 +11,9 @@ async function main() {
 
   // Seed gift rewards
   await import('./seeds/seed-gift-rewards');
+
+  // Seed badge definitions
+  await seedBadges();
 
   console.log('\n✅ All seeds completed successfully!');
 }

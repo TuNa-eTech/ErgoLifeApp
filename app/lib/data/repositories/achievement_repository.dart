@@ -14,7 +14,8 @@ class AchievementRepository {
   Future<Either<Failure, List<BadgeModel>>> getAllBadges() async {
     try {
       final response = await _apiClient.get(ApiConstants.achievements);
-      final data = response.data;
+      final data =
+          _apiClient.unwrapResponse(response.data) as Map<String, dynamic>;
       final badges = (data['badges'] as List)
           .map((json) => BadgeModel.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -28,7 +29,8 @@ class AchievementRepository {
   Future<Either<Failure, List<BadgeModel>>> getMyBadges() async {
     try {
       final response = await _apiClient.get(ApiConstants.myBadges);
-      final badges = (response.data as List)
+      final data = _apiClient.unwrapResponse(response.data);
+      final badges = (data as List)
           .map((json) => BadgeModel.fromJson(json as Map<String, dynamic>))
           .toList();
       return Right(badges);

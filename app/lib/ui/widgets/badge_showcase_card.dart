@@ -66,6 +66,11 @@ class BadgeShowcaseCard extends StatelessWidget {
     AchievementLoaded state,
     bool isDark,
   ) {
+    // Show compact empty state when no badges exist
+    if (state.badges.isEmpty) {
+      return _buildEmptyState(isDark);
+    }
+
     // Sort: earned first, then by sort order (implicit from API)
     final sorted = List<BadgeModel>.from(state.badges)
       ..sort((a, b) {
@@ -131,6 +136,74 @@ class BadgeShowcaseCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _BadgeHeader(earnedCount: 0, totalCount: 0, isDark: isDark),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withAlpha((0.03 * 255).round())
+                : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.secondary.withAlpha((0.1 * 255).round()),
+                ),
+                child: Icon(
+                  Icons.emoji_events_outlined,
+                  color: AppColors.secondary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Start earning badges!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Complete activities to unlock achievements',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
