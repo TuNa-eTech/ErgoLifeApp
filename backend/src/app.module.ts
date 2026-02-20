@@ -13,6 +13,8 @@ import { TaskTemplatesModule } from './modules/task-templates/task-templates.mod
 import { AdminModule } from './modules/admin/admin.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { GiftsModule } from './modules/gifts/gifts.module';
+import { DailyGoalsModule } from './modules/daily-goals/daily-goals.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
 import { HealthModule } from './health/health.module';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
 
@@ -33,6 +35,8 @@ import { LoggingMiddleware } from './common/middleware/logging.middleware';
     AdminModule,
     NotificationsModule,
     GiftsModule,
+    DailyGoalsModule,
+    AchievementsModule,
   ],
 })
 export class AppModule implements NestModule {

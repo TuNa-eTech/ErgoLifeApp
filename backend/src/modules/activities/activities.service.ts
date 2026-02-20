@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { DailyGoalsService } from '../daily-goals/daily-goals.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { NotificationType, NotificationPriority } from '@prisma/client';
 import {
   CreateActivityDto,
@@ -26,6 +28,8 @@ export class ActivitiesService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    private dailyGoalsService: DailyGoalsService,
+    private achievementsService: AchievementsService,
   ) {}
 
   async create(
@@ -81,6 +85,25 @@ export class ActivitiesService {
 
     // Update streak AFTER successful activity creation
     const streakUpdate = await this.updateStreakAfterActivity(userId);
+
+    // Update daily goal progress (fire-and-forget)
+    const durationMinutes = Math.round(durationSeconds / 60);
+    this.dailyGoalsService
+      .updateProgress(userId, pointsEarned, durationMinutes)
+      .catch((err) =>
+        this.logger.error(
+          `Failed to update daily goal: ${err.message}`,
+        ),
+      );
+
+    // Evaluate badge achievements (fire-and-forget)
+    this.achievementsService
+      .evaluateAndAward(userId)
+      .catch((err) =>
+        this.logger.error(
+          `Failed to evaluate badges: ${err.message}`,
+        ),
+      );
 
     // Send notifications (fire-and-forget, don't block response)
     this.sendActivityNotifications(
@@ -393,6 +416,180 @@ export class ActivitiesService {
         longest: user?.longestStreak || 0,
       },
     };
+  }
+
+  /**
+   * Returns per-day EP, duration, and count for a given number of days.
+   * Empty days are filled with zeros.
+   */
+  async getDailyBreakdown(
+    userId: string,
+    days: number = 7,
+  ): Promise<{
+    data: {
+      date: string;
+      points: number;
+      duration: number;
+      count: number;
+    }[];
+    startDate: string;
+    endDate: string;
+  }> {
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days + 1);
+    startDate.setHours(0, 0, 0, 0);
+
+    // Group by date
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        userId,
+        completedAt: { gte: startDate, lte: endDate },
+      },
+      select: {
+        completedAt: true,
+        pointsEarned: true,
+        durationSeconds: true,
+      },
+    });
+
+    // Aggregate per day
+    const dayMap = new Map<
+      string,
+      { points: number; duration: number; count: number }
+    >();
+
+    for (const a of activities) {
+      const key = a.completedAt.toISOString().split('T')[0];
+      const existing = dayMap.get(key) || {
+        points: 0,
+        duration: 0,
+        count: 0,
+      };
+      existing.points += a.pointsEarned;
+      existing.duration += a.durationSeconds;
+      existing.count += 1;
+      dayMap.set(key, existing);
+    }
+
+    // Fill empty days
+    const data: {
+      date: string;
+      points: number;
+      duration: number;
+      count: number;
+    }[] = [];
+
+    for (let i = 0; i < days; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      const entry = dayMap.get(key) || {
+        points: 0,
+        duration: 0,
+        count: 0,
+      };
+      data.push({ date: key, ...entry });
+    }
+
+    return {
+      data,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+    };
+  }
+
+  /**
+   * Returns heatmap data for a full year.
+   * Intensity levels 0-4 based on activity count quartiles.
+   */
+  async getHeatmap(
+    userId: string,
+    year?: number,
+  ): Promise<{
+    year: number;
+    data: {
+      date: string;
+      intensity: number;
+      count: number;
+      points: number;
+    }[];
+  }> {
+    const targetYear = year || new Date().getFullYear();
+    const startDate = new Date(targetYear, 0, 1);
+    const endDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        userId,
+        completedAt: { gte: startDate, lte: endDate },
+      },
+      select: {
+        completedAt: true,
+        pointsEarned: true,
+      },
+    });
+
+    // Aggregate per day
+    const dayMap = new Map<
+      string,
+      { count: number; points: number }
+    >();
+
+    for (const a of activities) {
+      const key = a.completedAt.toISOString().split('T')[0];
+      const existing = dayMap.get(key) || {
+        count: 0,
+        points: 0,
+      };
+      existing.count += 1;
+      existing.points += a.pointsEarned;
+      dayMap.set(key, existing);
+    }
+
+    // Compute intensity quartiles
+    const counts = Array.from(dayMap.values())
+      .map((v) => v.count)
+      .filter((c) => c > 0)
+      .sort((a, b) => a - b);
+
+    const q1 = counts[Math.floor(counts.length * 0.25)] || 1;
+    const q2 = counts[Math.floor(counts.length * 0.5)] || 2;
+    const q3 = counts[Math.floor(counts.length * 0.75)] || 3;
+
+    const getIntensity = (count: number): number => {
+      if (count === 0) return 0;
+      if (count <= q1) return 1;
+      if (count <= q2) return 2;
+      if (count <= q3) return 3;
+      return 4;
+    };
+
+    // Build full year data
+    const data: {
+      date: string;
+      intensity: number;
+      count: number;
+      points: number;
+    }[] = [];
+
+    const today = new Date();
+    const cursor = new Date(startDate);
+    while (cursor <= endDate && cursor <= today) {
+      const key = cursor.toISOString().split('T')[0];
+      const entry = dayMap.get(key) || { count: 0, points: 0 };
+      data.push({
+        date: key,
+        intensity: getIntensity(entry.count),
+        count: entry.count,
+        points: entry.points,
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return { year: targetYear, data };
   }
 
   private getWeekBounds(weekInput?: string): {

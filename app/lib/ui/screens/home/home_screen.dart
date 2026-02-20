@@ -16,6 +16,10 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ergo_life_app/core/utils/talker_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/data/models/user_model_extensions.dart';
+import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/blocs/daily_goal/daily_goal_bloc.dart';
+import 'package:ergo_life_app/blocs/daily_goal/daily_goal_event.dart';
+import 'package:ergo_life_app/ui/widgets/goal_rings_card.dart';
 // Removed: ArenaSection, PersonalStatsSection, HouseActionsRow, StreakBadge...
 
 /// Home screen displaying user dashboard with arena and quick tasks
@@ -328,6 +332,17 @@ class HomeView extends StatelessWidget {
                   isDark: isDark,
                   healthSummary: state.healthSummary,
                 ),
+
+                const SizedBox(height: 12),
+
+                // Daily Goal Rings
+                BlocProvider<DailyGoalBloc>(
+                  create: (_) =>
+                      sl<DailyGoalBloc>()..add(const LoadTodayGoal()),
+                  child: const GoalRingsCard(),
+                ),
+
+                const SizedBox(height: 4),
 
                 // Streak Badge (visible when streak > 0)
                 StreakBadge(

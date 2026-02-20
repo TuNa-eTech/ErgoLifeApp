@@ -109,11 +109,8 @@ class HomeHeader extends StatelessWidget {
           Icons.notifications_none_rounded,
           color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
         ),
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
-        style: IconButton.styleFrom(
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       ),
     );
   }

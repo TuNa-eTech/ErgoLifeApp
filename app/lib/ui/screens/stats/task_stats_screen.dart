@@ -1,301 +1,194 @@
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/core/di/service_locator.dart';
+import 'package:ergo_life_app/data/repositories/activity_repository.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
 import 'package:ergo_life_app/data/models/task_model.dart';
-import 'package:ergo_life_app/data/repositories/activity_repository.dart';
+import 'package:ergo_life_app/blocs/stats/stats_bloc.dart';
+import 'package:ergo_life_app/blocs/stats/stats_event.dart';
+import 'package:ergo_life_app/blocs/stats/stats_state.dart';
+import 'package:ergo_life_app/ui/widgets/charts/weekly_bar_chart.dart';
+import 'package:ergo_life_app/ui/widgets/charts/category_donut_chart.dart';
+import 'package:ergo_life_app/ui/widgets/charts/activity_heatmap.dart';
+import 'package:ergo_life_app/ui/widgets/charts/streak_calendar.dart';
 import 'package:flutter/material.dart';
-// import 'package:fl_chart/fl_chart.dart'; // Uncomment if using charts
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TaskStatsScreen extends StatefulWidget {
+/// Screen displaying activity statistics with charts.
+///
+/// Uses [StatsBloc] to load aggregate stats, daily
+/// breakdown, and heatmap data in parallel.
+class TaskStatsScreen extends StatelessWidget {
   final TaskModel? task;
 
   const TaskStatsScreen({super.key, this.task});
 
   @override
-  State<TaskStatsScreen> createState() => _TaskStatsScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          StatsBloc(sl<ActivityRepository>(), taskName: task?.exerciseName)
+            ..add(const LoadStats()),
+      child: _TaskStatsView(task: task),
+    );
+  }
 }
 
-class _TaskStatsScreenState extends State<TaskStatsScreen> {
-  late final ActivityRepository _repository;
-  bool _isLoading = true;
-  String? _error;
-  StatsModel? _stats;
-
-  // Filter state
-  int _selectedYear = DateTime.now().year;
-  int? _selectedMonth; // null = All year
-  bool _isLifetime = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _repository = sl<ActivityRepository>();
-    _loadStats();
-  }
-
-  Future<void> _loadStats() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    final result = await _repository.getStats(
-      period: _isLifetime
-          ? 'all'
-          : 'month', // 'all' ignores year/month usually, but we want flexibility
-      taskName: widget.task?.exerciseName,
-      year: _isLifetime ? null : _selectedYear,
-      month: _isLifetime ? null : _selectedMonth,
-    );
-
-    result.fold(
-      (failure) {
-        setState(() {
-          _error = failure.message;
-          _isLoading = false;
-        });
-      },
-      (stats) {
-        setState(() {
-          _stats = stats;
-          _isLoading = false;
-        });
-      },
-    );
-  }
+class _TaskStatsView extends StatelessWidget {
+  final TaskModel? task;
+  const _TaskStatsView({this.task});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(color: textColor),
-        title: Text(
-          widget.task?.exerciseName ?? 'Your Progress',
-          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: isDark
+            ? AppColors.backgroundDark
+            : AppColors.backgroundLight,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: BackButton(color: textColor),
+          title: Text(
+            task?.exerciseName ?? 'Your Progress',
+            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+          ),
+          bottom: TabBar(
+            indicatorColor: AppColors.secondary,
+            labelColor: AppColors.secondary,
+            unselectedLabelColor: isDark
+                ? AppColors.textSubDark
+                : AppColors.textSubLight,
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Filter Section
-            _buildFilterSection(isDark),
-            const SizedBox(height: 24),
-
-            if (_error != null) _buildErrorState(isDark),
-            if (_stats != null) ...[
-              // Summary Cards
-              _buildSummaryCards(isDark),
-              const SizedBox(height: 24),
-
-              // Streak Info (only for specific task? No, general stats have it too)
-              _buildStreakCard(isDark),
-              const SizedBox(height: 24),
-
-              // If specific task: maybe history chart
-              // If global: Top Tasks list
-              if (widget.task == null) _buildTopTasksList(isDark),
+            tabs: const [
+              Tab(text: 'Overview'),
+              Tab(text: 'Charts'),
+              Tab(text: 'Heatmap'),
             ],
-          ],
+          ),
+        ),
+        body: BlocBuilder<StatsBloc, StatsState>(
+          builder: (context, state) {
+            if (state is StatsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is StatsError) {
+              return _ErrorView(message: state.message, isDark: isDark);
+            }
+            if (state is StatsLoaded) {
+              return TabBarView(
+                children: [
+                  _OverviewTab(stats: state.stats, isDark: isDark),
+                  _ChartsTab(state: state, isDark: isDark),
+                  _HeatmapTab(state: state, isDark: isDark),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
   }
+}
 
-  Widget _buildFilterSection(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+// ===== Overview Tab =====
+
+class _OverviewTab extends StatelessWidget {
+  final StatsModel stats;
+  final bool isDark;
+
+  const _OverviewTab({required this.stats, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              FilterChip(
-                label: Text(AppLocalizations.of(context)!.lifetime),
-                selected: _isLifetime,
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      _isLifetime = true;
-                    });
-                    _loadStats();
-                  }
-                },
-                backgroundColor: isDark
-                    ? Colors.grey.shade800
-                    : Colors.grey.shade200,
-                selectedColor: AppColors.secondary.withOpacity(0.2),
-                labelStyle: TextStyle(
-                  color: _isLifetime
-                      ? AppColors.secondary
-                      : (isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight),
-                  fontWeight: _isLifetime ? FontWeight.bold : FontWeight.normal,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                side: BorderSide.none,
-              ),
-              const SizedBox(width: 12),
-              FilterChip(
-                label: Text(
-                  '$_selectedYear${_selectedMonth != null ? '/$_selectedMonth' : ''}',
-                ),
-                selected: !_isLifetime,
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      _isLifetime = false;
-                    });
-                    _loadStats();
-                  }
-                },
-                backgroundColor: isDark
-                    ? Colors.grey.shade800
-                    : Colors.grey.shade200,
-                selectedColor: AppColors.secondary.withOpacity(0.2),
-                labelStyle: TextStyle(
-                  color: !_isLifetime
-                      ? AppColors.secondary
-                      : (isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight),
-                  fontWeight: !_isLifetime
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                side: BorderSide.none,
-              ),
-            ],
-          ),
-
-          if (!_isLifetime) ...[
-            const SizedBox(height: 16),
-            const Divider(height: 1),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                // Year Dropdown
-                _buildDropdown<int>(
-                  value: _selectedYear,
-                  items: List.generate(
-                    5,
-                    (index) => DateTime.now().year - index,
-                  ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() => _selectedYear = val);
-                      _loadStats();
-                    }
-                  },
-                  labelBuilder: (val) => val.toString(),
-                  isDark: isDark,
-                ),
-                const SizedBox(width: 16),
-                // Month Dropdown
-                _buildDropdown<int?>(
-                  value: _selectedMonth,
-                  items: [null, ...List.generate(12, (index) => index + 1)],
-                  onChanged: (val) {
-                    setState(() => _selectedMonth = val);
-                    _loadStats();
-                  },
-                  labelBuilder: (val) =>
-                      val == null ? 'All Year' : 'Month $val',
-                  isDark: isDark,
-                ),
-              ],
-            ),
-          ],
+          _SummaryCards(stats: stats, isDark: isDark),
+          const SizedBox(height: 24),
+          _StreakCard(stats: stats, isDark: isDark),
+          const SizedBox(height: 24),
+          if (stats.topTasks.isNotEmpty)
+            _TopTasksList(topTasks: stats.topTasks, isDark: isDark),
         ],
       ),
     );
   }
+}
 
-  Widget _buildDropdown<T>({
-    required T value,
-    required List<T> items,
-    required ValueChanged<T?> onChanged,
-    required String Function(T) labelBuilder,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          value: value,
-          onChanged: onChanged,
-          items: items.map((item) {
-            return DropdownMenuItem<T>(
-              value: item,
-              child: Text(
-                labelBuilder(item),
-                style: TextStyle(
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
-                ),
-              ),
-            );
-          }).toList(),
-          dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
+// ===== Charts Tab =====
+
+class _ChartsTab extends StatelessWidget {
+  final StatsLoaded state;
+  final bool isDark;
+
+  const _ChartsTab({required this.state, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          WeeklyBarChart(data: state.dailyBreakdown, isDark: isDark),
+          const SizedBox(height: 20),
+          CategoryDonutChart(topTasks: state.stats.topTasks, isDark: isDark),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildSummaryCards(bool isDark) {
+// ===== Heatmap Tab =====
+
+class _HeatmapTab extends StatelessWidget {
+  final StatsLoaded state;
+  final bool isDark;
+
+  const _HeatmapTab({required this.state, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          ActivityHeatmap(data: state.heatmapData, isDark: isDark),
+          const SizedBox(height: 20),
+          StreakCalendar(data: state.heatmapData, isDark: isDark),
+        ],
+      ),
+    );
+  }
+}
+
+// ===== Shared Widgets =====
+
+class _SummaryCards extends StatelessWidget {
+  final StatsModel stats;
+  final bool isDark;
+
+  const _SummaryCards({required this.stats, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
+          child: _StatCard(
             label: 'Total\nExecutions',
-            value: '${_stats!.activityCount}',
+            value: '${stats.activityCount}',
             icon: Icons.repeat_rounded,
             color: Colors.blue,
             isDark: isDark,
@@ -303,9 +196,9 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(
+          child: _StatCard(
             label: 'Total\nTime',
-            value: _stats!.formattedDuration,
+            value: stats.formattedDuration,
             icon: Icons.timer_rounded,
             color: Colors.purple,
             isDark: isDark,
@@ -313,9 +206,9 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(
+          child: _StatCard(
             label: 'Calories\nBurned',
-            value: '${_stats!.estimatedCalories}',
+            value: '${stats.estimatedCalories}',
             icon: Icons.local_fire_department_rounded,
             color: Colors.orange,
             isDark: isDark,
@@ -324,14 +217,25 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
       ],
     );
   }
+}
 
-  Widget _buildStatCard({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required bool isDark,
-  }) {
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+  final bool isDark;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -339,7 +243,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -351,7 +255,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -378,10 +282,16 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildStreakCard(bool isDark) {
-    if (_stats == null) return const SizedBox.shrink();
+class _StreakCard extends StatelessWidget {
+  final StatsModel stats;
+  final bool isDark;
 
+  const _StreakCard({required this.stats, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -393,7 +303,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -424,7 +334,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
                   ),
                 ),
                 Text(
-                  '${_stats!.streakDays} Days',
+                  '${stats.streakDays} Days',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -449,7 +359,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
                 ),
               ),
               Text(
-                _stats!.formattedPoints,
+                stats.formattedPoints,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -471,10 +381,16 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildTopTasksList(bool isDark) {
-    if (_stats?.topTasks.isEmpty ?? true) return const SizedBox.shrink();
+class _TopTasksList extends StatelessWidget {
+  final List<TopTask> topTasks;
+  final bool isDark;
 
+  const _TopTasksList({required this.topTasks, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,7 +403,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        ..._stats!.topTasks.map(
+        ...topTasks.map(
           (task) => Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
@@ -502,9 +418,7 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
                   height: 50,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: (isDark
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade100),
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -587,17 +501,26 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
       ],
     );
   }
+}
 
-  Widget _buildErrorState(bool isDark) {
+class _ErrorView extends StatelessWidget {
+  final String message;
+  final bool isDark;
+
+  const _ErrorView({required this.message, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, color: Colors.red.shade300, size: 48),
             const SizedBox(height: 12),
             Text(
-              _error ?? 'An error occurred',
+              message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
@@ -605,7 +528,9 @@ class _TaskStatsScreenState extends State<TaskStatsScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadStats,
+              onPressed: () {
+                context.read<StatsBloc>().add(const LoadStats());
+              },
               child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],

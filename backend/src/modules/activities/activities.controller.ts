@@ -15,6 +15,10 @@ import {
   LeaderboardResponseDto,
   GetStatsQueryDto,
   StatsResponseDto,
+  GetDailyBreakdownQueryDto,
+  DailyBreakdownResponseDto,
+  GetHeatmapQueryDto,
+  HeatmapResponseDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -78,6 +82,46 @@ export class ActivitiesController {
     @Query() query: GetLeaderboardQueryDto,
   ): Promise<LeaderboardResponseDto> {
     return this.activitiesService.getLeaderboard(user.sub, query);
+  }
+
+  @Get('stats/daily-breakdown')
+  @ApiOperation({
+    summary: 'Get daily breakdown for charts',
+    description: 'Get per-day EP, duration, and count',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Daily breakdown data',
+    type: DailyBreakdownResponseDto,
+  })
+  async getDailyBreakdown(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: GetDailyBreakdownQueryDto,
+  ): Promise<DailyBreakdownResponseDto> {
+    return this.activitiesService.getDailyBreakdown(
+      user.sub,
+      query.days,
+    );
+  }
+
+  @Get('stats/heatmap')
+  @ApiOperation({
+    summary: 'Get activity heatmap',
+    description: 'Get daily activity intensity for a year',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Heatmap data',
+    type: HeatmapResponseDto,
+  })
+  async getHeatmap(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: GetHeatmapQueryDto,
+  ): Promise<HeatmapResponseDto> {
+    return this.activitiesService.getHeatmap(
+      user.sub,
+      query.year,
+    );
   }
 
   @Get('stats')

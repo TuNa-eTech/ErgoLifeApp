@@ -8,6 +8,7 @@ import 'package:ergo_life_app/core/utils/logger.dart';
 import 'package:ergo_life_app/data/models/activity_model.dart';
 import 'package:ergo_life_app/data/models/leaderboard_model.dart';
 import 'package:ergo_life_app/data/models/stats_model.dart';
+import 'package:ergo_life_app/data/models/chart_data_model.dart';
 
 /// Repository for activity-related operations
 class ActivityRepository {
@@ -246,6 +247,61 @@ class ActivityRepository {
     } catch (e) {
       AppLogger.error('Unexpected error', e, null, 'ActivityRepository');
       return Left(ServerFailure(message: 'Failed to load stats'));
+    }
+  }
+
+  // ===== Chart Data Methods =====
+
+  /// Get daily EP/duration/count breakdown for charts.
+  Future<Either<Failure, List<DailyBreakdownModel>>> getDailyBreakdown({
+    int days = 7,
+  }) async {
+    try {
+      final response = await _apiClient.get(
+        ApiConstants.activitiesDailyBreakdown,
+        queryParameters: {'days': days},
+      );
+
+      final actualData = _apiClient.unwrapResponse(response.data);
+      final data = (actualData['data'] as List)
+          .map((e) => DailyBreakdownModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      return Right(data);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to load daily breakdown'));
+    }
+  }
+
+  /// Get heatmap data for a full year.
+  Future<Either<Failure, List<HeatmapDataModel>>> getHeatmap({
+    int? year,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (year != null) queryParams['year'] = year;
+
+      final response = await _apiClient.get(
+        ApiConstants.activitiesHeatmap,
+        queryParameters: queryParams,
+      );
+
+      final actualData = _apiClient.unwrapResponse(response.data);
+      final data = (actualData['data'] as List)
+          .map((e) => HeatmapDataModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      return Right(data);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to load heatmap'));
     }
   }
 

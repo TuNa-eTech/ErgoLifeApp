@@ -67,6 +67,8 @@ dependencies:
   wakelock_plus: ^1.4.0
   live_activities: ^2.4.3
   health: ^13.3.1
+  fl_chart: ^1.1.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

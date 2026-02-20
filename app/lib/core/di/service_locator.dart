@@ -15,6 +15,7 @@ import 'package:ergo_life_app/core/utils/talker_config.dart';
 import 'package:ergo_life_app/core/services/local_notification_service.dart';
 import 'package:ergo_life_app/core/services/live_activity_service.dart';
 import 'package:ergo_life_app/core/services/health_service.dart';
+import 'package:ergo_life_app/core/services/share_service.dart';
 import 'package:ergo_life_app/core/services/fcm_service.dart';
 import 'package:ergo_life_app/core/services/background_message_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -34,6 +35,8 @@ import 'package:ergo_life_app/data/repositories/reward_repository.dart';
 import 'package:ergo_life_app/data/repositories/notification_repository.dart';
 import 'package:ergo_life_app/data/repositories/gift_repository.dart';
 import 'package:ergo_life_app/data/repositories/health_repository.dart';
+import 'package:ergo_life_app/data/repositories/daily_goal_repository.dart';
+import 'package:ergo_life_app/data/repositories/achievement_repository.dart';
 
 // BLoCs/Cubits
 import 'package:ergo_life_app/blocs/user/user_cubit.dart';
@@ -51,6 +54,9 @@ import 'package:ergo_life_app/blocs/manage_tasks/manage_tasks_bloc.dart';
 import 'package:ergo_life_app/blocs/notification/notification_bloc.dart';
 import 'package:ergo_life_app/blocs/gifts/gifts_bloc.dart';
 import 'package:ergo_life_app/blocs/health/health_bloc.dart';
+import 'package:ergo_life_app/blocs/daily_goal/daily_goal_bloc.dart';
+import 'package:ergo_life_app/blocs/achievement/achievement_bloc.dart';
+import 'package:ergo_life_app/blocs/stats/stats_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -73,6 +79,7 @@ Future<void> setupServiceLocator() async {
   // ===== Core - Services =====
   sl.registerLazySingleton<LiveActivityService>(() => LiveActivityService());
   sl.registerLazySingleton<HealthService>(() => HealthService());
+  sl.registerLazySingleton<ShareService>(() => ShareService());
 
   // ===== Data - Services =====
   // Register AuthService asynchronously to wait for Google Sign-In initialization
@@ -129,6 +136,12 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerLazySingleton<GiftRepository>(() => GiftRepository(sl()));
   sl.registerLazySingleton<HealthRepository>(() => HealthRepository(sl()));
+  sl.registerLazySingleton<DailyGoalRepository>(
+    () => DailyGoalRepository(sl()),
+  );
+  sl.registerLazySingleton<AchievementRepository>(
+    () => AchievementRepository(sl()),
+  );
 
   // AuthRepository depends on async AuthService, so must wait for it
   sl.registerSingletonWithDependencies<AuthRepository>(
@@ -220,4 +233,13 @@ Future<void> setupServiceLocator() async {
 
   // GiftsBloc - factory for fresh instances
   sl.registerFactory<GiftsBloc>(() => GiftsBloc(giftRepository: sl()));
+
+  // DailyGoalBloc - factory for fresh instances
+  sl.registerFactory<DailyGoalBloc>(() => DailyGoalBloc(sl()));
+
+  // AchievementBloc - factory for fresh instances
+  sl.registerFactory<AchievementBloc>(() => AchievementBloc(sl()));
+
+  // StatsBloc - factory for fresh instances
+  sl.registerFactory<StatsBloc>(() => StatsBloc(sl()));
 }

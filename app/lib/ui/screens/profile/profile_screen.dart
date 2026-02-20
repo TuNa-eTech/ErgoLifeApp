@@ -20,6 +20,9 @@ import 'package:ergo_life_app/data/models/user_model_extensions.dart';
 import 'package:ergo_life_app/ui/screens/profile/widgets/house_card.dart';
 import 'package:ergo_life_app/ui/common/common.dart';
 import 'package:ergo_life_app/ui/screens/stats/task_stats_screen.dart';
+import 'package:ergo_life_app/blocs/achievement/achievement_bloc.dart';
+import 'package:ergo_life_app/blocs/achievement/achievement_event.dart';
+import 'package:ergo_life_app/ui/widgets/badge_showcase_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,6 +34,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late final ProfileBloc _profileBloc;
   late final HouseBloc _houseBloc;
+  late final AchievementBloc _achievementBloc;
   bool _isInitialized = false;
 
   @override
@@ -39,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Initialize BLoCs but don't add events yet
     _profileBloc = sl<ProfileBloc>();
     _houseBloc = sl<HouseBloc>();
+    _achievementBloc = sl<AchievementBloc>();
   }
 
   @override
@@ -48,6 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Initial load
       _profileBloc.add(const LoadProfile());
       _houseBloc.add(const LoadHouse());
+      _achievementBloc.add(const LoadAllBadges());
       _isInitialized = true;
     } else {
       // Refresh when coming back (e.g., from EditProfileScreen)
@@ -71,6 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         BlocProvider<ProfileBloc>.value(value: _profileBloc),
         BlocProvider<AuthBloc>.value(value: sl<AuthBloc>()),
         BlocProvider<HouseBloc>.value(value: _houseBloc),
+        BlocProvider<AchievementBloc>.value(value: _achievementBloc),
       ],
       child: const ProfileView(),
     );
@@ -226,6 +233,7 @@ class _ProfileViewState extends State<ProfileView> {
           child: RefreshIndicator(
             onRefresh: () async {
               context.read<ProfileBloc>().add(const RefreshProfile());
+              context.read<AchievementBloc>().add(const RefreshBadges());
               await Future.delayed(const Duration(seconds: 1));
             },
             child: SingleChildScrollView(
@@ -239,6 +247,9 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Column(
                   children: [
                     _buildUnifiedStatsCard(context, stats, isDark),
+
+                    const SizedBox(height: 20),
+                    const BadgeShowcaseCard(),
 
                     const SizedBox(height: 20),
                     BlocBuilder<HouseBloc, HouseState>(

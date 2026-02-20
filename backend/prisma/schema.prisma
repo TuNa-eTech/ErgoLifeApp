@@ -57,6 +57,12 @@ enum NotificationType {
   // System
   WELCOME
   APP_UPDATE
+  
+  // Achievements
+  BADGE_UNLOCKED
+
+  // Re-engagement
+  RE_ENGAGEMENT
 }
 
 enum NotificationPriority {
@@ -118,6 +124,9 @@ model User {
   notifications Notification[]
   giftsSent     GiftTransaction[] @relation("GiftsSent")
   giftsReceived GiftTransaction[] @relation("GiftsReceived")
+  dailyGoals    DailyGoal[]
+  goalSettings  UserGoalSettings?
+  userBadges    UserBadge[]
 
   @@index([preferredReminderTime])
   @@map("users")
@@ -408,4 +417,115 @@ model GiftTransaction {
   @@index([receiverId, createdAt(sort: Desc)])
   @@index([houseId, createdAt(sort: Desc)])
   @@map("gift_transactions")
+}
+
+// ===========================================
+// DAILY GOALS
+// ===========================================
+
+model DailyGoal {
+  id                String    @id @default(uuid())
+
+  // Owner
+  userId            String    @map("user_id")
+  user              User      @relation(fields: [userId], references: [id])
+
+  // Date (one row per user per day)
+  date              DateTime  @db.Date
+
+  // Targets (copied from UserGoalSettings at creation time)
+  targetEp          Int       @default(500)  @map("target_ep")
+  targetDuration    Int       @default(30)   @map("target_duration")     // minutes
+  targetActivities  Int       @default(2)    @map("target_activities")
+
+  // Current progress
+  currentEp         Int       @default(0)    @map("current_ep")
+  currentDuration   Int       @default(0)    @map("current_duration")    // minutes
+  currentActivities Int       @default(0)    @map("current_activities")
+
+  // Perfect Day = all 3 rings closed
+  isPerfectDay      Boolean   @default(false) @map("is_perfect_day")
+  completedAt       DateTime? @map("completed_at")
+
+  // Timestamps
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_goals")
+}
+
+model UserGoalSettings {
+  id                String   @id @default(uuid())
+
+  // Owner (one-to-one)
+  userId            String   @unique @map("user_id")
+  user              User     @relation(fields: [userId], references: [id])
+
+  // Default targets
+  targetEp          Int      @default(500)  @map("target_ep")
+  targetDuration    Int      @default(30)   @map("target_duration")     // minutes
+  targetActivities  Int      @default(2)    @map("target_activities")
+
+  // Timestamps
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("user_goal_settings")
+}
+
+// ===========================================
+// ACHIEVEMENTS / BADGES
+// ===========================================
+
+model BadgeDefinition {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  category       String   // "streak", "ep", "activity", "special"
+  icon           String   // Material icon name
+  color          String   @default("#FF6A00")
+  sortOrder      Int      @default(0) @map("sort_order")
+
+  // Unlock condition
+  conditionType  String   @map("condition_type")
+  conditionValue Int      @map("condition_value")
+
+  // Rarity: COMMON, RARE, EPIC, LEGENDARY
+  rarity         String   @default("COMMON")
+
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  translations   BadgeTranslation[]
+  userBadges     UserBadge[]
+
+  @@index([isActive, sortOrder])
+  @@map("badge_definitions")
+}
+
+model BadgeTranslation {
+  id          String          @id @default(uuid())
+  badgeId     String          @map("badge_id")
+  badge       BadgeDefinition @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?
+
+  @@unique([badgeId, locale])
+  @@map("badge_translations")
+}
+
+model UserBadge {
+  id         String          @id @default(uuid())
+  userId     String          @map("user_id")
+  user       User            @relation(fields: [userId], references: [id])
+  badgeId    String          @map("badge_id")
+  badge      BadgeDefinition @relation(fields: [badgeId], references: [id])
+  unlockedAt DateTime        @default(now()) @map("unlocked_at")
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@map("user_badges")
 }

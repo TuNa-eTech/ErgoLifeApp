@@ -47,11 +47,23 @@ export class StreakReminderService {
             continue;
           }
 
-          // Skip if user has no current streak
+          // Skip if user has no current streak AND hasn't been
+          // active recently (let ReEngagementService handle them)
           if (user.currentStreak === 0) {
-            this.logger.debug(`Skipping user ${user.id} - no current streak`);
-            skippedCount++;
-            continue;
+            const sevenDaysAgo = new Date(
+              Date.now() - 7 * 24 * 60 * 60 * 1000,
+            );
+            const isRecentlyLapsed =
+              user.lastActivityDate &&
+              user.lastActivityDate >= sevenDaysAgo;
+
+            if (!isRecentlyLapsed) {
+              this.logger.debug(
+                `Skipping user ${user.id} - no streak and not recently active`,
+              );
+              skippedCount++;
+              continue;
+            }
           }
 
           // Skip if user already completed activity today
@@ -123,26 +135,46 @@ export class StreakReminderService {
     const startOfToday = this.getStartOfToday();
     const endOfToday = this.getEndOfToday();
 
-    // Build where clause for users to remind
+    const sevenDaysAgo = new Date(
+      Date.now() - 7 * 24 * 60 * 60 * 1000,
+    );
+
+    // Build where clause for users to remind.
+    // Include active streakers OR recently lapsed users.
     const whereConditions: any = {
       fcmToken: { not: null },
-      currentStreak: { gt: 0 },
-      OR: [],
+      OR: [
+        // Active streakers
+        {
+          currentStreak: { gt: 0 },
+          OR: [] as any[],
+        },
+        // Recently lapsed (streak=0 but active within 7 days)
+        {
+          currentStreak: 0,
+          lastActivityDate: { gte: sevenDaysAgo },
+          OR: [] as any[],
+        },
+      ],
     };
 
     // Condition 1: Users with learned preference matching this hour
-    whereConditions.OR.push({
+    const preferenceCondition = {
       preferredReminderTime: {
         gte: startOfHour,
         lte: endOfHour,
       },
-    });
+    };
 
-    // Condition 2: Fallback - users without preference at default time (20:00)
+    // Add preference condition to both branches
+    whereConditions.OR[0].OR.push(preferenceCondition);
+    whereConditions.OR[1].OR.push(preferenceCondition);
+
+    // Condition 2: Fallback - users without preference at 20:00
     if (currentHour === 20) {
-      whereConditions.OR.push({
-        preferredReminderTime: null,
-      });
+      const fallback = { preferredReminderTime: null };
+      whereConditions.OR[0].OR.push(fallback);
+      whereConditions.OR[1].OR.push(fallback);
     }
 
     return this.prisma.user.findMany({
@@ -153,6 +185,7 @@ export class StreakReminderService {
         currentStreak: true,
         longestStreak: true,
         lastReminderSentAt: true,
+        lastActivityDate: true,
         preferredReminderTime: true,
         activities: {
           where: {

@@ -387,3 +387,82 @@ export class StatsResponseDto {
   @ApiProperty({ type: StreakDto })
   streak: StreakDto;
 }
+
+// ============= Chart DTOs =============
+
+export class GetDailyBreakdownQueryDto {
+  @ApiPropertyOptional({
+    example: 7,
+    default: 7,
+    minimum: 1,
+    maximum: 90,
+    description: 'Number of days to include (1-90)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(90)
+  days?: number = 7;
+}
+
+export class GetHeatmapQueryDto {
+  @ApiPropertyOptional({
+    example: 2026,
+    description: 'Year for heatmap (default: current)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  year?: number;
+}
+
+export class DailyBreakdownItemDto {
+  @ApiProperty({ example: '2026-02-20' })
+  date: string;
+
+  @ApiProperty({ example: 850 })
+  points: number;
+
+  @ApiProperty({ example: 3600 })
+  duration: number;
+
+  @ApiProperty({ example: 3 })
+  count: number;
+}
+
+export class DailyBreakdownResponseDto {
+  @ApiProperty({ type: [DailyBreakdownItemDto] })
+  data: DailyBreakdownItemDto[];
+
+  @ApiProperty({ example: '2026-02-14' })
+  startDate: string;
+
+  @ApiProperty({ example: '2026-02-20' })
+  endDate: string;
+}
+
+export class HeatmapItemDto {
+  @ApiProperty({ example: '2026-02-20' })
+  date: string;
+
+  @ApiProperty({
+    example: 3,
+    description: 'Intensity level 0-4',
+  })
+  intensity: number;
+
+  @ApiProperty({ example: 3 })
+  count: number;
+
+  @ApiProperty({ example: 850 })
+  points: number;
+}
+
+export class HeatmapResponseDto {
+  @ApiProperty({ example: 2026 })
+  year: number;
+
+  @ApiProperty({ type: [HeatmapItemDto] })
+  data: HeatmapItemDto[];
+}

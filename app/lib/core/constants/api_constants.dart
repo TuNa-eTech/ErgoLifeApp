@@ -26,6 +26,9 @@ class ApiConstants {
   static const String activities = '/activities';
   static const String activitiesLeaderboard = '/activities/leaderboard';
   static const String activitiesStats = '/activities/stats';
+  static const String activitiesDailyBreakdown =
+      '/activities/stats/daily-breakdown';
+  static const String activitiesHeatmap = '/activities/stats/heatmap';
 
   // Reward Endpoints
   static const String rewards = '/rewards';
@@ -47,6 +50,15 @@ class ApiConstants {
   static const String notificationsUnreadCount = '/notifications/unread-count';
   static String notificationById(String id) => '/notifications/$id';
   static String notificationMarkAsRead(String id) => '/notifications/$id/read';
+
+  // Daily Goals Endpoints
+  static const String dailyGoalsToday = '/daily-goals/today';
+  static const String dailyGoalsSettings = '/daily-goals/settings';
+  static const String dailyGoalsHistory = '/daily-goals/history';
+
+  // Achievement Endpoints
+  static const String achievements = '/achievements';
+  static const String myBadges = '/achievements/my';
 
   // Gift Endpoints
   static const String giftsCatalog = '/gifts/catalog';

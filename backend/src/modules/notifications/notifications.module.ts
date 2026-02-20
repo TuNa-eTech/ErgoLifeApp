@@ -5,6 +5,7 @@ import { NotificationsService } from './notifications.service';
 import { StreakReminderService } from './streak-reminder.service';
 import { ActivityPatternService } from './activity-pattern.service';
 import { LeaderboardNotificationService } from './leaderboard-notification.service';
+import { ReEngagementService } from './re-engagement.service';
 
 @Module({
   imports: [ScheduleModule.forRoot()],
@@ -14,6 +15,7 @@ import { LeaderboardNotificationService } from './leaderboard-notification.servi
     StreakReminderService,
     ActivityPatternService,
     LeaderboardNotificationService,
+    ReEngagementService,
   ],
   exports: [NotificationsService],
 })

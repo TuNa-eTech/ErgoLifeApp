@@ -20,7 +20,9 @@ import 'package:ergo_life_app/ui/screens/tasks/widgets/session_progress_bar.dart
 import 'package:ergo_life_app/ui/screens/tasks/widgets/compact_session_stats.dart';
 import 'package:ergo_life_app/ui/widgets/streak_milestone_dialog.dart';
 import 'package:ergo_life_app/ui/widgets/modern_dialog.dart';
+import 'package:ergo_life_app/ui/widgets/share_achievement_card.dart';
 import 'package:ergo_life_app/core/services/local_notification_service.dart';
+import 'package:ergo_life_app/core/services/share_service.dart';
 
 /// Screen showing active exercise session - Redesigned for simplicity
 class ActiveSessionScreen extends StatelessWidget {
@@ -513,77 +515,51 @@ class _ActiveSessionViewState extends State<ActiveSessionView>
     }
 
     if (context.mounted) {
-      // Build custom streak info widget if available
-      Widget? streakWidget;
-      if (streakInfo != null && streakInfo.info != null) {
-        streakWidget = Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: streakInfo.usedFreeze
-                ? Colors.orange.withValues(alpha: 0.1)
-                : streakInfo.wasReset
-                ? Colors.grey.withValues(alpha: 0.1)
-                : Colors.green.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: streakInfo.usedFreeze
-                  ? Colors.orange
-                  : streakInfo.wasReset
-                  ? Colors.grey
-                  : Colors.green,
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                streakInfo.usedFreeze
-                    ? Icons.ac_unit
-                    : streakInfo.wasReset
-                    ? Icons.refresh
-                    : Icons.local_fire_department,
-                color: streakInfo.usedFreeze
-                    ? Colors.orange
-                    : streakInfo.wasReset
-                    ? Colors.grey
-                    : Colors.green,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  streakInfo.info!,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: streakInfo.usedFreeze
-                        ? Colors.orange.shade900
-                        : streakInfo.wasReset
-                        ? Colors.grey.shade700
-                        : Colors.green.shade900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
+      // Estimate calories from activity
+      final durationMin = state.activity.durationSeconds / 60;
+      final calories = (durationMin * state.activity.metsValue * 3.5 * 65 / 200)
+          .round();
 
-      await ModernDialog.showSuccess(
-        context,
-        title: 'Session Complete! 🎉',
-        message:
-            'You earned ${state.pointsEarned} points!\nNew balance: ${state.newWalletBalance} EP',
-        buttonText: 'Done',
-        customContent: streakWidget,
+      final shareData = ShareCardData.fromSession(
+        activity: state.activity,
+        pointsEarned: state.pointsEarned,
+        streakDays: streakInfo?.currentStreak ?? 0,
+        calories: calories,
       );
+
+      await _showShareBottomSheet(context, state, shareData);
 
       if (context.mounted) {
         sl<HomeBloc>().add(const RefreshHomeData());
         sl<LeaderboardBloc>().add(const RefreshLeaderboard());
-        // Navigate back to tasks screen
         context.go(AppRouter.tasks);
       }
     }
+  }
+
+  /// Shows a bottom sheet with the achievement card and
+  /// share/done buttons.
+  Future<void> _showShareBottomSheet(
+    BuildContext context,
+    SessionCompleted state,
+    ShareCardData shareData,
+  ) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final repaintKey = GlobalKey();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (ctx) => _ShareBottomSheetContent(
+        isDark: isDark,
+        state: state,
+        shareData: shareData,
+        repaintKey: repaintKey,
+      ),
+    );
   }
 
   void _showErrorSnackBar(BuildContext context, String message) {
@@ -598,6 +574,164 @@ class _ActiveSessionViewState extends State<ActiveSessionView>
             context.read<SessionBloc>().add(const CompleteSession());
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet content with share card and action buttons.
+///
+/// Uses [StatefulWidget] to manage loading state on the
+/// share button while the image is being rendered.
+class _ShareBottomSheetContent extends StatefulWidget {
+  final bool isDark;
+  final SessionCompleted state;
+  final ShareCardData shareData;
+  final GlobalKey repaintKey;
+
+  const _ShareBottomSheetContent({
+    required this.isDark,
+    required this.state,
+    required this.shareData,
+    required this.repaintKey,
+  });
+
+  @override
+  State<_ShareBottomSheetContent> createState() =>
+      _ShareBottomSheetContentState();
+}
+
+class _ShareBottomSheetContentState extends State<_ShareBottomSheetContent> {
+  bool _isSharing = false;
+
+  Future<void> _handleShare() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
+
+    await sl<ShareService>().shareFromBoundary(widget.repaintKey);
+
+    if (mounted) {
+      setState(() => _isSharing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.isDark ? const Color(0xFF1A1A2E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomPadding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Title
+          Text(
+            'Session Complete! 🎉',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: widget.isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'You earned ${widget.state.pointsEarned} EP',
+            style: TextStyle(
+              fontSize: 15,
+              color: widget.isDark ? Colors.white60 : Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Share card preview
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: ShareAchievementCard(
+              data: widget.shareData,
+              repaintKey: widget.repaintKey,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Action buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(
+                      color: widget.isDark ? Colors.white24 : Colors.black12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    'Done',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: widget.isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: _isSharing ? null : _handleShare,
+                  icon: _isSharing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.share_rounded, size: 18),
+                  label: Text(
+                    _isSharing ? 'Sharing...' : 'Share',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE94560),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(
+                      0xFFE94560,
+                    ).withValues(alpha: 0.6),
+                    disabledForegroundColor: Colors.white.withValues(
+                      alpha: 0.8,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
