@@ -23,6 +23,7 @@ class HealthBloc extends Bloc<HealthEvent, HealthState> {
   static const _keyDismissCount = 'health_dismiss_count';
   static const _keyLastDismiss = 'health_last_dismiss';
   static const _keyBodyWeight = 'health_body_weight';
+  static const _keyWasConnected = 'health_was_connected';
   static const _maxDismissals = 3;
   static const _cooldownDays = 7;
 
@@ -55,13 +56,20 @@ class HealthBloc extends Bloc<HealthEvent, HealthState> {
     final permResult = await _healthRepository.checkPermissions();
     final hasPerms = permResult.fold((_) => null, (v) => v);
 
-    // On iOS, hasPerms can be null (unknown state)
-    // Try to read data to determine if we actually have access
     if (hasPerms == true) {
       await _fetchAndCacheBodyWeight(emit);
-    } else {
-      emit(HealthDisconnected(shouldShowPrompt: _shouldShowPrompt()));
+      return;
     }
+
+    // iOS returns null (unknown state). If user previously
+    // connected, try reading data before showing CTA.
+    final wasConnected = _prefs.getBool(_keyWasConnected) ?? false;
+    if (hasPerms == null && wasConnected) {
+      await _fetchAndCacheBodyWeight(emit);
+      return;
+    }
+
+    emit(HealthDisconnected(shouldShowPrompt: _shouldShowPrompt()));
   }
 
   Future<void> _onConnectHealth(
@@ -81,7 +89,8 @@ class HealthBloc extends Bloc<HealthEvent, HealthState> {
 
     if (granted) {
       AppLogger.success('Health connected', 'HealthBloc');
-      // Reset dismissal counter on successful connection
+      // Persist connection + reset dismissal counter
+      await _prefs.setBool(_keyWasConnected, true);
       await _prefs.setInt(_keyDismissCount, 0);
       await _fetchAndCacheBodyWeight(emit);
     } else {

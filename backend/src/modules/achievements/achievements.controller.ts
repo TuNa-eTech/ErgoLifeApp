@@ -7,12 +7,8 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtPayload } from '../auth/auth.service';
 import { AchievementsService } from './achievements.service';
-
-interface JwtPayload {
-  id: string;
-  email: string;
-}
 
 @ApiTags('achievements')
 @Controller('achievements')
@@ -32,7 +28,7 @@ export class AchievementsController {
     @Headers('accept-language') locale?: string,
   ) {
     return this.achievementsService.getAllBadges(
-      user.id,
+      user.sub,
       locale ?? 'vi',
     );
   }
@@ -44,8 +40,9 @@ export class AchievementsController {
     @Headers('accept-language') locale?: string,
   ) {
     return this.achievementsService.getMyBadges(
-      user.id,
+      user.sub,
       locale ?? 'vi',
     );
   }
 }
+

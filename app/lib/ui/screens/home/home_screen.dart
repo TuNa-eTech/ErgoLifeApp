@@ -10,8 +10,7 @@ import 'package:ergo_life_app/ui/screens/home/widgets/home_header.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/compact_stats_bar.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/health_summary_card.dart';
 import 'package:ergo_life_app/ui/screens/home/widgets/quick_tasks_section.dart';
-import 'package:ergo_life_app/ui/widgets/streak_badge.dart';
-import 'package:ergo_life_app/ui/widgets/streak_freeze_shop_item.dart';
+
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ergo_life_app/core/utils/talker_config.dart';
 import 'package:ergo_life_app/l10n/app_localizations.dart';
@@ -318,11 +317,13 @@ class HomeView extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
 
-                // New Compact Stats Bar
+                // Compact Stats Bar (with streak detail)
                 CompactStatsBar(
                   isDark: isDark,
                   stats: state.stats,
                   currentStreak: state.user.currentStreak,
+                  longestStreak: state.user.longestStreak,
+                  streakFreezeCount: state.user.streakFreezeCount,
                 ),
 
                 const SizedBox(height: 12),
@@ -340,25 +341,6 @@ class HomeView extends StatelessWidget {
                   create: (_) =>
                       sl<DailyGoalBloc>()..add(const LoadTodayGoal()),
                   child: const GoalRingsCard(),
-                ),
-
-                const SizedBox(height: 4),
-
-                // Streak Badge (visible when streak > 0)
-                StreakBadge(
-                  currentStreak: state.user.currentStreak,
-                  longestStreak: state.user.longestStreak,
-                  streakFreezeCount: state.user.streakFreezeCount,
-                ),
-
-                // Streak Freeze Shop (visible when eligible)
-                StreakFreezeShopItem(
-                  currentStreak: state.user.currentStreak,
-                  streakFreezeCount: state.user.streakFreezeCount,
-                  walletBalance: state.user.walletBalance,
-                  onPurchase: () {
-                    context.read<HomeBloc>().add(const PurchaseStreakFreeze());
-                  },
                 ),
 
                 // Existing Quick Tasks Grid

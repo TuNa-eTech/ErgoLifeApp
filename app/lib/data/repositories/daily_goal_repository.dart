@@ -16,9 +16,8 @@ class DailyGoalRepository {
   Future<Either<Failure, DailyGoalModel>> getTodayGoal() async {
     try {
       final response = await _apiClient.get(ApiConstants.dailyGoalsToday);
-      return Right(
-        DailyGoalModel.fromJson(response.data as Map<String, dynamic>),
-      );
+      final data = _apiClient.unwrapResponse(response.data);
+      return Right(DailyGoalModel.fromJson(data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Left(
         ServerFailure(
@@ -34,9 +33,8 @@ class DailyGoalRepository {
   Future<Either<Failure, GoalSettingsModel>> getGoalSettings() async {
     try {
       final response = await _apiClient.get(ApiConstants.dailyGoalsSettings);
-      return Right(
-        GoalSettingsModel.fromJson(response.data as Map<String, dynamic>),
-      );
+      final data = _apiClient.unwrapResponse(response.data);
+      return Right(GoalSettingsModel.fromJson(data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Left(
         ServerFailure(
@@ -57,9 +55,8 @@ class DailyGoalRepository {
         ApiConstants.dailyGoalsSettings,
         data: settings.toJson(),
       );
-      return Right(
-        GoalSettingsModel.fromJson(response.data as Map<String, dynamic>),
-      );
+      final data = _apiClient.unwrapResponse(response.data);
+      return Right(GoalSettingsModel.fromJson(data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Left(
         ServerFailure(
@@ -85,7 +82,8 @@ class DailyGoalRepository {
         ApiConstants.dailyGoalsHistory,
         queryParameters: params,
       );
-      final list = (response.data as List)
+      final data = _apiClient.unwrapResponse(response.data);
+      final list = (data as List)
           .map((item) => DailyGoalModel.fromJson(item as Map<String, dynamic>))
           .toList();
       return Right(list);
