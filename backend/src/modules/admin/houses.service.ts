@@ -65,4 +65,67 @@ export class AdminHousesService {
 
     return house;
   }
+
+  async update(id: string, dto: { name?: string }) {
+    const house = await this.prisma.house.findUnique({
+      where: { id },
+    });
+    if (!house) {
+      throw new NotFoundException(`House with ID ${id} not found`);
+    }
+
+    return this.prisma.house.update({
+      where: { id },
+      data: { name: dto.name },
+      include: {
+        createdBy: {
+          select: { displayName: true, email: true },
+        },
+        _count: { select: { members: true } },
+      },
+    });
+  }
+
+  async remove(id: string) {
+    const house = await this.prisma.house.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            activities: true,
+            rewards: true,
+            redemptions: true,
+          },
+        },
+      },
+    });
+
+    if (!house) {
+      throw new NotFoundException(`House with ID ${id} not found`);
+    }
+
+    // Delete related data first
+    await this.prisma.$transaction(async (tx) => {
+      await tx.giftTransaction.deleteMany({
+        where: { houseId: id },
+      });
+      await tx.redemption.deleteMany({
+        where: { houseId: id },
+      });
+      await tx.activity.deleteMany({
+        where: { houseId: id },
+      });
+      await tx.reward.deleteMany({
+        where: { houseId: id },
+      });
+      // Remove members from house
+      await tx.user.updateMany({
+        where: { houseId: id },
+        data: { houseId: null },
+      });
+      await tx.house.delete({ where: { id } });
+    });
+
+    return { message: 'House deleted successfully' };
+  }
 }

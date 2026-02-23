@@ -15,17 +15,31 @@ import { AdminUsersService } from './users.service';
 import { AdminHousesController } from './houses.controller';
 import { AdminHousesService } from './houses.service';
 
+import { AdminNotificationsController } from './notifications.controller';
+import { AdminNotificationsService } from './notifications.service';
+import { AdminBadgesController } from './badges.controller';
+import { AdminBadgesService } from './badges.service';
+import { AdminGiftRewardsController } from './gift-rewards.controller';
+import { AdminGiftRewardsService } from './gift-rewards.service';
+import { AdminActivitiesController } from './activities.controller';
+import { AdminActivitiesService } from './activities.service';
+import { AdminRedemptionsController } from './redemptions.controller';
+import { AdminRedemptionsService } from './redemptions.service';
+
+import { NotificationsModule } from '../notifications/notifications.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
+    NotificationsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret:
-          configService.get<string>('ADMIN_JWT_SECRET') || 'dev_master_secret',
+          configService.get<string>('ADMIN_JWT_SECRET') ||
+          'dev_master_secret',
         signOptions: { expiresIn: '1d' },
       }),
     }),
@@ -36,6 +50,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AdminStatsController,
     AdminUsersController,
     AdminHousesController,
+    AdminNotificationsController,
+    AdminBadgesController,
+    AdminGiftRewardsController,
+    AdminActivitiesController,
+    AdminRedemptionsController,
   ],
   providers: [
     AuthService,
@@ -44,7 +63,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AdminStatsService,
     AdminUsersService,
     AdminHousesService,
+    AdminNotificationsService,
+    AdminBadgesService,
+    AdminGiftRewardsService,
+    AdminActivitiesService,
+    AdminRedemptionsService,
   ],
-  exports: [AuthService], // Export if needed elsewhere
+  exports: [AuthService],
 })
 export class AdminModule {}

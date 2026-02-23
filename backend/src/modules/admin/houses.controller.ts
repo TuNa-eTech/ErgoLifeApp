@@ -1,4 +1,13 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -32,5 +41,20 @@ export class AdminHousesController {
   @ApiOperation({ summary: 'Get house details' })
   findOne(@Param('id') id: string) {
     return this.housesService.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update house' })
+  update(
+    @Param('id') id: string,
+    @Body() dto: { name?: string },
+  ) {
+    return this.housesService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete house' })
+  remove(@Param('id') id: string) {
+    return this.housesService.remove(id);
   }
 }

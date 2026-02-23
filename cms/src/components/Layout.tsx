@@ -10,7 +10,13 @@ import {
   ChevronRight,
   Sparkles,
   Menu,
-  X
+  X,
+  Bell,
+  Award,
+  Gift,
+  Activity,
+  ShoppingBag,
+  Settings
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -35,6 +41,12 @@ export const Layout: React.FC = () => {
     { icon: Users, label: 'Users', path: '/users' },
     { icon: Home, label: 'Houses', path: '/houses' },
     { icon: Dumbbell, label: 'Task Templates', path: '/templates' },
+    { icon: Bell, label: 'Notifications', path: '/notifications' },
+    { icon: Award, label: 'Badges', path: '/badges' },
+    { icon: Gift, label: 'Gift Rewards', path: '/gift-rewards' },
+    { icon: Activity, label: 'Activities', path: '/activities' },
+    { icon: ShoppingBag, label: 'Redemptions', path: '/redemptions' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 
   return (

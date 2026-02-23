@@ -2,6 +2,8 @@ import {
   Controller,
   Delete,
   Get,
+  Put,
+  Body,
   Param,
   Query,
   UseGuards,
@@ -14,6 +16,15 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminUsersService } from './users.service';
+
+class UpdateUserDto {
+  displayName?: string;
+  walletBalance?: number;
+}
+
+class BanUserDto {
+  banned: boolean;
+}
 
 @ApiTags('Admin Users')
 @ApiBearerAuth()
@@ -39,6 +50,18 @@ export class AdminUsersController {
   @ApiOperation({ summary: 'Get user details' })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update user details' })
+  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.usersService.updateUser(id, dto);
+  }
+
+  @Put(':id/ban')
+  @ApiOperation({ summary: 'Ban or unban a user' })
+  toggleBan(@Param('id') id: string, @Body() dto: BanUserDto) {
+    return this.usersService.toggleBan(id, dto.banned);
   }
 
   @Delete(':id')

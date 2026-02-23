@@ -10,6 +10,13 @@ import { UsersList } from './pages/Users/UsersList';
 import { UserDetail } from './pages/Users/UserDetail';
 import { HousesList } from './pages/Houses/HousesList';
 import { HouseDetail } from './pages/Houses/HouseDetail';
+import { NotificationsList } from './pages/Notifications/NotificationsList';
+import { BadgesList } from './pages/Badges/BadgesList';
+import { BadgeEditor } from './pages/Badges/BadgeEditor';
+import { GiftRewardsList } from './pages/GiftRewards/GiftRewardsList';
+import { ActivitiesList } from './pages/Activities/ActivitiesList';
+import { RedemptionsList } from './pages/Redemptions/RedemptionsList';
+import { Settings } from './pages/Settings';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -48,6 +55,20 @@ function App() {
              <Route path="templates" element={<TaskTemplates />} />
              <Route path="templates/new" element={<TaskTemplateEditor />} />
              <Route path="templates/:id" element={<TaskTemplateEditor />} />
+
+             <Route path="notifications" element={<NotificationsList />} />
+             
+             <Route path="badges" element={<BadgesList />} />
+             <Route path="badges/new" element={<BadgeEditor />} />
+             <Route path="badges/:id" element={<BadgeEditor />} />
+             
+             <Route path="gift-rewards" element={<GiftRewardsList />} />
+             
+             <Route path="activities" element={<ActivitiesList />} />
+             
+             <Route path="redemptions" element={<RedemptionsList />} />
+             
+             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -67,6 +67,53 @@ export class AdminUsersService {
     return user;
   }
 
+  async updateUser(
+    id: string,
+    dto: { displayName?: string; walletBalance?: number },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    const data: any = {};
+    if (dto.displayName !== undefined) {
+      data.displayName = dto.displayName;
+    }
+    if (dto.walletBalance !== undefined) {
+      data.walletBalance = dto.walletBalance;
+    }
+
+    return this.prisma.user.update({ where: { id }, data });
+  }
+
+  async toggleBan(id: string, banned: boolean) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Clear FCM token when banning to stop push notifications
+    if (banned) {
+      await this.prisma.user.update({
+        where: { id },
+        data: { fcmToken: null },
+      });
+    }
+
+    this.logger.log(
+      `Admin ${banned ? 'banned' : 'unbanned'} user: ${id}`,
+    );
+    return {
+      message: `User ${banned ? 'banned' : 'unbanned'} successfully`,
+      banned,
+    };
+  }
+
   /// Permanently deletes a user and all associated data.
   async deleteUser(id: string): Promise<{ message: string }> {
     const user = await this.prisma.user.findUnique({

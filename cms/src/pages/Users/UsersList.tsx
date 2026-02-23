@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { adminApi, type User } from '../../api/admin';
-import { Search, ChevronLeft, ChevronRight, Eye, Trash2, X, AlertTriangle } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Eye, Trash2, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface DeleteDialogProps {
