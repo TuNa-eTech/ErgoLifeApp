@@ -8,6 +8,7 @@ import 'package:ergo_life_app/core/utils/talker_config.dart';
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
+  String _locale = 'vi';
 
   ApiClient() {
     _dio = Dio(
@@ -40,15 +41,15 @@ class ApiClient {
       );
     }
 
-    // Add auth token interceptor
+    // Add auth token + locale interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Add auth token if available
           if (_authToken != null) {
             options.headers[ApiConstants.headerAuth] =
                 '${ApiConstants.bearerPrefix}$_authToken';
           }
+          options.headers['Accept-Language'] = _locale;
           return handler.next(options);
         },
       ),
@@ -63,6 +64,11 @@ class ApiClient {
   /// Clear authentication token
   void clearAuthToken() {
     _authToken = null;
+  }
+
+  /// Set locale for Accept-Language header
+  void setLocale(String locale) {
+    _locale = locale;
   }
 
   /// Unwrap backend response to get actual data

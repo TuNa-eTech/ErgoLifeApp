@@ -3,12 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:ergo_life_app/core/config/theme_config.dart';
 import 'package:ergo_life_app/data/models/chart_data_model.dart';
 
-/// Weekly bar chart showing EP per day.
+/// Bar chart showing EP per day for a given period.
 class WeeklyBarChart extends StatelessWidget {
   final List<DailyBreakdownModel> data;
   final bool isDark;
+  final String period;
 
-  const WeeklyBarChart({super.key, required this.data, required this.isDark});
+  const WeeklyBarChart({
+    super.key,
+    required this.data,
+    required this.isDark,
+    this.period = 'week',
+  });
+
+  String get _title {
+    return switch (period) {
+      'week' => '📊 This Week',
+      'month' => '📊 This Month',
+      _ => '📊 All Time',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +49,7 @@ class WeeklyBarChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '📊 Weekly EP',
+            _title,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -94,6 +108,13 @@ class WeeklyBarChart extends StatelessWidget {
   }
 
   FlTitlesData _titlesData() {
+    // Show labels at intervals to prevent overlap
+    final interval = data.length <= 7
+        ? 1
+        : data.length <= 30
+        ? 5
+        : 10;
+
     return FlTitlesData(
       show: true,
       bottomTitles: AxisTitles(
@@ -102,13 +123,13 @@ class WeeklyBarChart extends StatelessWidget {
           reservedSize: 24,
           getTitlesWidget: (value, meta) {
             final idx = value.toInt();
-            if (idx >= 0 && idx < data.length) {
+            if (idx >= 0 && idx < data.length && idx % interval == 0) {
               return Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   data[idx].dayLabel,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: isDark
                         ? AppColors.textSubDark
                         : AppColors.textSubLight,
@@ -127,6 +148,13 @@ class WeeklyBarChart extends StatelessWidget {
   }
 
   List<BarChartGroupData> _barGroups() {
+    // Dynamic bar width based on data count
+    final barWidth = data.length <= 7
+        ? 16.0
+        : data.length <= 30
+        ? 8.0
+        : 4.0;
+
     return data.asMap().entries.map((entry) {
       final isToday = entry.key == data.length - 1;
       return BarChartGroupData(
@@ -134,8 +162,8 @@ class WeeklyBarChart extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: entry.value.points.toDouble(),
-            width: 16,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+            width: barWidth,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             gradient: LinearGradient(
               colors: isToday
                   ? [

@@ -402,8 +402,9 @@ class _BadgeDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom + 100;
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

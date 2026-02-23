@@ -27,3 +27,34 @@ class ChangeStatsTab extends StatsEvent {
   @override
   List<Object?> get props => [tabIndex];
 }
+
+/// Change the global stats period (week / month / all).
+class ChangePeriod extends StatsEvent {
+  final String period;
+
+  const ChangePeriod(this.period);
+
+  @override
+  List<Object?> get props => [period];
+}
+
+/// Navigate heatmap to a different year.
+class ChangeHeatmapYear extends StatsEvent {
+  final int year;
+
+  const ChangeHeatmapYear(this.year);
+
+  @override
+  List<Object?> get props => [year];
+}
+
+/// Navigate streak calendar to a different month.
+class ChangeCalendarMonth extends StatsEvent {
+  final int year;
+  final int month;
+
+  const ChangeCalendarMonth({required this.year, required this.month});
+
+  @override
+  List<Object?> get props => [year, month];
+}

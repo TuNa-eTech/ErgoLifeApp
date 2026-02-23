@@ -17,7 +17,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Screen displaying activity statistics with charts.
 ///
 /// Uses [StatsBloc] to load aggregate stats, daily
-/// breakdown, and heatmap data in parallel.
+/// breakdown, and heatmap data in parallel. Supports
+/// global period selection and per-widget navigation.
 class TaskStatsScreen extends StatelessWidget {
   final TaskModel? task;
 
@@ -84,16 +85,110 @@ class _TaskStatsView extends StatelessWidget {
               return _ErrorView(message: state.message, isDark: isDark);
             }
             if (state is StatsLoaded) {
-              return TabBarView(
+              return Column(
                 children: [
-                  _OverviewTab(stats: state.stats, isDark: isDark),
-                  _ChartsTab(state: state, isDark: isDark),
-                  _HeatmapTab(state: state, isDark: isDark),
+                  _PeriodSelector(period: state.period, isDark: isDark),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _OverviewTab(stats: state.stats, isDark: isDark),
+                        _ChartsTab(state: state, isDark: isDark),
+                        _HeatmapTab(state: state, isDark: isDark),
+                      ],
+                    ),
+                  ),
                 ],
               );
             }
             return const SizedBox.shrink();
           },
+        ),
+      ),
+    );
+  }
+}
+
+// ===== Period Selector =====
+
+class _PeriodSelector extends StatelessWidget {
+  final String period;
+  final bool isDark;
+
+  const _PeriodSelector({required this.period, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          _PeriodChip(
+            label: 'Week',
+            value: 'week',
+            selected: period == 'week',
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+          _PeriodChip(
+            label: 'Month',
+            value: 'month',
+            selected: period == 'month',
+            isDark: isDark,
+          ),
+          const SizedBox(width: 8),
+          _PeriodChip(
+            label: 'All',
+            value: 'all',
+            selected: period == 'all',
+            isDark: isDark,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PeriodChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool selected;
+  final bool isDark;
+
+  const _PeriodChip({
+    required this.label,
+    required this.value,
+    required this.selected,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (!selected) {
+          context.read<StatsBloc>().add(ChangePeriod(value));
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.secondary
+              : (isDark
+                    ? Colors.white.withAlpha((0.05 * 255).round())
+                    : Colors.grey.shade100),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: selected
+                ? Colors.white
+                : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+          ),
         ),
       ),
     );
@@ -141,7 +236,11 @@ class _ChartsTab extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          WeeklyBarChart(data: state.dailyBreakdown, isDark: isDark),
+          WeeklyBarChart(
+            data: state.dailyBreakdown,
+            isDark: isDark,
+            period: state.period,
+          ),
           const SizedBox(height: 20),
           CategoryDonutChart(topTasks: state.stats.topTasks, isDark: isDark),
         ],
@@ -164,9 +263,26 @@ class _HeatmapTab extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          ActivityHeatmap(data: state.heatmapData, isDark: isDark),
+          ActivityHeatmap(
+            data: state.heatmapData,
+            isDark: isDark,
+            year: state.heatmapYear,
+            onYearChanged: (year) {
+              context.read<StatsBloc>().add(ChangeHeatmapYear(year));
+            },
+          ),
           const SizedBox(height: 20),
-          StreakCalendar(data: state.heatmapData, isDark: isDark),
+          StreakCalendar(
+            data: state.heatmapData,
+            isDark: isDark,
+            year: state.calendarYear,
+            month: state.calendarMonth,
+            onMonthChanged: (year, month) {
+              context.read<StatsBloc>().add(
+                ChangeCalendarMonth(year: year, month: month),
+              );
+            },
+          ),
         ],
       ),
     );

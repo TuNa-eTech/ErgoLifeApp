@@ -191,6 +191,7 @@ docker compose exec backend npx prisma migrate deploy
 
 # 4. Seed task templates (first-time only)
 docker compose exec backend npx ts-node prisma/seeds/seed-templates.ts
+docker compose exec backend npx ts-node --compiler-options '{"module":"commonjs"}' prisma/seed-***.ts
 ```
 
 ### Update Deployment

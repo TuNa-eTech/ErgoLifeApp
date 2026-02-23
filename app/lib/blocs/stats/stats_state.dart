@@ -27,29 +27,62 @@ class StatsLoaded extends StatsState {
   final List<HeatmapDataModel> heatmapData;
   final int selectedTab;
 
-  const StatsLoaded({
+  /// Global period: 'week', 'month', or 'all'.
+  final String period;
+
+  /// Year displayed in the heatmap.
+  final int heatmapYear;
+
+  /// Year + month displayed in the streak calendar.
+  final int calendarYear;
+  final int calendarMonth;
+
+  StatsLoaded({
     required this.stats,
     required this.dailyBreakdown,
     required this.heatmapData,
     this.selectedTab = 0,
-  });
+    this.period = 'week',
+    int? heatmapYear,
+    int? calendarYear,
+    int? calendarMonth,
+  }) : heatmapYear = heatmapYear ?? DateTime.now().year,
+       calendarYear = calendarYear ?? DateTime.now().year,
+       calendarMonth = calendarMonth ?? DateTime.now().month;
 
   StatsLoaded copyWith({
     StatsModel? stats,
     List<DailyBreakdownModel>? dailyBreakdown,
     List<HeatmapDataModel>? heatmapData,
     int? selectedTab,
+    String? period,
+    int? heatmapYear,
+    int? calendarYear,
+    int? calendarMonth,
   }) {
     return StatsLoaded(
       stats: stats ?? this.stats,
       dailyBreakdown: dailyBreakdown ?? this.dailyBreakdown,
       heatmapData: heatmapData ?? this.heatmapData,
       selectedTab: selectedTab ?? this.selectedTab,
+      period: period ?? this.period,
+      heatmapYear: heatmapYear ?? this.heatmapYear,
+      calendarYear: calendarYear ?? this.calendarYear,
+      calendarMonth: calendarMonth ?? this.calendarMonth,
     );
   }
 
   @override
-  List<Object?> get props => [stats, dailyBreakdown, heatmapData, selectedTab];
+  List<Object?> get props => [
+    stats,
+    dailyBreakdown,
+    heatmapData,
+    selectedTab,
+    period,
+    heatmapYear,
+    calendarYear,
+    calendarMonth,
+  ];
 }
 
 /// Error loading stats.
