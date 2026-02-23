@@ -1,8 +1,75 @@
 
 import React, { useEffect, useState } from 'react';
 import { adminApi, type User } from '../../api/admin';
-import { Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Eye, Trash2, X, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+interface DeleteDialogProps {
+  user: User;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}
+
+const DeleteConfirmDialog: React.FC<DeleteDialogProps> = ({
+  user,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}) => {
+  const [confirmText, setConfirmText] = useState('');
+  const displayName = user.displayName || 'No Name';
+  const isConfirmed = confirmText === displayName;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Delete User</h3>
+          </div>
+
+          <p className="text-sm text-slate-600 mb-4">
+            This action is <span className="font-semibold text-red-600">permanent and cannot be undone</span>.
+            All user data including activities, tasks, rewards, and Firebase account will be deleted.
+          </p>
+
+          <p className="text-sm text-slate-600 mb-2">
+            Type <span className="font-mono font-semibold bg-slate-100 px-1.5 py-0.5 rounded">{displayName}</span> to confirm:
+          </p>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder={displayName}
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+            autoFocus
+          />
+        </div>
+
+        <div className="flex gap-3 px-6 pb-6">
+          <button
+            onClick={onCancel}
+            disabled={isDeleting}
+            className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors text-sm font-medium disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={!isConfirmed || isDeleting}
+            className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete User'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const UsersList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -11,6 +78,8 @@ export const UsersList: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -34,6 +103,21 @@ export const UsersList: React.FC = () => {
     e.preventDefault();
     setSearchQuery(search);
     setPage(1);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await adminApi.deleteUser(deleteTarget.id);
+      setDeleteTarget(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert('Failed to delete user. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -89,12 +173,21 @@ export const UsersList: React.FC = () => {
                   <td className="px-6 py-4 text-emerald-600 font-medium">{user.walletBalance}</td>
                   <td className="px-6 py-4 text-slate-500">{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">
-                    <Link 
-                      to={`/users/${user.id}`} 
-                      className="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Link>
+                    <div className="flex items-center justify-end gap-1">
+                      <Link 
+                        to={`/users/${user.id}`} 
+                        className="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => setDeleteTarget(user)}
+                        className="inline-flex items-center justify-center p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete user"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -121,6 +214,16 @@ export const UsersList: React.FC = () => {
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteTarget && (
+        <DeleteConfirmDialog
+          user={deleteTarget}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+          isDeleting={isDeleting}
+        />
+      )}
     </div>
   );
 };

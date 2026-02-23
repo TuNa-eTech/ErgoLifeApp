@@ -121,6 +121,8 @@ export const adminApi = {
 
   getUser: (id: string) => axiosClient.get<ApiResponse<User>>(`/admin/users/${id}`),
 
+  deleteUser: (id: string) => axiosClient.delete<ApiResponse<{ message: string }>>(`/admin/users/${id}`),
+
   // Houses
   getHouses: (page = 1, limit = 20, search = '') =>
     axiosClient.get<ApiResponse<PaginatedResponse<House>>>('/admin/houses', { params: { page, limit, search } }),
