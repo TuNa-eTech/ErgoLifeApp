@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +10,9 @@ import 'package:ergo_life_app/l10n/app_localizations.dart';
 import 'package:ergo_life_app/ui/screens/auth/widgets/social_button.dart';
 
 /// Authentication buttons section with Google and Apple sign-in.
+///
+/// Apple Sign-In is only shown on iOS/macOS since it is not
+/// natively supported on Android.
 class AuthButtonsSection extends StatelessWidget {
   final bool isDark;
   final bool isLoading;
@@ -19,6 +24,8 @@ class AuthButtonsSection extends StatelessWidget {
     required this.isLoading,
     required this.animationController,
   });
+
+  bool get _showAppleSignIn => Platform.isIOS || Platform.isMacOS;
 
   @override
   Widget build(BuildContext context) {
@@ -41,27 +48,30 @@ class AuthButtonsSection extends StatelessWidget {
         ).animate(animation),
         child: Column(
           children: [
-            // Apple Sign In
-            SocialButton(
-              isDark: isDark,
-              customBackgroundColor: Colors.black,
-              customTextColor: Colors.white,
-              icon: SvgPicture.asset(
-                'assets/icons/apple-black-logo.svg',
-                width: 20,
-                height: 20,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
+            // Apple Sign In — only on iOS/macOS
+            if (_showAppleSignIn) ...[
+              SocialButton(
+                isDark: isDark,
+                customBackgroundColor: Colors.black,
+                customTextColor: Colors.white,
+                icon: SvgPicture.asset(
+                  'assets/icons/apple-black-logo.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
                 ),
+                label: l10n.continueWithApple,
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                    const AuthAppleSignInRequested(),
+                  );
+                },
               ),
-              label: l10n.continueWithApple,
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthAppleSignInRequested());
-              },
-            ),
-
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
 
             // Google Sign In
             SocialButton(
